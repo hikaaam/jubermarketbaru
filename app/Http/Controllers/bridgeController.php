@@ -142,7 +142,7 @@ class bridgeController extends Controller
             }else if(strtoupper($request->method) == "PUT"){
                 try{
                 $url = $host.$request->key.'/'.$payload['id'];
-                $request = Request::create($url, 'PUT', []);
+                $request = Request::create($url, 'PUT', []);   
                 $response = Route::dispatch($request);
                 return $response;
             }  
