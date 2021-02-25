@@ -9,6 +9,10 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\bridgeController;
 use App\Http\Controllers\RefCatController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\DummyController;
+use App\Http\Controllers\AlamatController;
 use Intervention\Image\ImageManagerStatic as Image;
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +54,7 @@ Route::get('product',[ProductController::class, 'index']);
 Route::get('product/all',[ProductController::class, 'all']);
 Route::get('product/{id}',[ProductController::class, 'show']);
 Route::get('product/category/{id}',[ProductController::class, 'productbycat']);
+Route::get('product/store/{id}',[ProductController::class, 'productByStId']);
 Route::post('product',[ProductController::class, 'store']);
 Route::put('product/{id}',[ProductController::class, 'update']);
 Route::delete('product/{id}',[ProductController::class, 'destroy']);
@@ -71,3 +76,26 @@ Route::get('bridge',[bridgeController::class, 'index']);
 Route::get('storage/{filename}', function ($filename) {
     return Image::make(storage_path() . '/app/images/' . $filename)->response();
 });
+
+Route::get('store',[StoreController::class, 'index']);
+Route::get('store/{id}',[StoreController::class, 'show']);
+Route::get('store/owner/{id}',[StoreController::class, 'getByOwner']);
+Route::post('store',[StoreController::class, 'store']);
+Route::put('store/{id}',[StoreController::class, 'update']);
+Route::delete('store/{id}',[StoreController::class, 'destroy']);
+
+Route::get('area',[AreaController::class, 'index']);
+Route::get('area/{id}',[AreaController::class, 'show']);
+Route::get('area/city',[AreaController::class, 'getCity']);
+Route::get('area/district',[AreaController::class, 'getDistrict']);
+Route::get('area/city/{id}',[AreaController::class, 'getCityById']);
+Route::get('area/district/{id}',[AreaController::class, 'getDistrictById']);
+
+Route::post('dummy_payment',[DummyController::class,'store']);
+
+Route::get('alamat',[AlamatController::class, 'index']);
+Route::get('alamat/{id}',[AlamatController::class, 'show']);
+Route::get('alamat/idrs/{id}',[AlamatController::class, 'getByIdrs']);
+Route::post('alamat',[AlamatController::class, 'store']);
+Route::put('alamat/{id}',[AlamatController::class, 'update']);
+Route::delete('alamat/{id}',[AlamatController::class, 'destroy']);

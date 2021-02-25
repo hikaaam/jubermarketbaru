@@ -197,6 +197,22 @@ class ProductController extends Controller
         }
         return $data;
     }
+    public function productByStId(Request $request,$id){
+        try {
+            $result = item::where('store_id',$id)->get();
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = $result;
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
     /**
      * Update the specified resource in storage.
      *
