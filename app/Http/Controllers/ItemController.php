@@ -61,7 +61,7 @@ class ItemController extends Controller
     {
         try {
             $search = $request->search;
-            $result = item::where("name","ILIKE","%".$search."%")->paginate(6);
+            $result = item::where('is_shown',1)->where("name","ILIKE","%".$search."%")->paginate(6);
             $data["data"] = $result->setPath(\config('app.url').":8001/api/search");
             $data["success"] = true;
             $data["code"] = 200;
@@ -125,7 +125,7 @@ class ItemController extends Controller
             }
             $result = item::selectRaw("item.*,(select SUM(quantity) as item_selled from transaction_detail where
             transaction_detail.item_id = item.id group by transaction_detail.item_id) as item_selled")
-            ->where("name","ilike","%".$search."%")->orderByRaw("item_selled ".$orderBy)->paginate(6);
+            ->where("name","ilike","%".$search."%")->where('is_shown',1)->orderByRaw("item_selled ".$orderBy)->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -152,7 +152,7 @@ class ItemController extends Controller
             }
         }
         try {
-            $result = item::where("name","ILIKE","%".$search."%")->orderByRaw("created ".$orderBy)->paginate(6);
+            $result = item::where("name","ILIKE","%".$search."%")->where('is_shown',1)->orderByRaw("created ".$orderBy)->paginate(6);
             $data["data"] = $result->setPath(\config('app.url').":8001/api/search");;
             $data["success"] = true;
             $data["code"] = 200;
@@ -180,7 +180,7 @@ class ItemController extends Controller
             }
         }
         try {
-            $result = item::where("name","ILIKE","%".$search."%")->orderByRaw("selling_price ".$orderBy)->paginate(6);
+            $result = item::where("name","ILIKE","%".$search."%")->where('is_shown',1)->orderByRaw("selling_price ".$orderBy)->paginate(6);
             $data["data"] = $result->setPath(\config('app.url').":8001/api/search");;
             $data["success"] = true;
             $data["code"] = 200;

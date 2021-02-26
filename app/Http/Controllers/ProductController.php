@@ -23,11 +23,45 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $result = item::paginate(6);
+            $result = item::where('is_shown',1)->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result->setPath(\config('app.url').":8001/api/product");
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+    public function isNotShown()
+    {
+        try {
+            $result = item::where('is_shown',0)->paginate(6);
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = $result->setPath(\config('app.url').":8001/api/product/hidden");
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+    public function visible()
+    {
+        try {
+            $result = item::paginate(6);
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = $result->setPath(\config('app.url').":8001/api/product/visible");
         
         } catch (\Throwable $th) {
             $data["data"] = [];
@@ -167,7 +201,7 @@ class ProductController extends Controller
     }
     public function all(){
         try {
-            $result = item::all();
+            $result = item::where('is_shown',1)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -183,7 +217,7 @@ class ProductController extends Controller
     }
     public function productbycat(Request $request,$id){
         try {
-            $result = item::where('category_id',$id)->get();
+            $result = item::where('is_shown',1)->where('category_id',$id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -199,12 +233,43 @@ class ProductController extends Controller
     }
     public function productByStId(Request $request,$id){
         try {
-            $result = item::where('store_id',$id)->get();
+            $result = item::where('is_shown',1)->where('store_id',$id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
         
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+    public function productByStId_(Request $request,$id){
+        try {
+            $result = item::where('is_shown',0)->where('store_id',$id)->get();
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = $result;
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+    public function productByStIdVisible(Request $request,$id){
+        try {
+            $result = item::where('store_id',$id)->get();
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = $result;
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -238,15 +303,15 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
-           $dataTable = addData("item_type","item_type",$request,$dataTable);
-           $dataTable = addData("minimal_stock","minimal_stock",$request,$dataTable);
-           $dataTable = addData("category_id","category_id",$request,$dataTable);
-           $dataTable = addData("store_id","store_id",$request,$dataTable);
-           $dataTable = addData("selling_price","selling_price",$request,$dataTable);
-           $dataTable = addData("name","name",$request,$dataTable);
-           $dataTable = addData("created_by_id","created_by_id",$request,$dataTable);
-           $dataTable = addData("created_by","created_by",$request,$dataTable);
-           $dataTable = addData("last_updated_by_id","created_by_id",$request,$dataTable);
+           $dataTable = checkifexist("item_type","item_type",$request,$dataTable);
+           $dataTable = checkifexist("minimal_stock","minimal_stock",$request,$dataTable);
+           $dataTable = checkifexist("category_id","category_id",$request,$dataTable);
+           $dataTable = checkifexist("store_id","store_id",$request,$dataTable);
+           $dataTable = checkifexist("selling_price","selling_price",$request,$dataTable);
+           $dataTable = checkifexist("name","name",$request,$dataTable);
+           $dataTable = checkifexist("created_by_id","created_by_id",$request,$dataTable);
+           $dataTable = checkifexist("created_by","created_by",$request,$dataTable);
+           $dataTable = checkifexist("last_updated_by_id","created_by_id",$request,$dataTable);
            $dataTable = checkifexist("sku","sku",$request,$dataTable);
            $dataTable = checkifexist("description","description",$request,$dataTable);
            $dataTable = checkifexist("item_code","item_code",$request,$dataTable);

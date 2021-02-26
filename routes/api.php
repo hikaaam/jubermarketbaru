@@ -51,10 +51,14 @@ Route::put('ref_cat/{id}',[RefCatController::class, 'update']);
 Route::delete('ref_cat/{id}',[RefCatController::class, 'destroy']);
 
 Route::get('product',[ProductController::class, 'index']);
+Route::get('product/hidden',[ProductController::class, 'isNotShown']);
+Route::get('product/visible',[ProductController::class, 'visible']);
 Route::get('product/all',[ProductController::class, 'all']);
 Route::get('product/{id}',[ProductController::class, 'show']);
 Route::get('product/category/{id}',[ProductController::class, 'productbycat']);
 Route::get('product/store/{id}',[ProductController::class, 'productByStId']);
+Route::get('product/store/hidden/{id}',[ProductController::class, 'productByStId_']);
+Route::get('product/store/visible/{id}',[ProductController::class, 'productByStIdVisible']);
 Route::post('product',[ProductController::class, 'store']);
 Route::put('product/{id}',[ProductController::class, 'update']);
 Route::delete('product/{id}',[ProductController::class, 'destroy']);
