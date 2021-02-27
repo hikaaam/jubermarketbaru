@@ -13,6 +13,8 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\DummyController;
 use App\Http\Controllers\AlamatController;
+use App\Http\Controllers\RefRekeningController;
+use App\Http\Controllers\RekeningController;
 use Intervention\Image\ImageManagerStatic as Image;
 /*
 |--------------------------------------------------------------------------
@@ -103,3 +105,16 @@ Route::get('alamat/idrs/{id}',[AlamatController::class, 'getByIdrs']);
 Route::post('alamat',[AlamatController::class, 'store']);
 Route::put('alamat/{id}',[AlamatController::class, 'update']);
 Route::delete('alamat/{id}',[AlamatController::class, 'destroy']);
+
+Route::get('rekening',[RekeningController::class, 'index']);
+Route::get('rekening/{id}',[RekeningController::class, 'show']);
+Route::get('rekening/idrs/{id}',[RekeningController::class, 'getByIdrs']);
+Route::post('rekening',[RekeningController::class, 'store']);
+Route::put('rekening/{id}',[RekeningController::class, 'update']);
+Route::delete('rekening/{id}',[RekeningController::class, 'destroy']);
+
+Route::get('ref_rekening',[RefRekeningController::class, 'index']);
+Route::get('ref_rekening/{id}',[RefRekeningController::class, 'show']);
+Route::post('ref_rekening',[RefRekeningController::class, 'store']);
+Route::put('ref_rekening/{id}',[RefRekeningController::class, 'update']);
+Route::delete('ref_rekening/{id}',[RefRekeningController::class, 'destroy']);
