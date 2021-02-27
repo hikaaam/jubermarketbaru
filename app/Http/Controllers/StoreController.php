@@ -73,6 +73,7 @@ class StoreController extends Controller
            $dataTable = addData("store_name","store_name",$request,$dataTable);
            $dataTable = addData("membership_type","membership_type",$request,$dataTable);
            $dataTable = addData("owner","owner",$request,$dataTable);
+           $dataTable = addData("idrs","idrs",$request,$dataTable);
            $dataTable = checkifexist("address","address",$request,$dataTable);
            $dataTable = checkifexist("city","city",$request,$dataTable);
            $dataTable = checkifexist("city_code","city_code",$request,$dataTable);
@@ -147,6 +148,31 @@ class StoreController extends Controller
         return $data;
     }
 
+    public function getByIdrs(Request $request,$id)
+    {
+        try {
+            $result = store::where('idrs',$id)->get();
+            if($result->count()>0){
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "berhasil";
+                $data["data"] = $result;
+            }else{
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "Belum Punya Toko";
+                $data["data"] = $result;
+            } 
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -183,9 +209,10 @@ class StoreController extends Controller
             return $dataTable;
         }
         try {
-           $dataTable = addData("store_name","store_name",$request,$dataTable);
-           $dataTable = addData("membership_type","membership_type",$request,$dataTable);
-           $dataTable = addData("owner","owner",$request,$dataTable);
+           $dataTable = checkifexist("store_name","store_name",$request,$dataTable);
+           $dataTable = checkifexist("membership_type","membership_type",$request,$dataTable);
+           $dataTable = checkifexist("owner","owner",$request,$dataTable);
+           $dataTable = checkifexist("idrs","idrs",$request,$dataTable);
            $dataTable = checkifexist("address","address",$request,$dataTable);
            $dataTable = checkifexist("city","city",$request,$dataTable);
            $dataTable = checkifexist("city_code","city_code",$request,$dataTable);

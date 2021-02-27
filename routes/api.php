@@ -63,6 +63,7 @@ Route::get('product/store/hidden/{id}',[ProductController::class, 'productByStId
 Route::get('product/store/visible/{id}',[ProductController::class, 'productByStIdVisible']);
 Route::post('product',[ProductController::class, 'store']);
 Route::put('product/{id}',[ProductController::class, 'update']);
+Route::put('product/is_shown/{id}',[ProductController::class, 'updateIsShown']);
 Route::delete('product/{id}',[ProductController::class, 'destroy']);
 
 Route::get('category',[CategoryController::class, 'index']);
@@ -86,6 +87,7 @@ Route::get('storage/{filename}', function ($filename) {
 Route::get('store',[StoreController::class, 'index']);
 Route::get('store/{id}',[StoreController::class, 'show']);
 Route::get('store/owner/{id}',[StoreController::class, 'getByOwner']);
+Route::get('store/idrs/{id}',[StoreController::class, 'getByIdrs']);
 Route::post('store',[StoreController::class, 'store']);
 Route::put('store/{id}',[StoreController::class, 'update']);
 Route::delete('store/{id}',[StoreController::class, 'destroy']);

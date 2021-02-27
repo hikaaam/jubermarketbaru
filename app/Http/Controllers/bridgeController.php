@@ -50,71 +50,71 @@ class bridgeController extends Controller
      */
     public function store(Request $request)
     {  
-        
-        try {
-            $host = "http://127.0.0.1:8000/api/";
-            if($request->has("payload")){
-                $bounds = html_entity_decode($request->payload);
-                $payload = json_decode($bounds,true);
-            }
-            if($request->method == "POST"){
-                $url = $host.$request->key;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $response  = curl_exec($ch);
-                curl_close($ch);
-                return $response;
-            }else if($request->method == "PUT"){
-                $url = $host.$request->key.'/'.$payload['id'];
-                // return $url;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Content-Length: ' . strlen(json_encode($payload))));
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-                curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $response  = curl_exec($ch);
-                curl_close($ch);
-                return $response;
-            }else if($request->method == "DELETE"){
-                $url = $host.$request->key.'/'.$payload['id'];
-                // return $url;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-                curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $response  = curl_exec($ch);
-                curl_close($ch);
-                return $response;
-            }else{
-                $url = $host.$request->key;
-                // return $url;
-                if($request->has("payload")){
-                   $url = $host.$request->key."/".$payload['id'];
-                }
-                // return $url;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $response = curl_exec($ch);
-                curl_close($ch);
-                return $response;
-            }
-            // CallAPI("POST","http://localhost/JuberMarketPlace/api/".$request->key,$data);
-            // return $payload;
-        } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
-            return $data;
-        }
+        return 'gak dipake';
+        // try {
+        //     $host = "http://127.0.0.1:8000/api/";
+        //     if($request->has("payload")){
+        //         $bounds = html_entity_decode($request->payload);
+        //         $payload = json_decode($bounds,true);
+        //     }
+        //     if($request->method == "POST"){
+        //         $url = $host.$request->key;
+        //         $ch = curl_init();
+        //         curl_setopt($ch, CURLOPT_URL, $url);
+        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        //         curl_setopt($ch, CURLOPT_POST, 1);
+        //         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
+        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //         $response  = curl_exec($ch);
+        //         curl_close($ch);
+        //         return $response;
+        //     }else if($request->method == "PUT"){
+        //         $url = $host.$request->key.'/'.$payload['id'];
+        //         // return $url;
+        //         $ch = curl_init();
+        //         curl_setopt($ch, CURLOPT_URL, $url);
+        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Content-Length: ' . strlen(json_encode($payload))));
+        //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        //         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
+        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //         $response  = curl_exec($ch);
+        //         curl_close($ch);
+        //         return $response;
+        //     }else if($request->method == "DELETE"){
+        //         $url = $host.$request->key.'/'.$payload['id'];
+        //         // return $url;
+        //         $ch = curl_init();
+        //         curl_setopt($ch, CURLOPT_URL, $url);
+        //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        //         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
+        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //         $response  = curl_exec($ch);
+        //         curl_close($ch);
+        //         return $response;
+        //     }else{
+        //         $url = $host.$request->key;
+        //         // return $url;
+        //         if($request->has("payload")){
+        //            $url = $host.$request->key."/".$payload['id'];
+        //         }
+        //         // return $url;
+        //         $ch = curl_init();
+        //         curl_setopt($ch, CURLOPT_URL, $url);
+        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //         $response = curl_exec($ch);
+        //         curl_close($ch);
+        //         return $response;
+        //     }
+        //     // CallAPI("POST","http://localhost/JuberMarketPlace/api/".$request->key,$data);
+        //     // return $payload;
+        // } catch (\Throwable $th) {
+        //     $data["data"] = [];
+        //     $data["success"] = false;
+        //     $data["code"] = 500;
+        //     $data["message"] = $th->getMessage();
+        //     return $data;
+        // }
     }
 
     public function bridge(Request $request){

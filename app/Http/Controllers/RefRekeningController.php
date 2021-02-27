@@ -156,7 +156,7 @@ class RefRekeningController extends Controller
         $dataTable = checkifexist("bank_code","bank_code",$request,$dataTable);
         try {
            
-            ref_rekening::findOrFail($id)->up($dataTable);
+            ref_rekening::findOrFail($id)->update($dataTable);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";

@@ -359,7 +359,39 @@ class ProductController extends Controller
         }
         return $data;
     }
-
+    public function updateIsShown(Request $request, $id)
+    {
+        $request = json_decode($request->payload,true);
+        $dataTable = [];
+        function checkifexist($column,$request_name,$request,$dataTable){
+            if( array_key_exists($request_name,$request)){
+               $databaru = addData($column,$request_name,$request,$dataTable);
+               return $databaru;
+            }
+            else{
+                return $dataTable;
+            }
+        }
+        function addData($column,$request_name,$request,$dataTable){
+            $dataTable[$column] = $request[$request_name];
+            return $dataTable;
+        }
+        try {
+            $dataTable = addData("is_shown","is_shown",$request,$dataTable);
+            item::findOrFail($id)->update($dataTable);        
+            $data["success"] = true;
+            $data["code"] = 202;
+            $data["message"] = "berhasil";
+            $data["data"] = ["request_data"=>$request];
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
     /**
      * Remove the specified resource from storage.
      *

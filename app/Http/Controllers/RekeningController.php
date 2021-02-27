@@ -187,7 +187,7 @@ class RekeningController extends Controller
         $dataTable = checkifexist("city","city",$request,$dataTable);
         try {
            
-            rekening::findOrFail($id)->up($dataTable);
+            rekening::findOrFail($id)->update($dataTable);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
