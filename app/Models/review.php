@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class cart extends Model
+class review extends Model
 {
-    protected $table = 'cart';
+    protected $table = 'review';
     protected $guarded = [];
 }

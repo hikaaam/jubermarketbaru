@@ -15,6 +15,9 @@ use App\Http\Controllers\DummyController;
 use App\Http\Controllers\AlamatController;
 use App\Http\Controllers\RefRekeningController;
 use App\Http\Controllers\RekeningController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\CartController;
 use Intervention\Image\ImageManagerStatic as Image;
 /*
 |--------------------------------------------------------------------------
@@ -120,3 +123,23 @@ Route::get('ref_rekening/{id}',[RefRekeningController::class, 'show']);
 Route::post('ref_rekening',[RefRekeningController::class, 'store']);
 Route::put('ref_rekening/{id}',[RefRekeningController::class, 'update']);
 Route::delete('ref_rekening/{id}',[RefRekeningController::class, 'destroy']);
+
+Route::get('profile',[ProfileController::class, 'index']);
+Route::get('profile/{id}',[ProfileController::class, 'show']);
+Route::post('profile',[ProfileController::class, 'store']);
+Route::put('profile/{id}',[ProfileController::class, 'update']);
+Route::delete('profile/{id}',[ProfileController::class, 'destroy']);
+
+Route::get('review',[ReviewController::class, 'index']);
+Route::get('review/{id}',[ReviewController::class, 'show']);
+Route::get('review/user_id/{id}',[ReviewController::class, 'getByUser']);
+Route::get('review/store_id/{id}',[ReviewController::class, 'getByStore']);
+Route::post('review',[ReviewController::class, 'store']);
+Route::put('review/{id}',[ReviewController::class, 'update']);
+Route::delete('review/{id}',[ReviewController::class, 'destroy']);
+
+Route::get('cart',[CartController::class, 'index']);
+Route::get('cart/{id}',[CartController::class, 'show']);
+Route::post('cart',[CartController::class, 'store']);
+Route::put('cart/{id}',[CartController::class, 'update']);
+Route::delete('cart/{id}',[CartController::class, 'destroy']);
