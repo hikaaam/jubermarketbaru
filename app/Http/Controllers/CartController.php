@@ -11,6 +11,7 @@ use App\Models\Variant;
 use App\Models\item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use \stdClass;
 
 class CartController extends Controller
 {
@@ -91,6 +92,7 @@ class CartController extends Controller
            $cartHeader = ["currency"=>'IDR','note'=>$note,'device_id'=>$uuid,'store_id'=>$store_id,'user_id'=>$user_id,'idrs'=>$profile->idrs,'total_payment'=>0,'transaction_number'=>$uniqueId];
            $dataCartHeader  = cart_ref::create($cartHeader);
            $trxId = $dataCartHeader->id;
+    
            $total = [];
            
            foreach ($product as $key => $value) {
@@ -98,12 +100,19 @@ class CartController extends Controller
                $qty = $value['qty'];
                $note_ = $value['note'];
                $variant_id = $value['variant_id'];
-               $variant = variant::findOrFail($variant_id);
                $dataproduct = item::findOrFail($id_p);
-               $harga = $variant->harga;
+               if (variant::where('item_id',$id_p)->count() > 0 && $variant_id>0) {
+                   # code...
+                   $variant = variant::findOrFail($variant_id);
+                   $harga = $variant->harga;
+               } else {
+                   $harga = $dataproduct->selling_price;
+                   $variant = new stdClass();
+                   $variant->name = 'null';
+               }   
                $subtotal = $harga*$qty;
                $data_ = ['item_id'=>$id_p,'item_name'=>$dataproduct->name,'item_code'=>$dataproduct->item_code,'selling_price'=>$harga,
-               'note'=>$note_,'sub_total'=>$subtotal,'transaction_id'=>$trxId,'variant_id'=>$variant_id,'variant_name'=>$variant->name];
+               'note'=>$note_,'sub_total'=>$subtotal,'transaction_id'=>$trxId,'variant_id'=>$variant_id,'variant_name'=>$variant->name,'qty'=>$qty];
                cart::create($data_);
                array_push($total,$subtotal);
            }
@@ -113,7 +122,7 @@ class CartController extends Controller
            $data["success"] = true;
            $data["code"] = 202;
            $data["message"] = "berhasil";
-           $data["data"] = [];
+           $data["data"] = ["cart_header_id"=>$trxId];
        
        } catch (\Throwable $th) {
            $data["data"] = [];
@@ -180,40 +189,64 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
-    //     $request = json_decode($request->payload,true);
-    //     $dataTable = [];
-    //     function checkifexist($column,$request_name,$request,$dataTable){
-    //         if( array_key_exists($request_name,$request)){
-    //            $databaru = addData($column,$request_name,$request,$dataTable);
-    //            return $databaru;
-    //         }
-    //         else{
-    //             return $dataTable;
-    //         }
-    //     }
-    //     function addData($column,$request_name,$request,$dataTable){
-    //         $dataTable[$column] = $request[$request_name];
-    //         return $dataTable;
-    //     }
-    //     try {
-    //         $dataTable = checkifexist("gender","gender",$request,$dataTable);
-    //         $dataTable = checkifexist("profile_picture","profile_picture",$request,$dataTable);
-    //         $dataTable = checkifexist("cover_picture","cover_picture",$request,$dataTable);
-    //         $dataTable = checkifexist("social_media","social_media",$request,$dataTable);
-
-    //        $items = profile::findOrFail($id)->update($dataTable);
-    //        $data["success"] = true;
-    //        $data["code"] = 202;
-    //        $data["message"] = "berhasil";
-    //        $data["data"] = ["request_data"=>$dataTable];
+        $request = json_decode($request->payload,true);
+        $dataTable = [];
+        function checkifexist($column,$request_name,$request,$dataTable){
+            if( array_key_exists($request_name,$request)){
+               $databaru = addData($column,$request_name,$request,$dataTable);
+               return $databaru;
+            }
+            else{
+                return $dataTable;
+            }
+        }
+        function addData($column,$request_name,$request,$dataTable){
+            $dataTable[$column] = $request[$request_name];
+            return $dataTable;
+        }
+        try {
+           $product = $request['product'];
+           $note = $request['note'];
+           $trxId = $id;
+    
+           $total = [];
+           cart::where('transaction_id',$trxId)->delete();
+           foreach ($product as $key => $value) {
+               $id_p = $value['id'];
+               $qty = $value['qty'];
+               $note_ = $value['note'];
+               $variant_id = $value['variant_id'];
+               $dataproduct = item::findOrFail($id_p);
+               if (variant::where('item_id',$id_p)->count() > 0 && $variant_id>0) {
+                   # code...
+                   $variant = variant::findOrFail($variant_id);
+                   $harga = $variant->harga;
+               } else {
+                   $harga = $dataproduct->selling_price;
+                   $variant = new stdClass();
+                   $variant->name = 'null';
+               }   
+               $subtotal = $harga*$qty;
+               $data_ = ['item_id'=>$id_p,'item_name'=>$dataproduct->name,'item_code'=>$dataproduct->item_code,'selling_price'=>$harga,
+               'note'=>$note_,'sub_total'=>$subtotal,'transaction_id'=>$trxId,'variant_id'=>$variant_id,'variant_name'=>$variant->name,'qty'=>$qty];
+               cart::create($data_);
+               array_push($total,$subtotal);
+           }
+           $total = array_sum($total);
+           $data_ = ['total_payment'=>$total,'note'=>$note];
+           cart_ref::findOrFail($trxId)->update($data_);
+           $data["success"] = true;
+           $data["code"] = 202;
+           $data["message"] = "berhasil update data";
+           $data["data"] = ["cart_header_id"=>$trxId];
        
-    //    } catch (\Throwable $th) {
-    //        $data["data"] = [];
-    //        $data["success"] = false;
-    //        $data["code"] = 500;
-    //        $data["message"] = $th->getMessage();
-    //    }
-       return 'belum';
+       } catch (\Throwable $th) {
+           $data["data"] = [];
+           $data["success"] = false;
+           $data["code"] = 500;
+           $data["message"] = $th->getMessage();
+       }
+       return $data;
     }
 
     /**
@@ -229,7 +262,7 @@ class CartController extends Controller
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result;
+            $data["data"] = $result.' data';
         
         } catch (\Throwable $th) {
             $data["data"] = [];
