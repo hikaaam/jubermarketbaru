@@ -61,6 +61,7 @@ Route::get('product/visible',[ProductController::class, 'visible']);
 Route::get('product/all',[ProductController::class, 'all']);
 Route::get('product/{id}',[ProductController::class, 'show']);
 Route::get('product/category/{id}',[ProductController::class, 'productbycat']);
+Route::get('product/ref_cat/{id}',[ProductController::class, 'productByRefId']);
 Route::get('product/store/{id}',[ProductController::class, 'productByStId']);
 Route::get('product/store/hidden/{id}',[ProductController::class, 'productByStId_']);
 Route::get('product/store/visible/{id}',[ProductController::class, 'productByStIdVisible']);

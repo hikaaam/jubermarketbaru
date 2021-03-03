@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\item;
 use App\Models\Variant;
+use App\Models\ref_cat;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -140,13 +142,15 @@ class ProductController extends Controller
            $dataTable = checkifexist("dimension_height","dimension_height",$request,$dataTable);
            $dataTable = checkifexist("is_shown","is_shown",$request,$dataTable);
            $dataTable = checkifexist("ownership","ownership",$request,$dataTable);
+           $dataTable = checkifexist("bahan","bahan",$request,$dataTable);
+           $dataTable = checkifexist("merk","merk",$request,$dataTable);
            item::create($dataTable);
             $items = item::orderBy('id','desc')->limit(1)->get();
             $items = $items[0];
             $id = $items->id;
             if(count($request["variant"])>0){
                 foreach ($request["variant"] as $key => $value) {
-                   $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id];
+                   $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id,"picture"=>$value['picture'],"stock"=>$value["stock"]];
                    Variant::create($variant);
                 }
             }
@@ -247,6 +251,26 @@ class ProductController extends Controller
         }
         return $data;
     }
+    public function productByRefId(Request $request,$id){
+        try {
+            $result = DB::table('ref_category')
+                ->join('category', 'category.ref_category', '=', 'ref_category.id')
+                ->join('item', 'item.category_id', '=', 'category.id')
+                ->select('item.*')->where('ref_category.id',$id)
+                ->paginate(6);
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = $result->setPath(\config('app.url').":8001/api/productByRef");
+        
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
     public function productByStId_(Request $request,$id){
         try {
             $result = item::where('is_shown',0)->where('store_id',$id)->get();
@@ -337,11 +361,13 @@ class ProductController extends Controller
            $dataTable = checkifexist("dimension_height","dimension_height",$request,$dataTable);
            $dataTable = checkifexist("is_shown","is_shown",$request,$dataTable);
            $dataTable = checkifexist("ownership","ownership",$request,$dataTable);
+           $dataTable = checkifexist("bahan","bahan",$request,$dataTable);
+           $dataTable = checkifexist("merk","merk",$request,$dataTable);
             item::findOrFail($id)->update($dataTable);
             Variant::where('item_id',$id)->delete();
             if(count($request["variant"])>0){
                 foreach ($request["variant"] as $key => $value) {
-                   $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id];
+                    $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id,"picture"=>$value['picture'],"stock"=>$value["stock"]];
                    Variant::create($variant);
                 }
             }

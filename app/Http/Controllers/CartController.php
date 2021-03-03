@@ -86,9 +86,8 @@ class CartController extends Controller
            $product = $request['product'];
            $note = $request['note'];
            $uuid = $request['uuid'];
+           $uniqueId= time().mt_rand(1000,9000);
            $profile = profile::findOrFail($user_id);
-           $store = store::findOrFail($store_id);
-           $uniqueId= time().mt_rand(1,9000);
            $cartHeader = ["currency"=>'IDR','note'=>$note,'device_id'=>$uuid,'store_id'=>$store_id,'user_id'=>$user_id,'idrs'=>$profile->idrs,'total_payment'=>0,'transaction_number'=>$uniqueId];
            $dataCartHeader  = cart_ref::create($cartHeader);
            $trxId = $dataCartHeader->id;
@@ -98,6 +97,14 @@ class CartController extends Controller
            foreach ($product as $key => $value) {
                $id_p = $value['id'];
                $qty = $value['qty'];
+               if($qty<1){
+                $data["success"] = false;
+                $data["code"] = 402;
+                $data["message"] = "Jumlah product tidak boleh kosong";
+                $data["data"] = ["qty"=>$qty,"item_id"=>$id_p,"variant_id"=>$value['variant_id']];
+                cart_ref::findOrFail($trxId)->delete();
+                   return $data;
+               }
                $note_ = $value['note'];
                $variant_id = $value['variant_id'];
                $dataproduct = item::findOrFail($id_p);
@@ -105,10 +112,26 @@ class CartController extends Controller
                    # code...
                    $variant = variant::findOrFail($variant_id);
                    $harga = $variant->harga;
+                   if($qty>$variant->stock){
+                    $data["success"] = false;
+                    $data["code"] = 402;
+                    $data["message"] = "Maaf stock untuk variant ".$variant->name." kurang dari ".$qty;
+                    $data["data"] = ["qty"=>$qty,"item_id"=>$id_p,"variant_id"=>$variant_id,"stock"=>$variant->stock];
+                    cart_ref::findOrFail($trxId)->delete();
+                       return $data;
+                   }
                } else {
                    $harga = $dataproduct->selling_price;
                    $variant = new stdClass();
                    $variant->name = 'null';
+                   if($qty>$dataproduct->minimal_stock){
+                    $data["success"] = false;
+                    $data["code"] = 402;
+                    $data["message"] = "Maaf stock untuk product ".$dataproduct->name." kurang dari ".$qty;
+                    $data["data"] = ["qty"=>$qty,"item_id"=>$id_p,"variant_id"=>$variant_id,"stock"=>$dataproduct->minimal_stock];
+                    cart_ref::findOrFail($trxId)->delete();
+                       return $data;
+                   }
                }   
                $subtotal = $harga*$qty;
                $data_ = ['item_id'=>$id_p,'item_name'=>$dataproduct->name,'item_code'=>$dataproduct->item_code,'selling_price'=>$harga,
@@ -204,14 +227,130 @@ class CartController extends Controller
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
+        function objToArray($value){
+            return ["id"=>$value->id,
+            "item_id"=>$value->item_id,
+            "item_name"=>$value->item_name,
+            "item_code"=>$value->item_code,
+            "note"=>$value->note,
+            "selling_price"=>$value->selling_price,
+            "qty"=>$value->qty,
+            "sub_total"=>$value->sub_total,
+            "transaction_id"=>$value->transaction_id,
+            "variant_id"=>$value->variant_id,
+            "variant_name"=>$value->variant_name
+            ];
+        }
         try {
            $product = $request['product'];
            $note = $request['note'];
            $trxId = $id;
     
            $total = [];
+           $prevProduct = cart::where('transaction_id',$trxId)->get();
            cart::where('transaction_id',$trxId)->delete();
            foreach ($product as $key => $value) {
+               $id_p = $value['id'];
+               $qty = $value['qty'];
+               if($qty<1){
+                $data["success"] = false;
+                $data["code"] = 402;
+                $data["message"] = "Jumlah product tidak boleh kosong";
+                $data["data"] = ["qty"=>$qty,"item_id"=>$id_p,"variant_id"=>$variant_id];
+                cart::where('transaction_id',$trxId)->delete();
+                foreach ($prevProduct as $key => $value) {
+                    $value = objToarray($value);   
+                    cart::create($value);
+                }
+                   return $data;
+               }
+               $note_ = $value['note'];
+               $variant_id = $value['variant_id'];
+               $dataproduct = item::findOrFail($id_p);
+               if (variant::where('item_id',$id_p)->count() > 0 && $variant_id>0) {
+                   # code...
+                   $variant = variant::findOrFail($variant_id);
+                   $harga = $variant->harga;
+                   if($qty>$variant->stock){
+                    $data["success"] = false;
+                    $data["code"] = 402;
+                    $data["message"] = "Maaf stock untuk variant ".$variant->name." kurang dari ".$qty;
+                    $data["data"] = ["qty"=>$qty,"item_id"=>$id_p,"variant_id"=>$variant_id,"stock"=>$variant->stock];
+                    cart::where('transaction_id',$trxId)->delete();
+                    foreach ($prevProduct as $key => $value) {
+                        $value = objToarray($value);   
+                        cart::create($value);
+                    }
+                       return $data;
+                   }
+               } else {
+                   $harga = $dataproduct->selling_price;
+                   $variant = new stdClass();
+                   $variant->name = 'null';
+                   if($qty>$dataproduct->minimal_stock){
+                    $data["success"] = false;
+                    $data["code"] = 402;
+                    $data["message"] = "Maaf stock untuk product ".$dataproduct->name." kurang dari ".$qty;
+                    $data["data"] = ["qty"=>$qty,"item_id"=>$id_p,"variant_id"=>$variant_id,"stock"=>$dataproduct->minimal_stock];
+                    cart::where('transaction_id',$trxId)->delete();
+                    foreach ($prevProduct as $key => $value) {
+                        $value = objToarray($value);   
+                        cart::create($value);
+                    }
+                       return $data;
+                   }
+               }   
+               $subtotal = $harga*$qty;
+               $data_ = ['item_id'=>$id_p,'item_name'=>$dataproduct->name,'item_code'=>$dataproduct->item_code,'selling_price'=>$harga,
+               'note'=>$note_,'sub_total'=>$subtotal,'transaction_id'=>$trxId,'variant_id'=>$variant_id,'variant_name'=>$variant->name,'qty'=>$qty];
+               cart::create($data_);
+               array_push($total,$subtotal);
+           }
+           $total = array_sum($total);
+           $data_ = ['total_payment'=>$total,'note'=>$note];
+           cart_ref::findOrFail($trxId)->update($data_);
+           $data["success"] = true;
+           $data["code"] = 202;
+           $data["message"] = "berhasil update data";
+           $data["data"] = ["cart_header_id"=>$trxId];
+       
+       } catch (\Throwable $th) {
+           $data["data"] = [];
+           $data["success"] = false;
+           $data["code"] = 500;
+           $data["message"] = $th->getMessage();
+       }
+       return $data;
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request = json_decode($request->payload,true);
+        $dataTable = [];
+        function checkifexist($column,$request_name,$request,$dataTable){
+            if( array_key_exists($request_name,$request)){
+               $databaru = addData($column,$request_name,$request,$dataTable);
+               return $databaru;
+            }
+            else{
+                return $dataTable;
+            }
+        }
+        function addData($column,$request_name,$request,$dataTable){
+            $dataTable[$column] = $request[$request_name];
+            return $dataTable;
+        }
+        try {
+           $status = $request['status'];
+           $trxId = $id;
+           $cart_ref = cart_ref::findOrFail($id);
+           $cartHeader = ["currency"=>'IDR','note'=>$cart_ref->note,'device_id'=>$cart_ref->device_id,'store_id'=>$cart_ref->store->id,
+           'idrs'=>$cart_ref->idrs,'total_payment'=>$cart_ref->total_payment,'transaction_number'=>$cart_ref->transaction_number,"status"=>$status];
+           $head = head::create($cartHeader);
+           $cart_product = cart::where('transaction_id',$trxId)->get();
+
+           //lanjutin dari sini tinggal isi tabel transaction_detail sesuai dengan tabel cart where trx_id
+           foreach ($cart_product as $key => $value) {
                $id_p = $value['id'];
                $qty = $value['qty'];
                $note_ = $value['note'];

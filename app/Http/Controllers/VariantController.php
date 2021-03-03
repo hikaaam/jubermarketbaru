@@ -44,18 +44,20 @@ class VariantController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload);
-        $nama = $request->variant_name;
-            $id = $request->item_id;
-            $harga = $request->harga;
-            $store = [
-                "name"=>$nama,
-                "item_id"=>$id,
-                "harga"=>$harga
-            ];
-            
+        $request = json_decode($request->payload);     
      try {
-            
+        $nama = $request->variant_name;
+        $id = $request->item_id;
+        $harga = $request->harga;
+        $picture = $request->picture;
+        $stock = $request->stock;
+        $store = [
+            "name"=>$nama,
+            "item_id"=>$id,
+            "harga"=>$harga,
+            "picture"=>$picture,
+            "stock"=>$stock
+        ];
             Variant::create($store);
             $data["data"] = $store;
             $data["success"] = "true";
@@ -117,9 +119,13 @@ class VariantController extends Controller
         try {
             $nama = $request->variant_name;
             $harga = $request->harga;
+            $stock = $request->stock;
+            $picture = $request->picture;
             $store = [
                 "name"=>$nama,
-                "harga"=>$harga
+                "harga"=>$harga,
+                "picture"=>$picture,
+                "stock"=>$stock
             ];
             Variant::find($id)->update($store);
             $data["data"] = $store;
