@@ -18,6 +18,8 @@ use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\TokopediaController;
+use App\Http\Controllers\ScheduleController;
 use Intervention\Image\ImageManagerStatic as Image;
 /*
 |--------------------------------------------------------------------------
@@ -144,3 +146,6 @@ Route::get('cart/{id}',[CartController::class, 'show']);
 Route::post('cart',[CartController::class, 'store']);
 Route::put('cart/{id}',[CartController::class, 'update']);
 Route::delete('cart/{id}',[CartController::class, 'destroy']);
+
+Route::get('tokopedia/sync',[TokopediaController::class, 'index']);
+Route::get('schedule',[ScheduleController::class, 'index']);
