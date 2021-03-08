@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\item;
 use App\Models\Variant;
 use App\Models\ref_cat;
+use App\Models\store;
 use Illuminate\Support\Facades\DB;
-
+use App\Http\Controllers\ScheduleController;
+use Illuminate\Support\Facades\Http;
+use Config;
 class ProductController extends Controller
 {
     public $data = [
@@ -100,6 +103,42 @@ class ProductController extends Controller
                return $databaru;
             }
             else{
+                if($column == "description"){
+                    $request[$request_name] = "";
+                    $databaru = addData($column,$request_name,$request,$dataTable);
+                return $databaru;
+                }
+                if($column == "condition"){
+                    $request[$request_name] = "1";
+                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    return $databaru;
+                }
+                if($column == "weight"){
+                    $request[$request_name] = "200";
+                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    return $databaru;
+                }
+                if($column == "weight_unit"){
+                    $request[$request_name] = "GR";
+                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    return $databaru;
+                }
+                if($column == "sku"){
+                    $str_id = $request["store_id"];
+                    $store = store::find($str_id);
+                    $item_last = item::orderBy('id','desc')->first();
+                    $item_last_id = $item_last->id+1;
+                    $store_name = $store->store_name;
+                    $words = explode(" ", $store_name);
+                    $acronym = "";
+                    foreach ($words as $w) {
+                    $acronym .= $w[0];
+                    }
+                    $acronym = $acronym.$str_id."P".$item_last_id;
+                    $request[$request_name] = strtoupper($acronym);
+                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    return $databaru;
+                }
                 return $dataTable;
             }
         }
@@ -134,6 +173,7 @@ class ProductController extends Controller
            $dataTable = checkifexist("cost_of_good_sold","cost_of_good_sold",$request,$dataTable);
            $dataTable = checkifexist("item_tax_type","item_tax_type",$request,$dataTable);
            $dataTable = checkifexist("weight","weight",$request,$dataTable);
+           $dataTable = checkifexist("weight_unit","weight_unit",$request,$dataTable);
            $dataTable = checkifexist("condition","condition",$request,$dataTable);
            $dataTable = checkifexist("pre_order","pre_order",$request,$dataTable);
            $dataTable = checkifexist("pre_order_estimation","pre_order_estimation",$request,$dataTable);
@@ -144,29 +184,79 @@ class ProductController extends Controller
            $dataTable = checkifexist("ownership","ownership",$request,$dataTable);
            $dataTable = checkifexist("bahan","bahan",$request,$dataTable);
            $dataTable = checkifexist("merk","merk",$request,$dataTable);
+           $namaExist = item::where("name",$dataTable["name"])->count()>0;
            item::create($dataTable);
             $items = item::orderBy('id','desc')->limit(1)->get();
             $items = $items[0];
             $id = $items->id;
+            
             if(count($request["variant"])>0){
+                $withVariant = true;
                 foreach ($request["variant"] as $key => $value) {
                    $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id,"picture"=>$value['picture'],"stock"=>$value["stock"]];
                    Variant::create($variant);
                 }
+            }else{
+                $withVariant = false;
             }
             
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
             $data["data"] = ["request_data"=>$items];
-        
+            return $data;
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
+            return $data;
+        } finally{
+            if(!$namaExist){
+            $tokopedia_data =  \App::call('App\Http\Controllers\ScheduleController@getToken');
+            $token = $tokopedia_data["token"];
+            $fs_id = $tokopedia_data["fs_id"];
+            $pictures = [];
+            if($dataTable["picture"]!="null"){
+                array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture"]]);
+            }else{
+                array_push($pictures,["file_path"=>"https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
+            }
+                if(!$dataTable["picture_two"]=="null"){
+                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_two"]]);
+                    }
+                if(!$dataTable["picture_three"]=="null"){
+                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_three"]]);
+                }
+                if(!$dataTable["picture_four"]=="null"){
+                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_four"]]);
+                }
+                if(!$dataTable["picture_five"]=="null"){
+                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_five"]]);
+                    }
+                $products = [];
+                $products["name"]=$dataTable["name"];
+                $products["condition"] = ($dataTable["condition"]==1)?"new":"used";
+                $products["description"] = $dataTable["description"];
+                $products["price"]=$dataTable["selling_price"];
+                $products["status"]="limited";
+                $products["price_currency"]="IDR";
+                $products["weight"]=$dataTable["weight"];
+                $products["weight_unit"]=$dataTable["weight_unit"];
+                $products["category_id"]=$dataTable["category_id"];
+                $products["sku"]=$dataTable["sku"];
+                $products["is_free_return"] = false;
+                $products["is_must_insurance"]=false;
+                $product["stock"] = $dataTable["minimal_stock"];
+                $product["min_order"] = 1;
+                $products["pictures"]=$pictures;
+                $url = 'https://fs.tokopedia.net/v2/products/fs/'.$fs_id.'/create?shop_id=10408203';
+                $response =  http::withHeaders([
+                    'Authorization' => 'Bearer '.$token,
+                    'Content-Type' => 'application/json'
+                ])->post($url,$products);
+            }
         }
-        return $data;
     }
 
     /**
@@ -353,6 +443,7 @@ class ProductController extends Controller
            $dataTable = checkifexist("cost_of_good_sold","cost_of_good_sold",$request,$dataTable);
            $dataTable = checkifexist("item_tax_type","item_tax_type",$request,$dataTable);
            $dataTable = checkifexist("weight","weight",$request,$dataTable);
+           $dataTable = checkifexist("weight_unit","weight_unit",$request,$dataTable);
            $dataTable = checkifexist("condition","condition",$request,$dataTable);
            $dataTable = checkifexist("pre_order","pre_order",$request,$dataTable);
            $dataTable = checkifexist("pre_order_estimation","pre_order_estimation",$request,$dataTable);
