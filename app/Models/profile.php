@@ -10,4 +10,3 @@ class profile extends Model
     protected $table = 'profile';
     protected $guarded = [];
 }
-

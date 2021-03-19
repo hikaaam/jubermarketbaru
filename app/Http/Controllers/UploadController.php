@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Validator,Redirect,Response,File;
+use Validator, Redirect, Response, File;
+use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
@@ -35,62 +36,66 @@ class UploadController extends Controller
      */
     public function store(Request $request)
     {
-        
-            $validator = Validator::make($request->all(), 
-            [ 
-            'file' => 'required|mimes:png,jpg,webp,jpeg|max:10072',
-            ]);   
 
-            if ($validator->fails()) {          
-                // return response()->json(['error'=>$validator->errors()], 401);       
-                return response()->json([
-                    "success" => false,
-                    "code"=>500,
-                    "message" => $validator->errors()->first(),
-                    "file" => ''
-                ]);                 
-            }  
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'file' => 'required|mimes:png,jpg,webp,jpeg|max:10072',
+            ]
+        );
 
-
-            if ($files = $request->file('file')) {
-                
-                //store file into document folder
-                $file = $request->file->store('Images');
-                $file = substr($file,7);
-                //store your file into database
-                // $document = new ();
-                // $document->title = $file;
-                // $document->user_id = $request->user_id;
-                // $document->save();
-                
-                return response()->json([
-                    "success" => true,
-                    "code"=>200,
-                    "message" => "File successfully uploaded",
-                    "file" => "/storage/".$file
-                ]);
-
-            }
-    }
-    public function video(Request $request){
-        $validator = Validator::make($request->all(), 
-        [ 
-        'file' => 'required|mimes:mp4,x-flv,x-mpegURL,MP2T,3gpp,quicktime,x-msvideo,x-ms-wmv',
-        ]);   
-
-        if ($validator->fails()) {          
+        if ($validator->fails()) {
             // return response()->json(['error'=>$validator->errors()], 401);       
             return response()->json([
                 "success" => false,
-                "code"=>500,
+                "code" => 500,
                 "message" => $validator->errors()->first(),
                 "file" => ''
-            ]);                 
-        }  
+            ]);
+        }
 
 
         if ($files = $request->file('file')) {
-            
+
+            //store file into document folder
+            $file = $request->file->store('Images');
+            $file = substr($file, 7);
+            //store your file into database
+            // $document = new ();
+            // $document->title = $file;
+            // $document->user_id = $request->user_id;
+            // $document->save();
+
+            return response()->json([
+                "success" => true,
+                "code" => 200,
+                "message" => "File successfully uploaded",
+                "file" => "/storage/" . $file
+            ]);
+        }
+    }
+    public function video(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'file' => 'required|mimes:mp4,x-flv,x-mpegURL,MP2T,3gpp,quicktime,x-msvideo,x-ms-wmv',
+            ]
+        );
+
+        if ($validator->fails()) {
+            // return response()->json(['error'=>$validator->errors()], 401);       
+            return response()->json([
+                "success" => false,
+                "code" => 500,
+                "message" => $validator->errors()->first(),
+                "file" => ''
+            ]);
+        }
+
+
+        if ($files = $request->file('file')) {
+
             //store file into document folder
             $file = $request->file->store('Videos');
 
@@ -99,17 +104,55 @@ class UploadController extends Controller
             // $document->title = $file;
             // $document->user_id = $request->user_id;
             // $document->save();
-            
+
             return response()->json([
                 "success" => true,
-                "code"=>200,
+                "code" => 200,
                 "message" => "File successfully uploaded",
-                "file" => "private/storage/app/".$file
+                "file" => "private/storage/app/" . $file
             ]);
-
         }
     }
-
+    public function deleteImg(Request $request)
+    {
+        try {
+            $apiPathLength = strlen("/storage/");
+            $imageString = substr($request->image, $apiPathLength, strlen($request->image));
+            $folderPath = "Images/";
+            Storage::delete($folderPath . $imageString);
+            return [
+                "success" => true,
+                "code" => 200,
+                "message" => "File deleted succesfully"
+            ];
+        } catch (\Throwable $th) {
+            return [
+                "success" => false,
+                "code" => 500,
+                "message" => $th->getMessage()
+            ];
+        }
+    }
+    public function deleteImgBackend($id)
+    {
+        try {
+            $apiPathLength = strlen("/storage/");
+            $imageString = substr($id, $apiPathLength, strlen($id));
+            $folderPath = "Images/";
+            Storage::delete($folderPath . $imageString);
+            return [
+                "success" => true,
+                "code" => 200,
+                "message" => "File deleted succesfully"
+            ];
+        } catch (\Throwable $th) {
+            return [
+                "success" => false,
+                "code" => 500,
+                "message" => $th->getMessage()
+            ];
+        }
+    }
     /**
      * Display the specified resource.
      *
@@ -118,7 +161,7 @@ class UploadController extends Controller
      */
     public function show($id)
     {
-        //
+        // Storage::delete();
     }
 
     /**

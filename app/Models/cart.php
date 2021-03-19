@@ -9,4 +9,9 @@ class cart extends Model
 {
     protected $table = 'cart';
     protected $guarded = [];
+
+    public function Item()
+    {
+        return $this->belongsTo(item::class, 'item_id');
+    }
 }

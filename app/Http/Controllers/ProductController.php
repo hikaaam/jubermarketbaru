@@ -11,15 +11,16 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
+
 class ProductController extends Controller
 {
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
-  
+
     /**
      * Display a listing of the resource.
      *
@@ -28,12 +29,11 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $result = item::where('is_shown',1)->paginate(6);
+            $result = item::where('is_shown', 1)->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url').":8001/api/product");
-        
+            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/product");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -45,12 +45,11 @@ class ProductController extends Controller
     public function isNotShown()
     {
         try {
-            $result = item::where('is_shown',0)->paginate(6);
+            $result = item::where('is_shown', 0)->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url').":8001/api/product/hidden");
-        
+            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/product/hidden");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -66,8 +65,7 @@ class ProductController extends Controller
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url').":8001/api/product/visible");
-        
+            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/product/visible");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -95,115 +93,116 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
-                if($column == "description"){
-                    $request[$request_name] = "";
-                    $databaru = addData($column,$request_name,$request,$dataTable);
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
                 return $databaru;
+            } else {
+                if ($column == "description") {
+                    $request[$request_name] = "";
+                    $databaru = addData($column, $request_name, $request, $dataTable);
+                    return $databaru;
                 }
-                if($column == "condition"){
+                if ($column == "condition") {
                     $request[$request_name] = "1";
-                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    $databaru = addData($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
-                if($column == "weight"){
+                if ($column == "weight") {
                     $request[$request_name] = "200";
-                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    $databaru = addData($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
-                if($column == "weight_unit"){
+                if ($column == "weight_unit") {
                     $request[$request_name] = "GR";
-                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    $databaru = addData($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
-                if($column == "sku"){
+                if ($column == "sku") {
                     $str_id = $request["store_id"];
                     $store = store::find($str_id);
-                    $item_last = item::orderBy('id','desc')->first();
-                    $item_last_id = $item_last->id+1;
+                    $item_last = item::orderBy('id', 'desc')->first();
+                    $item_last_id = $item_last->id + 1;
                     $store_name = $store->store_name;
                     $words = explode(" ", $store_name);
                     $acronym = "";
                     foreach ($words as $w) {
-                    $acronym .= $w[0];
+                        $acronym .= $w[0];
                     }
-                    $acronym = $acronym.$str_id."P".$item_last_id;
+                    $acronym = $acronym . $str_id . "P" . $item_last_id;
                     $request[$request_name] = strtoupper($acronym);
-                    $databaru = addData($column,$request_name,$request,$dataTable);
+                    $databaru = addData($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
                 return $dataTable;
             }
         }
-        function addData($column,$request_name,$request,$dataTable){
+        function addData($column, $request_name, $request, $dataTable)
+        {
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
         try {
-           $dataTable = addData("item_type","item_type",$request,$dataTable);
-           $dataTable = addData("minimal_stock","minimal_stock",$request,$dataTable);
-           $dataTable = addData("category_id","category_id",$request,$dataTable);
-           $dataTable = addData("store_id","store_id",$request,$dataTable);
-           $dataTable = addData("selling_price","selling_price",$request,$dataTable);
-           $dataTable = addData("name","name",$request,$dataTable);
-           $dataTable = addData("created_by_id","created_by_id",$request,$dataTable);
-           $dataTable = addData("created_by","created_by",$request,$dataTable);
-           $dataTable = addData("last_updated_by_id","created_by_id",$request,$dataTable);
-           $dataTable = checkifexist("sku","sku",$request,$dataTable);
-           $dataTable = checkifexist("description","description",$request,$dataTable);
-           $dataTable = checkifexist("item_code","item_code",$request,$dataTable);
-           $dataTable = checkifexist("stockable","stockable",$request,$dataTable);
-           $dataTable = checkifexist("picture","picture",$request,$dataTable);
-           $dataTable = checkifexist("picture_two","picture_two",$request,$dataTable);
-           $dataTable = checkifexist("picture_three","picture_three",$request,$dataTable);
-           $dataTable = checkifexist("picture_four","picture_four",$request,$dataTable);
-           $dataTable = checkifexist("picture_five","picture_five",$request,$dataTable);
-           $dataTable = checkifexist("video","video",$request,$dataTable);
-           $dataTable = checkifexist("type_of_item","type_of_item",$request,$dataTable);
-           $dataTable = checkifexist("item_unit_id","item_unit_id",$request,$dataTable);
-           $dataTable = checkifexist("si_active","is_active",$request,$dataTable);
-           $dataTable = checkifexist("basic_price","basic_price",$request,$dataTable);
-           $dataTable = checkifexist("cost_of_good_sold","cost_of_good_sold",$request,$dataTable);
-           $dataTable = checkifexist("item_tax_type","item_tax_type",$request,$dataTable);
-           $dataTable = checkifexist("weight","weight",$request,$dataTable);
-           $dataTable = checkifexist("weight_unit","weight_unit",$request,$dataTable);
-           $dataTable = checkifexist("condition","condition",$request,$dataTable);
-           $dataTable = checkifexist("pre_order","pre_order",$request,$dataTable);
-           $dataTable = checkifexist("pre_order_estimation","pre_order_estimation",$request,$dataTable);
-           $dataTable = checkifexist("dimension_length","dimension_length",$request,$dataTable);
-           $dataTable = checkifexist("dimension_width","dimension_width",$request,$dataTable);
-           $dataTable = checkifexist("dimension_height","dimension_height",$request,$dataTable);
-           $dataTable = checkifexist("is_shown","is_shown",$request,$dataTable);
-           $dataTable = checkifexist("ownership","ownership",$request,$dataTable);
-           $dataTable = checkifexist("bahan","bahan",$request,$dataTable);
-           $dataTable = checkifexist("merk","merk",$request,$dataTable);
-           $namaExist = item::where("name",$dataTable["name"])->count()>0;
-           item::create($dataTable);
-            $items = item::orderBy('id','desc')->limit(1)->get();
+            $dataTable = addData("item_type", "item_type", $request, $dataTable);
+            $dataTable = addData("minimal_stock", "minimal_stock", $request, $dataTable);
+            $dataTable = addData("category_id", "category_id", $request, $dataTable);
+            $dataTable = addData("store_id", "store_id", $request, $dataTable);
+            $dataTable = addData("selling_price", "selling_price", $request, $dataTable);
+            $dataTable = addData("name", "name", $request, $dataTable);
+            $dataTable = addData("created_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = addData("created_by", "created_by", $request, $dataTable);
+            $dataTable = addData("last_updated_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = checkifexist("sku", "sku", $request, $dataTable);
+            $dataTable = checkifexist("description", "description", $request, $dataTable);
+            $dataTable = checkifexist("item_code", "item_code", $request, $dataTable);
+            $dataTable = checkifexist("stockable", "stockable", $request, $dataTable);
+            $dataTable = checkifexist("picture", "picture", $request, $dataTable);
+            $dataTable = checkifexist("picture_two", "picture_two", $request, $dataTable);
+            $dataTable = checkifexist("picture_three", "picture_three", $request, $dataTable);
+            $dataTable = checkifexist("picture_four", "picture_four", $request, $dataTable);
+            $dataTable = checkifexist("picture_five", "picture_five", $request, $dataTable);
+            $dataTable = checkifexist("video", "video", $request, $dataTable);
+            $dataTable = checkifexist("type_of_item", "type_of_item", $request, $dataTable);
+            $dataTable = checkifexist("item_unit_id", "item_unit_id", $request, $dataTable);
+            $dataTable = checkifexist("si_active", "is_active", $request, $dataTable);
+            $dataTable = checkifexist("basic_price", "basic_price", $request, $dataTable);
+            $dataTable = checkifexist("cost_of_good_sold", "cost_of_good_sold", $request, $dataTable);
+            $dataTable = checkifexist("item_tax_type", "item_tax_type", $request, $dataTable);
+            $dataTable = checkifexist("weight", "weight", $request, $dataTable);
+            $dataTable = checkifexist("weight_unit", "weight_unit", $request, $dataTable);
+            $dataTable = checkifexist("condition", "condition", $request, $dataTable);
+            $dataTable = checkifexist("pre_order", "pre_order", $request, $dataTable);
+            $dataTable = checkifexist("pre_order_estimation", "pre_order_estimation", $request, $dataTable);
+            $dataTable = checkifexist("dimension_length", "dimension_length", $request, $dataTable);
+            $dataTable = checkifexist("dimension_width", "dimension_width", $request, $dataTable);
+            $dataTable = checkifexist("dimension_height", "dimension_height", $request, $dataTable);
+            $dataTable = checkifexist("is_shown", "is_shown", $request, $dataTable);
+            $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
+            $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
+            $dataTable = checkifexist("merk", "merk", $request, $dataTable);
+            $namaExist = item::where("name", $dataTable["name"])->count() > 0;
+            item::create($dataTable);
+            $items = item::orderBy('id', 'desc')->limit(1)->get();
             $items = $items[0];
             $id = $items->id;
-            
-            if(count($request["variant"])>0){
+
+            if (count($request["variant"]) > 0) {
                 $withVariant = true;
                 foreach ($request["variant"] as $key => $value) {
-                   $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id,"picture"=>$value['picture'],"stock"=>$value["stock"]];
-                   Variant::create($variant);
+                    $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
+                    Variant::create($variant);
                 }
-            }else{
+            } else {
                 $withVariant = false;
             }
-            
+
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
-            $data["data"] = ["request_data"=>$items];
+            $data["data"] = ["request_data" => $items];
             return $data;
         } catch (\Throwable $th) {
             $data["data"] = [];
@@ -211,51 +210,52 @@ class ProductController extends Controller
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
             return $data;
-        } finally{
-            if(!$namaExist){
-            $tokopedia_data =  \App::call('App\Http\Controllers\ScheduleController@getToken');
-            $token = $tokopedia_data["token"];
-            $fs_id = $tokopedia_data["fs_id"];
-            $pictures = [];
-            if($dataTable["picture"]!="null"){
-                array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture"]]);
-            }else{
-                array_push($pictures,["file_path"=>"https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
-            }
-                if(!$dataTable["picture_two"]=="null"){
-                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_two"]]);
-                    }
-                if(!$dataTable["picture_three"]=="null"){
-                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_three"]]);
-                }
-                if(!$dataTable["picture_four"]=="null"){
-                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_four"]]);
-                }
-                if(!$dataTable["picture_five"]=="null"){
-                    array_push($pictures,["file_path"=>\config('app.url').":8001".$dataTable["picture_five"]]);
-                    }
-                $products = [];
-                $products["name"]=$dataTable["name"];
-                $products["condition"] = ($dataTable["condition"]==1)?"new":"used";
-                $products["description"] = $dataTable["description"];
-                $products["price"]=$dataTable["selling_price"];
-                $products["status"]="limited";
-                $products["price_currency"]="IDR";
-                $products["weight"]=$dataTable["weight"];
-                $products["weight_unit"]=$dataTable["weight_unit"];
-                $products["category_id"]=$dataTable["category_id"];
-                $products["sku"]=$dataTable["sku"];
-                $products["is_free_return"] = false;
-                $products["is_must_insurance"]=false;
-                $product["stock"] = $dataTable["minimal_stock"];
-                $product["min_order"] = 1;
-                $products["pictures"]=$pictures;
-                $url = 'https://fs.tokopedia.net/v2/products/fs/'.$fs_id.'/create?shop_id=10408203';
-                $response =  http::withHeaders([
-                    'Authorization' => 'Bearer '.$token,
-                    'Content-Type' => 'application/json'
-                ])->post($url,$products);
-            }
+        } finally {
+            // if (!$namaExist) {
+            //     $tokopedia_data =  \App::call('App\Http\Controllers\ScheduleController@getToken');
+            //     return $tokopedia_data;
+            //     $token = $tokopedia_data["token"];
+            //     $fs_id = $tokopedia_data["fs_id"];
+            //     $pictures = [];
+            //     if ($dataTable["picture"] != "null") {
+            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture"]]);
+            //     } else {
+            //         array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
+            //     }
+            //     if (!$dataTable["picture_two"] == "null") {
+            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_two"]]);
+            //     }
+            //     if (!$dataTable["picture_three"] == "null") {
+            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
+            //     }
+            //     if (!$dataTable["picture_four"] == "null") {
+            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
+            //     }
+            //     if (!$dataTable["picture_five"] == "null") {
+            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
+            //     }
+            //     $products = [];
+            //     $products["name"] = $dataTable["name"];
+            //     $products["condition"] = ($dataTable["condition"] == 1) ? "new" : "used";
+            //     $products["description"] = $dataTable["description"];
+            //     $products["price"] = $dataTable["selling_price"];
+            //     $products["status"] = "limited";
+            //     $products["price_currency"] = "IDR";
+            //     $products["weight"] = $dataTable["weight"];
+            //     $products["weight_unit"] = $dataTable["weight_unit"];
+            //     $products["category_id"] = $dataTable["category_id"];
+            //     $products["sku"] = $dataTable["sku"];
+            //     $products["is_free_return"] = false;
+            //     $products["is_must_insurance"] = false;
+            //     $product["stock"] = $dataTable["minimal_stock"];
+            //     $product["min_order"] = 1;
+            //     $products["pictures"] = $pictures;
+            //     $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=10408203';
+            //     $response =  http::withHeaders([
+            //         'Authorization' => 'Bearer ' . $token,
+            //         'Content-Type' => 'application/json'
+            //     ])->post($url, $products);
+            // }
         }
     }
 
@@ -273,7 +273,6 @@ class ProductController extends Controller
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -291,16 +290,15 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        
     }
-    public function all(){
+    public function all()
+    {
         try {
-            $result = item::where('is_shown',1)->get();
+            $result = item::where('is_shown', 1)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -309,14 +307,14 @@ class ProductController extends Controller
         }
         return $data;
     }
-    public function productbycat(Request $request,$id){
+    public function productbycat(Request $request, $id)
+    {
         try {
-            $result = item::where('is_shown',1)->where('category_id',$id)->get();
+            $result = item::where('is_shown', 1)->where('category_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -325,14 +323,14 @@ class ProductController extends Controller
         }
         return $data;
     }
-    public function productByStId(Request $request,$id){
+    public function productByStId(Request $request, $id)
+    {
         try {
-            $result = item::where('is_shown',1)->where('store_id',$id)->get();
+            $result = item::where('is_shown', 1)->where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -341,18 +339,18 @@ class ProductController extends Controller
         }
         return $data;
     }
-    public function productByRefId(Request $request,$id){
+    public function productByRefId(Request $request, $id)
+    {
         try {
             $result = DB::table('ref_category')
                 ->join('category', 'category.ref_category', '=', 'ref_category.id')
                 ->join('item', 'item.category_id', '=', 'category.id')
-                ->select('item.*')->where('ref_category.id',$id)
+                ->select('item.*')->where('ref_category.id', $id)
                 ->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url').":8001/api/productByRef");
-        
+            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/productByRef");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -361,14 +359,14 @@ class ProductController extends Controller
         }
         return $data;
     }
-    public function productByStId_(Request $request,$id){
+    public function productByStId_(Request $request, $id)
+    {
         try {
-            $result = item::where('is_shown',0)->where('store_id',$id)->get();
+            $result = item::where('is_shown', 0)->where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -377,9 +375,10 @@ class ProductController extends Controller
         }
         return $data;
     }
-    public function productByStIdVisible(Request $request,$id){
+    public function productByStIdVisible(Request $request, $id)
+    {
         try {
-            $result = item::where('store_id',$id)->get();
+            $result = item::where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -401,73 +400,73 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
+                return $databaru;
+            } else {
                 return $dataTable;
             }
         }
-        function addData($column,$request_name,$request,$dataTable){
+        function addData($column, $request_name, $request, $dataTable)
+        {
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
         try {
-           $dataTable = checkifexist("item_type","item_type",$request,$dataTable);
-           $dataTable = checkifexist("minimal_stock","minimal_stock",$request,$dataTable);
-           $dataTable = checkifexist("category_id","category_id",$request,$dataTable);
-           $dataTable = checkifexist("store_id","store_id",$request,$dataTable);
-           $dataTable = checkifexist("selling_price","selling_price",$request,$dataTable);
-           $dataTable = checkifexist("name","name",$request,$dataTable);
-           $dataTable = checkifexist("created_by_id","created_by_id",$request,$dataTable);
-           $dataTable = checkifexist("created_by","created_by",$request,$dataTable);
-           $dataTable = checkifexist("last_updated_by_id","created_by_id",$request,$dataTable);
-           $dataTable = checkifexist("sku","sku",$request,$dataTable);
-           $dataTable = checkifexist("description","description",$request,$dataTable);
-           $dataTable = checkifexist("item_code","item_code",$request,$dataTable);
-           $dataTable = checkifexist("stockable","stockable",$request,$dataTable);
-           $dataTable = checkifexist("picture","picture",$request,$dataTable);
-           $dataTable = checkifexist("picture_two","picture_two",$request,$dataTable);
-           $dataTable = checkifexist("picture_three","picture_three",$request,$dataTable);
-           $dataTable = checkifexist("picture_four","picture_four",$request,$dataTable);
-           $dataTable = checkifexist("picture_five","picture_five",$request,$dataTable);
-           $dataTable = checkifexist("video","video",$request,$dataTable);
-           $dataTable = checkifexist("type_of_item","type_of_item",$request,$dataTable);
-           $dataTable = checkifexist("item_unit_id","item_unit_id",$request,$dataTable);
-           $dataTable = checkifexist("si_active","is_active",$request,$dataTable);
-           $dataTable = checkifexist("basic_price","basic_price",$request,$dataTable);
-           $dataTable = checkifexist("cost_of_good_sold","cost_of_good_sold",$request,$dataTable);
-           $dataTable = checkifexist("item_tax_type","item_tax_type",$request,$dataTable);
-           $dataTable = checkifexist("weight","weight",$request,$dataTable);
-           $dataTable = checkifexist("weight_unit","weight_unit",$request,$dataTable);
-           $dataTable = checkifexist("condition","condition",$request,$dataTable);
-           $dataTable = checkifexist("pre_order","pre_order",$request,$dataTable);
-           $dataTable = checkifexist("pre_order_estimation","pre_order_estimation",$request,$dataTable);
-           $dataTable = checkifexist("dimension_length","dimension_length",$request,$dataTable);
-           $dataTable = checkifexist("dimension_width","dimension_width",$request,$dataTable);
-           $dataTable = checkifexist("dimension_height","dimension_height",$request,$dataTable);
-           $dataTable = checkifexist("is_shown","is_shown",$request,$dataTable);
-           $dataTable = checkifexist("ownership","ownership",$request,$dataTable);
-           $dataTable = checkifexist("bahan","bahan",$request,$dataTable);
-           $dataTable = checkifexist("merk","merk",$request,$dataTable);
+            $dataTable = checkifexist("item_type", "item_type", $request, $dataTable);
+            $dataTable = checkifexist("minimal_stock", "minimal_stock", $request, $dataTable);
+            $dataTable = checkifexist("category_id", "category_id", $request, $dataTable);
+            $dataTable = checkifexist("store_id", "store_id", $request, $dataTable);
+            $dataTable = checkifexist("selling_price", "selling_price", $request, $dataTable);
+            $dataTable = checkifexist("name", "name", $request, $dataTable);
+            $dataTable = checkifexist("created_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = checkifexist("created_by", "created_by", $request, $dataTable);
+            $dataTable = checkifexist("last_updated_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = checkifexist("sku", "sku", $request, $dataTable);
+            $dataTable = checkifexist("description", "description", $request, $dataTable);
+            $dataTable = checkifexist("item_code", "item_code", $request, $dataTable);
+            $dataTable = checkifexist("stockable", "stockable", $request, $dataTable);
+            $dataTable = checkifexist("picture", "picture", $request, $dataTable);
+            $dataTable = checkifexist("picture_two", "picture_two", $request, $dataTable);
+            $dataTable = checkifexist("picture_three", "picture_three", $request, $dataTable);
+            $dataTable = checkifexist("picture_four", "picture_four", $request, $dataTable);
+            $dataTable = checkifexist("picture_five", "picture_five", $request, $dataTable);
+            $dataTable = checkifexist("video", "video", $request, $dataTable);
+            $dataTable = checkifexist("type_of_item", "type_of_item", $request, $dataTable);
+            $dataTable = checkifexist("item_unit_id", "item_unit_id", $request, $dataTable);
+            $dataTable = checkifexist("si_active", "is_active", $request, $dataTable);
+            $dataTable = checkifexist("basic_price", "basic_price", $request, $dataTable);
+            $dataTable = checkifexist("cost_of_good_sold", "cost_of_good_sold", $request, $dataTable);
+            $dataTable = checkifexist("item_tax_type", "item_tax_type", $request, $dataTable);
+            $dataTable = checkifexist("weight", "weight", $request, $dataTable);
+            $dataTable = checkifexist("weight_unit", "weight_unit", $request, $dataTable);
+            $dataTable = checkifexist("condition", "condition", $request, $dataTable);
+            $dataTable = checkifexist("pre_order", "pre_order", $request, $dataTable);
+            $dataTable = checkifexist("pre_order_estimation", "pre_order_estimation", $request, $dataTable);
+            $dataTable = checkifexist("dimension_length", "dimension_length", $request, $dataTable);
+            $dataTable = checkifexist("dimension_width", "dimension_width", $request, $dataTable);
+            $dataTable = checkifexist("dimension_height", "dimension_height", $request, $dataTable);
+            $dataTable = checkifexist("is_shown", "is_shown", $request, $dataTable);
+            $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
+            $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
+            $dataTable = checkifexist("merk", "merk", $request, $dataTable);
             item::findOrFail($id)->update($dataTable);
-            Variant::where('item_id',$id)->delete();
-            if(count($request["variant"])>0){
+            Variant::where('item_id', $id)->delete();
+            if (count($request["variant"]) > 0) {
                 foreach ($request["variant"] as $key => $value) {
-                    $variant = ["name"=>$value['variant_name'],"harga"=>$value['harga'],"item_id"=>$id,"picture"=>$value['picture'],"stock"=>$value["stock"]];
-                   Variant::create($variant);
+                    $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
+                    Variant::create($variant);
                 }
             }
-            
+
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
-            $data["data"] = ["request_data"=>$request];
-        
+            $data["data"] = ["request_data" => $request];
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -485,27 +484,18 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if($request->has($request_name)){
-               $databaru = addData($column,$request_name,$dataTable);
-               return $databaru;
-            }
-        }
-        function addData($column,$request_name,$request,$dataTable){
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
-      
+
         try {
-            
-            item::find($id)->delete();
-            Variant::where('item_id',$id)->delete();
+            $item = item::find($id);
+            $variant = Variant::where('item_id', $id)->get();
+            // deleteItemPicture($item);
+            // deleteVariantPicture($variant);
+            $item->delete();
+            Variant::where('item_id', $id)->delete();
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil di hapus";
             $data["data"] = [];
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -514,4 +504,32 @@ class ProductController extends Controller
         }
         return $data;
     }
+}
+function deleteItemPicture($item)
+{
+    $pictures = [];
+    if ($item['picture'] !== 'null') {
+        array_push($pictures, $item['picture']);
+    } else if ($item['picture_two'] !== 'null') {
+        array_push($pictures, $item['picture_two']);
+    } else if ($item['picture_three'] !== 'null') {
+        array_push($pictures, $item['picture_three']);
+    } else if ($item['picture_four'] !== 'null') {
+        array_push($pictures, $item['picture_four']);
+    } else if ($item['picture_five'] !== 'null') {
+        array_push($pictures, $item['picture_five']);
+    }
+    foreach ($pictures as $key => $value) {
+        app('App\Http\Controllers\uploadController')->deleteImgBackend($value);
+    }
+    return;
+}
+function deleteVariantPicture($item)
+{
+    if (count($item) > 0) {
+        foreach ($item as $key => $value) {
+            app('App\Http\Controllers\uploadController')->deleteImgBackend($item['picture']);
+        }
+    }
+    return;
 }
