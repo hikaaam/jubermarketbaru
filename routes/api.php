@@ -170,6 +170,8 @@ Route::get('order/update/packing/{id}', [TransHeadController::class, 'updatePack
 Route::put('order/update/sending/{id}', [TransHeadController::class, 'updateSending']);
 Route::put('order/update/cancel/{id}', [TransHeadController::class, 'updateCancel']);
 Route::get('order/update/accept/{id}', [TransHeadController::class, 'updateAccept']);
+Route::put('order/return/{id}', [TransHeadController::class, 'returnOrder']);
+
 // Route::post('ref_rekening', [RefRekeningController::class, 'store']);
 // Route::put('ref_rekening/{id}', [RefRekeningController::class, 'update']);
 // Route::delete('ref_rekening/{id}', [RefRekeningController::class, 'destroy']);

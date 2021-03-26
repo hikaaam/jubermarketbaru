@@ -6,9 +6,9 @@ use App\Models\trans_head;
 use App\Models\trans;
 use App\Models\store;
 use App\Models\profile;
+use App\Models\trans_return;
 use Illuminate\Http\Request;
 
-use function PHPUnit\Framework\isEmpty;
 
 class TransHeadController extends Controller
 {
@@ -229,7 +229,7 @@ class TransHeadController extends Controller
     {
 
         $request = json_decode($request->payload, true);
-
+        // return $request;
         try {
             $dataTable = [];
             $dataTable = addData("note", "note", $request, $dataTable);
@@ -262,6 +262,37 @@ class TransHeadController extends Controller
                 return getRespond(false, "Barang sudah pernah diterima", ["updatedField" => 0]);
             } else if ($trans_head->status > 3) {
                 return getRespond(false, "Barang sedang dalam proses pengembalian", ["updatedField" => 0]);
+            } else {
+                return getRespond(false, "Pastikan barang sudah dikirim ke pembeli", ["updatedField" => 0]);
+            }
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
+        // return $data;
+    }
+    public function returnOrder(Request $request, $id)
+    {
+        // return $request;
+        $request = json_decode($request->payload, true);
+        try {
+            $dataTable["status"] = "5";
+            $trans_head = trans_head::findOrFail($id);
+            // return $trans_head;
+            if ($trans_head->status == 3) {
+                $data = $trans_head->update($dataTable);
+                $return_table = [
+                    "note" => $request["note"], "order_id" => $id,
+                    "user_id" => $trans_head->user_id,
+                    "store_id" => $trans_head->store_id,
+                    "problem_id" => $request["problem_id"],
+                    "status" => "1"
+                ];
+                $trans_return = trans_return::create($return_table);
+                return getRespond(true, "Berhasil mengembalikan barang", ["updatedField" => 1, "return_order_id" => $trans_return->id]);
+            } else if ($trans_head->status == 4) {
+                return getRespond(false, "Barang yang sudah diterima tidak dapat dikembalikan", ["updatedField" => 0]);
+            } else if ($trans_head->status == 5) {
+                return getRespond(false, "Barang yang sedang dalam proses pengembalian", ["updatedField" => 0]);
             } else {
                 return getRespond(false, "Pastikan barang sudah dikirim ke pembeli", ["updatedField" => 0]);
             }
