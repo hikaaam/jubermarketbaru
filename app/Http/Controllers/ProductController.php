@@ -488,8 +488,8 @@ class ProductController extends Controller
         try {
             $item = item::find($id);
             $variant = Variant::where('item_id', $id)->get();
-            // deleteItemPicture($item);
-            // deleteVariantPicture($variant);
+            deleteItemPicture($item);
+            deleteVariantPicture($variant);
             $item->delete();
             Variant::where('item_id', $id)->delete();
             $data["success"] = true;
@@ -528,7 +528,7 @@ function deleteVariantPicture($item)
 {
     if (count($item) > 0) {
         foreach ($item as $key => $value) {
-            app('App\Http\Controllers\uploadController')->deleteImgBackend($item['picture']);
+            app('App\Http\Controllers\uploadController')->deleteImgBackend($value['picture']);
         }
     }
     return;

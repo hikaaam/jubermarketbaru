@@ -13,10 +13,10 @@ class ProfileController extends Controller
      * @return \Illuminate\Http\Response
      */
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
     public function index()
     {
@@ -26,7 +26,6 @@ class ProfileController extends Controller
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -54,43 +53,83 @@ class ProfileController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
+                return $databaru;
+            } else {
                 return $dataTable;
             }
         }
-        function addData($column,$request_name,$request,$dataTable){
+        function addData($column, $request_name, $request, $dataTable)
+        {
+            if ($column == "social_media") {
+                $str = json_encode($request["social_media"]);
+                $dataTable[$column] = $str;
+                return $dataTable;
+            } else {
+                $dataTable[$column] = $request[$request_name];
+                return $dataTable;
+            }
+        }
+        try {
+            $dataTable = addData("idrs", "idrs", $request, $dataTable);
+            $dataTable = addData("gender", "gender", $request, $dataTable);
+            $dataTable = checkifexist("profile_picture", "profile_picture", $request, $dataTable);
+            $dataTable = checkifexist("cover_picture", "cover_picture", $request, $dataTable);
+            $dataTable = checkifexist("social_media", "social_media", $request, $dataTable);
+            $dataTable = checkifexist("token", "token", $request, $dataTable);
+            // return $dataTable;
+            $items = profile::create($dataTable);
+            $data["success"] = true;
+            $data["code"] = 202;
+            $data["message"] = "berhasil";
+            $data["data"] = ["request_data" => $items];
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+    public function updateToken(Request $request, $id)
+    {
+        $request = json_decode($request->payload, true);
+        $dataTable = [];
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
+                return $databaru;
+            } else {
+                return $dataTable;
+            }
+        }
+        function addData($column, $request_name, $request, $dataTable)
+        {
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
         try {
-           $dataTable = addData("idrs","idrs",$request,$dataTable);
-           $dataTable = addData("gender","gender",$request,$dataTable);
-           $dataTable = checkifexist("profile_picture","profile_picture",$request,$dataTable);
-           $dataTable = checkifexist("cover_picture","cover_picture",$request,$dataTable);
-           $dataTable = checkifexist("social_media","social_media",$request,$dataTable);
-           
-           $items = profile::create($dataTable);
-           $data["success"] = true;
-           $data["code"] = 202;
-           $data["message"] = "berhasil";
-           $data["data"] = ["request_data"=>$items];
-       
-       } catch (\Throwable $th) {
-           $data["data"] = [];
-           $data["success"] = false;
-           $data["code"] = 500;
-           $data["message"] = $th->getMessage();
-       }
-       return $data;
-    }
+            $dataTable = checkifexist("token", "token", $request, $dataTable);
 
+            $items = profile::where("idrs", $id)->update($dataTable);
+            $data["success"] = true;
+            $data["code"] = 202;
+            $data["message"] = "berhasil";
+            $data["data"] = ["updatedField" => $items];
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
     /**
      * Display the specified resource.
      *
@@ -100,7 +139,7 @@ class ProfileController extends Controller
     public function show($id)
     {
         try {
-            $result = profile::where('idrs',$id)->get();
+            $result = profile::where('idrs', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -133,40 +172,47 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
+        // return $request;
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
+                return $databaru;
+            } else {
                 return $dataTable;
             }
         }
-        function addData($column,$request_name,$request,$dataTable){
+        function addData($column, $request_name, $request, $dataTable)
+        {
+            if ($column == "social_media") {
+                $str = json_encode($request["social_media"]);
+                $dataTable[$column] = $str;
+                return $dataTable;
+            }
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
         try {
-            $dataTable = checkifexist("gender","gender",$request,$dataTable);
-            $dataTable = checkifexist("profile_picture","profile_picture",$request,$dataTable);
-            $dataTable = checkifexist("cover_picture","cover_picture",$request,$dataTable);
-            $dataTable = checkifexist("social_media","social_media",$request,$dataTable);
+            $dataTable = checkifexist("gender", "gender", $request, $dataTable);
+            $dataTable = checkifexist("profile_picture", "profile_picture", $request, $dataTable);
+            $dataTable = checkifexist("cover_picture", "cover_picture", $request, $dataTable);
+            $dataTable = checkifexist("social_media", "social_media", $request, $dataTable);
+            $dataTable = checkifexist("token", "token", $request, $dataTable);
 
-           $items = profile::findOrFail($id)->update($dataTable);
-           $data["success"] = true;
-           $data["code"] = 202;
-           $data["message"] = "berhasil";
-           $data["data"] = ["request_data"=>$dataTable];
-       
-       } catch (\Throwable $th) {
-           $data["data"] = [];
-           $data["success"] = false;
-           $data["code"] = 500;
-           $data["message"] = $th->getMessage();
-       }
-       return $data;
+            $items = profile::findOrFail($id)->update($dataTable);
+            $data["success"] = true;
+            $data["code"] = 202;
+            $data["message"] = "berhasil";
+            $data["data"] = ["request_data" => $dataTable];
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
     }
 
     /**
@@ -183,7 +229,6 @@ class ProfileController extends Controller
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;

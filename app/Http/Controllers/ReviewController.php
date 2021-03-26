@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\profile;
 use App\Models\review;
 use App\Models\store;
+use App\Models\trans;
+use App\Models\trans_head;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
@@ -15,20 +17,19 @@ class ReviewController extends Controller
      * @return \Illuminate\Http\Response
      */
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
     public function index()
     {
         try {
-            $result = review::all();
+            $result = review::with("profile")->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -56,41 +57,41 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
-                return $dataTable;
-            }
-        }
-        function addData($column,$request_name,$request,$dataTable){
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
+
         try {
-           $dataTable = addData("user_id","user_id",$request,$dataTable);
-           $dataTable = addData("store_id","store_id",$request,$dataTable);
-           $dataTable = addData("star","star",$request,$dataTable);
-           $dataTable = checkifexist("review","review",$request,$dataTable);
-           $dataTable = checkifexist("is_user","is_user",$request,$dataTable);
-           
-           $items = review::create($dataTable);
-           $data["success"] = true;
-           $data["code"] = 202;
-           $data["message"] = "berhasil";
-           $data["data"] = ["request_data"=>$items];
-       
-       } catch (\Throwable $th) {
-           $data["data"] = [];
-           $data["success"] = false;
-           $data["code"] = 500;
-           $data["message"] = $th->getMessage();
-       }
-       return $data;
+            $isexist = review::where("item_id", $request["id_barang"])->where("order_id", $request["id_order"])->count();
+            if ($isexist == 0) {
+
+                $dataTable = addData("order_id", "id_order", $request, $dataTable);
+                $dataTable = addData("star", "star", $request, $dataTable);
+                $dataTable = addData("item_id", "id_barang", $request, $dataTable);
+                $dataTable = checkifexist("review", "review", $request, $dataTable);
+                $dataTable = checkifexist("is_user", "is_user", $request, $dataTable);
+                $trans_head = trans_head::findOrFail($request["id_order"]);
+                $dataTable["user_id"] = $trans_head->user_id;
+                $dataTable["store_id"] = $trans_head->store_id;
+                trans::where("item_id", $request["id_barang"])->where("transaction_id", $request["id_order"])->update(["reviewed" => "1"]);
+                $totalUnreviewed = trans::where("transaction_id", $request["id_order"])->where("reviewed", 0)->count();
+                if ($totalUnreviewed == 0) {
+                    $trans_head->update(["reviewed" => "1"]);
+                }
+                $items = review::create($dataTable);
+                $data["success"] = true;
+                $data["code"] = 202;
+                $data["message"] = "berhasil";
+                $data["data"] = [$items];
+            } else {
+                return getRespond(false, "Review ini sudah pernah dibuat", ["totalField" => $isexist]);
+            }
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
     }
 
     /**
@@ -119,20 +120,43 @@ class ReviewController extends Controller
     public function getByUser($id)
     {
         try {
-            $result = review::where('user_id',$id)->get();
-            if ($result->count()>0) {   
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
+            $result = review::where('user_id', $id)->with("profile")->get();
+            if ($result->count() > 0) {
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "berhasil";
+                $data["data"] = $result;
             } else {
-                  
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "Belum ada review";
-            $data["data"] = $result;
+
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "Belum ada review";
+                $data["data"] = $result;
             }
-          
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
+    }
+    public function getByIdBarang($id)
+    {
+        try {
+            $result = review::where('item_id', $id)->with("profile")->get();
+            if ($result->count() > 0) {
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "berhasil";
+                $data["data"] = $result;
+            } else {
+
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "Belum ada review";
+                $data["data"] = $result;
+            }
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -145,20 +169,19 @@ class ReviewController extends Controller
     public function getByStore($id)
     {
         try {
-            $result = review::where('store_id',$id)->get();
-            if ($result->count()>0) {   
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
+            $result = review::where('store_id', $id)->with("profile")->get();
+            if ($result->count() > 0) {
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "berhasil";
+                $data["data"] = $result;
             } else {
-                  
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "Belum ada review";
-            $data["data"] = $result;
+
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "Belum ada review";
+                $data["data"] = $result;
             }
-          
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -187,38 +210,25 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
-                return $dataTable;
-            }
-        }
-        function addData($column,$request_name,$request,$dataTable){
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
-        try {
-            $dataTable = checkifexist("star","star",$request,$dataTable);
-            $dataTable = checkifexist("review","review",$request,$dataTable);
 
-           $items = review::findOrFail($id)->update($dataTable);
-           $data["success"] = true;
-           $data["code"] = 202;
-           $data["message"] = "berhasil";
-           $data["data"] = ["request_data"=>$dataTable];
-       
-       } catch (\Throwable $th) {
-           $data["data"] = [];
-           $data["success"] = false;
-           $data["code"] = 500;
-           $data["message"] = $th->getMessage();
-       }
-       return $data;
+        try {
+            $dataTable = checkifexist("star", "star", $request, $dataTable);
+            $dataTable = checkifexist("review", "review", $request, $dataTable);
+
+            review::findOrFail($id)->update($dataTable);
+            $data["success"] = true;
+            $data["code"] = 202;
+            $data["message"] = "berhasil";
+            $data["data"] = ["updatedField" => "1"];
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
     }
 
     /**
@@ -235,7 +245,6 @@ class ReviewController extends Controller
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -244,4 +253,30 @@ class ReviewController extends Controller
         }
         return $data;
     }
+}
+function checkifexist($column, $request_name, $request, $dataTable)
+{
+    if (array_key_exists($request_name, $request)) {
+        $databaru = addData($column, $request_name, $request, $dataTable);
+        return $databaru;
+    } else {
+        return $dataTable;
+    }
+}
+function addData($column, $request_name, $request, $dataTable)
+{
+    $dataTable[$column] = $request[$request_name];
+    return $dataTable;
+}
+function getRespond($success, $msg, $datas)
+{
+    if ($success) {
+        $data["code"] = 200;
+    } else {
+        $data["code"] = 500;
+    }
+    $data["success"] = $success;
+    $data["message"] = $msg;
+    $data["data"] = $datas;
+    return $data;
 }

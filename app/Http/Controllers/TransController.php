@@ -2,18 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\cart;
-use App\Models\cart_ref;
-use App\Models\profile;
-use App\Models\model;
-use App\Models\store;
-use App\Models\Variant;
-use App\Models\item;
+use App\Models\trans;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use \stdClass;
 
-class TransactionController extends Controller
+class TransController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -49,10 +41,10 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Transaction  $transaction
+     * @param  \App\Models\trans  $trans
      * @return \Illuminate\Http\Response
      */
-    public function show(Transaction $transaction)
+    public function show(trans $trans)
     {
         //
     }
@@ -60,10 +52,10 @@ class TransactionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Transaction  $transaction
+     * @param  \App\Models\trans  $trans
      * @return \Illuminate\Http\Response
      */
-    public function edit(Transaction $transaction)
+    public function edit(trans $trans)
     {
         //
     }
@@ -72,10 +64,10 @@ class TransactionController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Transaction  $transaction
+     * @param  \App\Models\trans  $trans
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Transaction $transaction)
+    public function update(Request $request, trans $trans)
     {
         //
     }
@@ -83,10 +75,10 @@ class TransactionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Transaction  $transaction
+     * @param  \App\Models\trans  $trans
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Transaction $transaction)
+    public function destroy(trans $trans)
     {
         //
     }

@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Route;
 class bridgeController extends Controller
 {
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
     /**
      * Display a listing of the resource.
@@ -21,15 +21,14 @@ class bridgeController extends Controller
     public function index()
     {
         $host = "http://127.0.0.1:8000/api/";
-      if(isset($_GET['product'])){
-        $url = $host.'product?page='.$_GET['product'];
-        $request = Request::create($url, 'POST',[]);
-        $response = Route::dispatch($request);
-        return $response;
-      }
-      if(isset($_GET['category'])){
-
-      }
+        if (isset($_GET['product'])) {
+            $url = $host . 'product?page=' . $_GET['product'];
+            $request = Request::create($url, 'POST', []);
+            $response = Route::dispatch($request);
+            return $response;
+        }
+        if (isset($_GET['category'])) {
+        }
     }
 
     /**
@@ -49,7 +48,7 @@ class bridgeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {  
+    {
         return 'gak dipake';
         // try {
         //     $host = "http://127.0.0.1:8000/api/";
@@ -117,77 +116,74 @@ class bridgeController extends Controller
         // }
     }
 
-    public function bridge(Request $request){
-        
+    public function bridge(Request $request)
+    {
 
-            $host = "http://127.0.0.1:8000/api/";
-            if($request->has("payload")){
-                $bounds = html_entity_decode($request->payload);
-                $payload = json_decode($bounds,true);
+
+        $host = "http://127.0.0.1:8000/api/";
+        if ($request->has("payload")) {
+            $bounds = html_entity_decode($request->payload);
+            $payload = json_decode($bounds, true);
+        }
+        if (strtoupper($request->method) == "POST") {
+            try {
+                $url = $host . $request->key;
+                $request = Request::create($url, 'POST', []);
+                $response = Route::dispatch($request);
+                return $response;
+            } catch (\Throwable $th) {
+                $data["data"] = [];
+                $data["success"] = false;
+                $data["code"] = 500;
+                $data["message"] = $th->getMessage();
+                return $data;
             }
-            if(strtoupper($request->method) == "POST"){
-                try{
-                $url = $host.$request->key;
-                $request = Request::create($url, 'POST',[]);
+        } else if (strtoupper($request->method) == "PUT") {
+            try {
+                // return $payload;
+                $url = $host . $request->key . '/' . $payload['id'];
+                $request = Request::create($url, 'PUT', []);
                 $response = Route::dispatch($request);
                 return $response;
-            }  
-            catch (\Throwable $th) {
-                   $data["data"] = [];
-                   $data["success"] = false;
-                   $data["code"] = 500;
-                   $data["message"] = $th->getMessage();
-                   return $data;
-               }
-            }else if(strtoupper($request->method) == "PUT"){
-                try{
-                $url = $host.$request->key.'/'.$payload['id'];
-                $request = Request::create($url, 'PUT', []);   
-                $response = Route::dispatch($request);
-                return $response;
-            }  
-            catch (\Throwable $th) {
-                   $data["data"] = [];
-                   $data["success"] = false;
-                   $data["code"] = 500;
-                   $data["message"] = $th->getMessage();
-                   return $data;
-               }
-            }else if(strtoupper($request->method) == "DELETE"){
-                try{
-                $url = $host.$request->key.'/'.$payload['id'];
+            } catch (\Throwable $th) {
+                $data["data"] = [];
+                $data["success"] = false;
+                $data["code"] = 500;
+                $data["message"] = $th->getMessage();
+                return $data;
+            }
+        } else if (strtoupper($request->method) == "DELETE") {
+            try {
+                $url = $host . $request->key . '/' . $payload['id'];
                 $request = Request::create($url, 'DELETE', []);
                 $response = Route::dispatch($request);
                 return $response;
-            }  
-            catch (\Throwable $th) {
-                   $data["data"] = [];
-                   $data["success"] = false;
-                   $data["code"] = 500;
-                   $data["message"] = $th->getMessage();
-                   return $data;
-               }
-            }else{
-                $url = $host.$request->key;
-                // return $url;
-                try{
-                if($request->has("payload")){
-                   $url = $host.$request->key."/".$payload['id'];
+            } catch (\Throwable $th) {
+                $data["data"] = [];
+                $data["success"] = false;
+                $data["code"] = 500;
+                $data["message"] = $th->getMessage();
+                return $data;
+            }
+        } else {
+            $url = $host . $request->key;
+            // return $url;
+            try {
+                if ($request->has("payload")) {
+                    $url = $host . $request->key . "/" . $payload['id'];
                 }
                 // return $url;
                 $request = Request::create($url, 'GET');
                 $response = Route::dispatch($request);
                 return $response;
-            }  
-             catch (\Throwable $th) {
-                    $data["data"] = [];
-                    $data["success"] = false;
-                    $data["code"] = 500;
-                    $data["message"] = $th->getMessage();
-                    return $data;
-                }
+            } catch (\Throwable $th) {
+                $data["data"] = [];
+                $data["success"] = false;
+                $data["code"] = 500;
+                $data["message"] = $th->getMessage();
+                return $data;
             }
-      
+        }
     }
 
     /**

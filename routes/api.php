@@ -20,6 +20,9 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\TokopediaController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\TransHeadController;
+
+
 use Intervention\Image\ImageManagerStatic as Image;
 /*
 |--------------------------------------------------------------------------
@@ -132,11 +135,13 @@ Route::get('profile', [ProfileController::class, 'index']);
 Route::get('profile/{id}', [ProfileController::class, 'show']);
 Route::post('profile', [ProfileController::class, 'store']);
 Route::put('profile/{id}', [ProfileController::class, 'update']);
+Route::put('profile/update_token/idrs/{id}', [ProfileController::class, 'updateToken']);
 Route::delete('profile/{id}', [ProfileController::class, 'destroy']);
 
 Route::get('review', [ReviewController::class, 'index']);
 Route::get('review/{id}', [ReviewController::class, 'show']);
 Route::get('review/user_id/{id}', [ReviewController::class, 'getByUser']);
+Route::get('review/item_id/{id}', [ReviewController::class, 'getByIdBarang']);
 Route::get('review/store_id/{id}', [ReviewController::class, 'getByStore']);
 Route::post('review', [ReviewController::class, 'store']);
 Route::put('review/{id}', [ReviewController::class, 'update']);
@@ -150,3 +155,21 @@ Route::delete('cart/{id}', [CartController::class, 'destroy']);
 
 Route::get('tokopedia/sync', [TokopediaController::class, 'index']);
 Route::get('schedule', [ScheduleController::class, 'index']);
+
+//order or transactions
+Route::get('order/{id}', [TransHeadController::class, 'show']);
+Route::get('order/store/{id}', [TransHeadController::class, 'byStoreRecent']);
+Route::get('order/store/past/{id}', [TransHeadController::class, 'byStorePast']);
+Route::get('order/store/unreview/{id}', [TransHeadController::class, 'byStoreUnreviewed']);
+Route::get('order/user/idrs/{id}', [TransHeadController::class, 'byUserRecent']);
+Route::get('order/user/past/idrs/{id}', [TransHeadController::class, 'byUserPast']);
+Route::get('order/user/unreview/idrs/{id}', [TransHeadController::class, 'byUserUnreviewed']);
+Route::get('order/all/status', [TransHeadController::class, 'allOrderStatus']);
+Route::get('seller/token/{id}', [TransHeadController::class, 'sellerToken']);
+Route::get('order/update/packing/{id}', [TransHeadController::class, 'updatePacking']);
+Route::put('order/update/sending/{id}', [TransHeadController::class, 'updateSending']);
+Route::put('order/update/cancel/{id}', [TransHeadController::class, 'updateCancel']);
+Route::get('order/update/accept/{id}', [TransHeadController::class, 'updateAccept']);
+// Route::post('ref_rekening', [RefRekeningController::class, 'store']);
+// Route::put('ref_rekening/{id}', [RefRekeningController::class, 'update']);
+// Route::delete('ref_rekening/{id}', [RefRekeningController::class, 'destroy']);
