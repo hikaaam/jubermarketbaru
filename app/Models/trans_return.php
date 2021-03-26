@@ -22,7 +22,7 @@ class trans_return extends Model
     {
         return $this->belongsTo(trans_head::class, 'order_id');
     }
-    public function Return_problem()
+    public function problem()
     {
         return $this->belongsTo(return_problem::class, 'problem_id');
     }

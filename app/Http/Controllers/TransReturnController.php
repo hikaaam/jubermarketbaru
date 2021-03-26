@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\trans_head;
 use App\Models\trans_return;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,12 @@ class TransReturnController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $data = trans_return::with(["profile", "problem", "trans_head"])->get();
+            return getRespond(true, "Berhasil fetching data", $data);
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
     }
 
     /**
@@ -35,11 +41,6 @@ class TransReturnController extends Controller
      */
     public function store(Request $request)
     {
-
-        try {
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
     }
 
     /**
@@ -51,7 +52,9 @@ class TransReturnController extends Controller
     public function show($id)
     {
         try {
-            $data = trans_return::find($id)->with("profile")->with("store")->with("trans_head");
+            $data = trans_return::where("id", $id)
+                ->with(["profile", "problem", "trans_head"])->get();
+            $data = $data[0];
             return getRespond(true, "Berhasil fetching data", $data);
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), []);
@@ -91,16 +94,12 @@ class TransReturnController extends Controller
                 "[4]" => "packing",
                 "[5]" => "sending",
                 "[6]" => "done"
-            ],
-            "prove" => [
-                "[0]" => "unreviewed",
-                "[1]" => "reviewed"
             ]
         ];
         try {
-            getRespond(true, "status pengembalian", $data);
+            return getRespond(true, "status pengembalian", $data);
         } catch (\Throwable $th) {
-            getRespond(false, $th->getMessage(), []);
+            return getRespond(false, $th->getMessage(), []);
         }
     }
     public function updatePacking($id)
@@ -149,27 +148,73 @@ class TransReturnController extends Controller
         try {
             $trans_return = trans_return::findOrFail($id);
             // return $trans_head;
-            if ($trans_return->status >= 1) {
+            if ($trans_return->status == 1 || $trans_return->status == 2) {
                 $trans_return->update(["status" => "0"]);
                 return getRespond(true, "Berhasil update status pengembalian", ["updatedField" => 1]);
-            } else if ($trans_return->status >= 5) {
-                return getRespond(false, "Barang yang sudah dikirim tidak dapat dibatalkan", ["updatedField" => 0]);
+            } else if ($trans_return->status >= 3) {
+                return getRespond(false, "Barang yang sudah diproses tidak dapat dibatalkan", ["updatedField" => 0]);
+            } else {
+                return getRespond(false, "Barang sudah pernah dibatalkan", ["updatedField" => 0]);
             }
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), []);
         }
         // return $data;
     }
+
+    public function updateDone($id)
+    {
+
+        try {
+            $trans_return = trans_return::findOrFail($id);
+            // return $trans_head;
+            if ($trans_return->status == 5) {
+                $trans_return->update(["status" => "6"]);
+                $trans_head = (["status" => 6, "reviewed" => "2"]);
+                trans_head::findoRFail($trans_return->order_id)->update($trans_head);
+                return getRespond(true, "Pengembalian Berhasil", ["updatedField" => 2]);
+            } else if ($trans_return->status == 6) {
+                return getRespond(false, "barang sudah selesai dikembalikan", ["updatedField" => 0]);
+            } else {
+                return getRespond(false, "Pastikan barang sudah dikirim", ["updatedField" => 0]);
+            }
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
+        // return $data;
+    }
+
+    public function updateJuber($id)
+    {
+        try {
+            $trans_return = trans_return::findOrFail($id);
+            // return $trans_head;
+            if ($trans_return->status == 1) {
+                $trans_return->update(["status" => "2"]);
+                $trans_head = (["status" => 4, "reviewed" => "0"]);
+                trans_head::findoRFail($trans_return->order_id)->update($trans_head);
+                return getRespond(true, "Pengembalian dilaporkan kejuber", ["updatedField" => 1]);
+            } else if ($trans_return->status == 2) {
+                return getRespond(false, "pengembalian telah dilaporakan ke juber", ["updatedField" => 0]);
+            } else if ($trans_return->status > 2) {
+                return getRespond(false, "pengembalian telah diproses", ["updatedField" => 0]);
+            } else {
+                return getRespond(false, "pengembalian telah dicancel oleh user", ["updatedField" => 0]);
+            }
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        };
+    }
     public function updateAccept($id)
     {
         try {
             $trans_return = trans_return::findOrFail($id);
             // return $trans_head;
-            if ($trans_return->status >= 1) {
+            if ($trans_return->status == 1 || $trans_return->status == 2) {
                 $trans_return->update(["status" => "3"]);
                 return getRespond(true, "pengembalian telah disetujui", ["updatedField" => 1]);
             } else if ($trans_return->status >= 3) {
-                return getRespond(false, "pengembalian telah disetujui", ["updatedField" => 0]);
+                return getRespond(false, "pengembalian telah disetujui sebelumnya", ["updatedField" => 0]);
             }
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), []);

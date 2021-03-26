@@ -22,8 +22,7 @@ use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TransHeadController;
-
-
+use App\Http\Controllers\TransReturnController;
 use Intervention\Image\ImageManagerStatic as Image;
 /*
 |--------------------------------------------------------------------------
@@ -183,3 +182,15 @@ Route::get('problem/{id}', [ReturnProblemController::class, 'show']);
 Route::post('problem', [ReturnProblemController::class, 'store']);
 Route::put('problem/{id}', [ReturnProblemController::class, 'update']);
 Route::delete('problem/{id}', [ReturnProblemController::class, 'destroy']);
+
+
+//return order
+Route::get('return', [TransReturnController::class, 'index']);
+Route::get('return/{id}', [TransReturnController::class, 'show']);
+Route::get('return/all/status', [TransReturnController::class, 'getAllStatus']);
+Route::get('return/update/packing/{id}', [TransReturnController::class, 'updatePacking']);
+Route::put('return/update/sending/{id}', [TransReturnController::class, 'updateSending']);
+Route::put('return/update/cancel/{id}', [TransReturnController::class, 'updateCancel']);
+Route::get('return/update/accept/{id}', [TransReturnController::class, 'updateAccept']);
+Route::get('return/update/lapor_juber/{id}', [TransReturnController::class, 'updateJuber']);
+Route::get('return/update/done/{id}', [TransReturnController::class, 'updatedone']);
