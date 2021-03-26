@@ -18,6 +18,7 @@ use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TransHeadController;
@@ -175,3 +176,10 @@ Route::put('order/return/{id}', [TransHeadController::class, 'returnOrder']);
 // Route::post('ref_rekening', [RefRekeningController::class, 'store']);
 // Route::put('ref_rekening/{id}', [RefRekeningController::class, 'update']);
 // Route::delete('ref_rekening/{id}', [RefRekeningController::class, 'destroy']);
+
+
+Route::get('problem', [ReturnProblemController::class, 'index']);
+Route::get('problem/{id}', [ReturnProblemController::class, 'show']);
+Route::post('problem', [ReturnProblemController::class, 'store']);
+Route::put('problem/{id}', [ReturnProblemController::class, 'update']);
+Route::delete('problem/{id}', [ReturnProblemController::class, 'destroy']);

@@ -103,7 +103,7 @@ class ReviewController extends Controller
     public function show($id)
     {
         try {
-            $result = review::findORFail($id)->get();
+            $result = review::findORFail($id);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
