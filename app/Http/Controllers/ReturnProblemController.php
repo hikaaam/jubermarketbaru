@@ -25,17 +25,10 @@ class ReturnProblemController extends Controller
     {
         try {
             $result = return_problem::all();
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
+            return getRespond(true, "berhasil fetching data", $result);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return getRespond(false, $th->getMessage(), []);
         }
-        return $data;
     }
 
     /**
@@ -56,21 +49,16 @@ class ReturnProblemController extends Controller
      */
     public function store(Request $request)
     {
+        $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
             $dataTable = addData("name", "name", $request, $dataTable);
             $items = return_problem::create($dataTable);
-            $data["success"] = true;
-            $data["code"] = 202;
-            $data["message"] = "berhasil";
-            $data["data"] = [$items];
+            return getRespond(true, "berhasil", $items);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return getRespond(false, $th->getMessage(), []);
         }
-        return $data;
+        // return $data;
     }
 
     /**
@@ -83,17 +71,11 @@ class ReturnProblemController extends Controller
     {
         try {
             $result = return_problem::findORFail($id);
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
+            return getRespond(true, "berhasil", $result);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return getRespond(false, $th->getMessage(), []);
         }
-        return $data;
+        // return $data;
     }
 
     /**
@@ -117,20 +99,15 @@ class ReturnProblemController extends Controller
     public function update(Request $request, $id)
     {
         $request = json_decode($request->payload, true);
-
+        $dataTable = [];
         try {
-            return_problem::findOrFail($id)->update($request);
-            $data["success"] = true;
-            $data["code"] = 202;
-            $data["message"] = "berhasil";
-            $data["data"] = ["updatedField" => "1"];
+            $dataTable = addData("name", "name", $request, $dataTable);
+            return_problem::findOrFail($id)->update($dataTable);
+            return getRespond(true, "berhasil", ["updatedField" => "1"]);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return getRespond(false, $th->getMessage(), []);
         }
-        return $data;
+        // return $data;
     }
 
     /**
@@ -142,18 +119,12 @@ class ReturnProblemController extends Controller
     public function destroy($id)
     {
         try {
-            $result = return_problem::findOrFail($id)->delete();
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
+            return_problem::findOrFail($id)->delete();
+            return getRespond(true, "berhasil", ["deletedField" => "1"]);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return getRespond(false, $th->getMessage(), []);
         }
-        return $data;
+        // return $data;
     }
 }
 function addData($column, $request_name, $request, $dataTable)

@@ -91,6 +91,21 @@ class TransHeadController extends Controller
         }
         // return $data;
     }
+    public function byStoreReturn($id)
+    {
+        try {
+            $trans_head = trans_head::where("store_id", $id)->where("status", 6)->with('profile')->orderBy('id', 'desc')->get();
+            $data = [];
+            foreach ($trans_head as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data, ["head" => $value, "body" => $trans]);
+            }
+            return getRespond(true, "Berhasil Fetching Data", $data);
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
+        // return $data;
+    }
     public function byUserRecent($id)
     {
         try {
@@ -110,6 +125,21 @@ class TransHeadController extends Controller
     {
         try {
             $trans_head = trans_head::where("user_idrs", $id)->where("status", 4)->with('store')->orderBy('id', 'desc')->get();
+            $data = [];
+            foreach ($trans_head as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data, ["head" => $value, "body" => $trans]);
+            }
+            return getRespond(true, "Berhasil Fetching Data", $data);
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
+        // return $data;
+    }
+    public function byUserReturn($id)
+    {
+        try {
+            $trans_head = trans_head::where("user_idrs", $id)->where("status", 6)->with('store')->orderBy('id', 'desc')->get();
             $data = [];
             foreach ($trans_head as $key => $value) {
                 $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
@@ -155,11 +185,13 @@ class TransHeadController extends Controller
                     "[2]" => "packing",
                     "[3]" => "sending",
                     "[4]" => "done",
-                    "[5]" => "on return/refund process"
+                    "[5]" => "on return/refund process",
+                    "[6]" => "on return success"
                 ],
                 "reviewed" => [
                     "[0]" => "unreviewed",
-                    "[1]" => "reviewed"
+                    "[1]" => "reviewed",
+                    "[2]" => "product canceled/returned"
                 ]
             ];
             return getRespond(true, "Semua status order", $data);
@@ -235,6 +267,7 @@ class TransHeadController extends Controller
             $dataTable = [];
             $dataTable = addData("note", "note", $request, $dataTable);
             $dataTable["status"] = "0";
+            $dataTable["reviewed"] = "2";
             $trans_head = trans_head::findOrFail($id);
             // return $trans_head;
             if ($trans_head->status == 1) {
@@ -277,6 +310,7 @@ class TransHeadController extends Controller
         $request = json_decode($request->payload, true);
         try {
             $dataTable["status"] = "5";
+            $dataTable["reviewed"] = "2";
             $trans_head = trans_head::findOrFail($id);
             // return $trans_head;
             if ($trans_head->status == 3) {
@@ -288,6 +322,11 @@ class TransHeadController extends Controller
                     "problem_id" => $request["problem_id"],
                     "status" => "1"
                 ];
+                $return_table = checkifexist("picture_one", "picture_one", $request, $return_table);
+                $return_table = checkifexist("picture_two", "picture_two", $request, $return_table);
+                $return_table = checkifexist("picture_three", "picture_three", $request, $return_table);
+                $return_table = checkifexist("picture_four", "picture_four", $request, $return_table);
+                $return_table = checkifexist("picture_five", "picture_dive", $request, $return_table);
                 $trans_return = trans_return::create($return_table);
                 return getRespond(true, "Berhasil mengembalikan barang", ["updatedField" => 1, "return_order_id" => $trans_return->id]);
             } else if ($trans_head->status == 4) {

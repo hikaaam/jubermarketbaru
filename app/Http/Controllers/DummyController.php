@@ -75,21 +75,28 @@ class DummyController extends Controller
                     "total_net" => $cart->total_net,
                     "total_before_rounding" => $cart->total_before_rounding,
                     "user_id" => $cart->user_id,
-                    "status" => "1"
+                    "status" => "1",
+                    "address_id" => $address_id
                 ];
                 $trans_head = trans_head::create($dataTable);
+                // $trans_head = ["id" => "1"];
                 $items = cart::where("transaction_id", $cart_id)->get();
                 foreach ($items as $key => $value) {
+                    if ($value["variant_id"] == 0) {
+                        $variant_id = null;
+                    } else {
+                        $variant_id = $value["variant_id"];
+                    }
                     $itemdata = [
                         "item_id" => $value["item_id"],
                         "note" => $value["note"],
                         "qty" => $value["qty"],
-                        "variant_id" => $value["variant_id"],
+                        "variant_id" => $variant_id,
                         "variant_name" => $value["variant_name"],
                         "sub_total" => $value["sub_total"],
-                        "transaction_id" => $trans_head->id,
-                        "address_id" => $address_id
+                        "transaction_id" => $trans_head->id
                     ];
+
                     trans::create($itemdata);
                 }
                 cart_ref::findOrFail($id_cart)->delete();
