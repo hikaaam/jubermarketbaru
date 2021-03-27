@@ -54,6 +54,7 @@ class DummyController extends Controller
         try {
             // $result = area::select('area_code','name')->where('id','<',35)->get();
             $id_cart = $request['id_cart'];
+            $address_id = $request['address_id'];
             $cart = cart_ref::where('id', $id_cart)->get();
             $isexist = count($cart) == 1;
             if ($isexist) {
@@ -86,7 +87,8 @@ class DummyController extends Controller
                         "variant_id" => $value["variant_id"],
                         "variant_name" => $value["variant_name"],
                         "sub_total" => $value["sub_total"],
-                        "transaction_id" => $trans_head->id
+                        "transaction_id" => $trans_head->id,
+                        "address_id" => $address_id
                     ];
                     trans::create($itemdata);
                 }
