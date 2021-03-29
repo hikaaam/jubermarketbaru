@@ -18,6 +18,8 @@ use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
 use App\Http\Controllers\ScheduleController;
@@ -199,3 +201,15 @@ Route::put('return/update/cancel/{id}', [TransReturnController::class, 'updateCa
 Route::get('return/update/accept/{id}', [TransReturnController::class, 'updateAccept']);
 Route::get('return/update/lapor_juber/{id}', [TransReturnController::class, 'updateJuber']);
 Route::get('return/update/done/{id}', [TransReturnController::class, 'updatedone']);
+
+//favorite
+Route::get('favorite', [FavoriteController::class, 'index']);
+Route::get('favorite/{id}', [FavoriteController::class, 'show']);
+Route::get('favorite/item/{id}', [FavoriteController::class, 'isFavorite']);
+Route::post('favorite', [FavoriteController::class, 'store']);
+
+//follow
+Route::get('follow', [FollowController::class, 'index']);
+Route::get('follow/{id}', [FollowController::class, 'show']);
+Route::get('follow/store/{id}', [FollowController::class, 'isFollowing']);
+Route::post('follow', [FollowController::class, 'store']);
