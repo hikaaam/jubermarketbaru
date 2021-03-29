@@ -74,6 +74,7 @@ Route::post('product', [ProductController::class, 'store']);
 Route::put('product/{id}', [ProductController::class, 'update']);
 Route::put('product/is_shown/{id}', [ProductController::class, 'updateIsShown']);
 Route::delete('product/{id}', [ProductController::class, 'destroy']);
+Route::put('product/related/{id}', [ProductController::class, 'getRelatedProduct']);
 
 Route::get('category', [CategoryController::class, 'index']);
 // Route::get('product/all',[CategoryController::class, 'all']);
@@ -94,6 +95,8 @@ Route::get('storage/{filename}', function ($filename) {
     return Image::make(storage_path() . '/app/images/' . $filename)->response();
 });
 
+
+//store
 Route::get('store', [StoreController::class, 'index']);
 Route::get('store/{id}', [StoreController::class, 'show']);
 Route::get('store/owner/{id}', [StoreController::class, 'getByOwner']);
@@ -101,7 +104,9 @@ Route::get('store/idrs/{id}', [StoreController::class, 'getByIdrs']);
 Route::post('store', [StoreController::class, 'store']);
 Route::put('store/{id}', [StoreController::class, 'update']);
 Route::delete('store/{id}', [StoreController::class, 'destroy']);
+Route::get('store/last_active/{id}', [StoreController::class, 'lastActive']);
 
+//area
 Route::get('area', [AreaController::class, 'index']);
 Route::get('area/{id}', [AreaController::class, 'show']);
 Route::get('area/city', [AreaController::class, 'getCity']);

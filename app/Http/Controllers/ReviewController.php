@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\item;
 use App\Models\profile;
 use App\Models\review;
 use App\Models\store;
@@ -78,6 +79,27 @@ class ReviewController extends Controller
                     $trans_head->update(["reviewed" => "1"]);
                 }
                 $items = review::create($dataTable);
+                $store_id = $trans_head->store_id;
+                $review = review::where("item_id", $request["id_barang"])->get();
+                $total_review = count($review);
+                $reviews = [];
+                foreach ($review as $key => $value) {
+                    array_push($reviews, $value["star"]);
+                }
+                $sum_review = round(array_sum($reviews) / $total_review, 1);
+                $barang =  item::find($request["id_barang"]);
+                $barang->update(["review" => $sum_review, "total_review" => $total_review]);
+                $store = store::find($barang->store_id);
+                $updated_store_total_review = intval($store->total_review) + 1;
+                $store->update(["total_review" => $updated_store_total_review]);
+
+                $itemwherestore = item::where("store_id", $barang->store_id)->get();
+                $review_store = [];
+                foreach ($itemwherestore as $key => $value) {
+                    array_push($review_store, $value["review"]);
+                }
+                $total_review_store = round(array_sum($review_store) / $updated_store_total_review, 1);
+                $store->update(["review" => $total_review_store]);
                 $data["success"] = true;
                 $data["code"] = 202;
                 $data["message"] = "berhasil";

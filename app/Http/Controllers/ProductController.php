@@ -12,6 +12,9 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
 
+use function PHPUnit\Framework\isEmpty;
+use function PHPUnit\Framework\isNull;
+
 class ProductController extends Controller
 {
     public $data = [
@@ -184,6 +187,7 @@ class ProductController extends Controller
             $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexist("merk", "merk", $request, $dataTable);
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
+            $dataTable = checkifexist("origin", "origin", $request, $dataTable);
             item::create($dataTable);
             $items = item::orderBy('id', 'desc')->limit(1)->get();
             $items = $items[0];
@@ -420,6 +424,7 @@ class ProductController extends Controller
             $dataTable = checkifexist("item_type", "item_type", $request, $dataTable);
             $dataTable = checkifexist("minimal_stock", "minimal_stock", $request, $dataTable);
             $dataTable = checkifexist("category_id", "category_id", $request, $dataTable);
+            $dataTable = checkifexist("origin", "origin", $request, $dataTable);
             $dataTable = checkifexist("store_id", "store_id", $request, $dataTable);
             $dataTable = checkifexist("selling_price", "selling_price", $request, $dataTable);
             $dataTable = checkifexist("name", "name", $request, $dataTable);
@@ -474,6 +479,27 @@ class ProductController extends Controller
             $data["message"] = $th->getMessage();
         }
         return $data;
+    }
+
+    public function getRelatedProduct(Request $request, $id)
+    {
+        try {
+            $request = json_decode($request->payload, true);
+            $limit = 3;
+            if (array_key_exists("limit", $request)) {
+                $limit = $request["limit"];
+            }
+            $item = item::findOrFail($id);
+            $cat_id = $item->category_id;
+            if (checkNull($cat_id)) {
+                return getRespond(false, "Tidak ada kategori yang berelasi dengan product ini", []);
+            } else {
+                $data = item::where("category_id", $cat_id)->where("is_shown", 1)->limit($limit)->get();
+                return getRespond(true, "Berhasil fetching data", $data);
+            }
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
     }
 
     /**
@@ -532,4 +558,24 @@ function deleteVariantPicture($item)
         }
     }
     return;
+}
+function getRespond($success, $msg, $datas)
+{
+    if ($success) {
+        $data["code"] = 200;
+    } else {
+        $data["code"] = 500;
+    }
+    $data["success"] = $success;
+    $data["message"] = $msg;
+    $data["data"] = $datas;
+    return $data;
+}
+function checkNull($var)
+{
+    if ($var == null) {
+        return true;
+    } else {
+        return false;
+    }
 }

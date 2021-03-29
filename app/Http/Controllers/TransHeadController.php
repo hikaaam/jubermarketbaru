@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\item;
 use App\Models\trans_head;
 use App\Models\trans;
 use App\Models\store;
@@ -154,7 +155,7 @@ class TransHeadController extends Controller
     public function byUserUnreviewed($id)
     {
         try {
-            $trans = trans::select('market_transaction.*')->where("market_transaction.reviewed", 0)->where('market_transaction_head.user_idrs', $id)
+            $trans = trans::select('market_transaction.*')->where("market_transaction.reviewed", 0)->where('market_transaction_head.user_idrs', $id)->where('market_transaction_head.status', "4")
                 ->with('trans_head')->with('item')
                 ->join('market_transaction_head', 'market_transaction_head.id', '=', 'market_transaction.transaction_id')->get();
             return getRespond(true, "Berhasil Fetching Data", $trans);
@@ -166,7 +167,7 @@ class TransHeadController extends Controller
     public function byStoreUnreviewed($id)
     {
         try {
-            $trans = trans::select('market_transaction.*')->where("market_transaction.reviewed", 0)->where('market_transaction_head.store_id', $id)
+            $trans = trans::select('market_transaction.*')->where("market_transaction.reviewed", 0)->where('market_transaction_head.store_id', $id)->where('market_transaction_head.status', "4")
                 ->with('trans_head')->with('item')
                 ->join('market_transaction_head', 'market_transaction_head.id', '=', 'market_transaction.transaction_id')->get();
             return getRespond(true, "Berhasil Fetching Data", $trans);
@@ -245,6 +246,7 @@ class TransHeadController extends Controller
             $dataTable["status"] = "3";
             $trans_head = trans_head::findOrFail($id);
             // return $trans_head;
+            // return $trans_head->status;
             if ($trans_head->status == 2) {
                 $data = $trans_head->update($dataTable);
                 return getRespond(true, "Berhasil update status order", ["updatedField" => 1]);
@@ -291,6 +293,14 @@ class TransHeadController extends Controller
             // return $trans_head;
             if ($trans_head->status == 3) {
                 $data = $trans_head->update($dataTable);
+                $trans = trans::select("item_id")->where("transaction_id", $trans_head->id)->get();
+                foreach ($trans as $key => $value) {
+                    $id_ = $value["item_id"];
+                    $item = item::find($id_);
+                    $sold = $item->sold;
+                    $newSold =  intval($sold) + 1;
+                    $item->update(["sold" => $newSold]);
+                }
                 return getRespond(true, "Barang berhasil diterima", ["updatedField" => 1]);
             } else if ($trans_head->status == 4) {
                 return getRespond(false, "Barang sudah pernah diterima", ["updatedField" => 0]);

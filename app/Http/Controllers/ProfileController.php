@@ -53,28 +53,10 @@ class ProfileController extends Controller
      */
     public function store(Request $request)
     {
+
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
-        {
-            if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
-                return $databaru;
-            } else {
-                return $dataTable;
-            }
-        }
-        function addData($column, $request_name, $request, $dataTable)
-        {
-            if ($column == "social_media") {
-                $str = json_encode($request["social_media"]);
-                $dataTable[$column] = $str;
-                return $dataTable;
-            } else {
-                $dataTable[$column] = $request[$request_name];
-                return $dataTable;
-            }
-        }
+
         try {
             $dataTable = addData("idrs", "idrs", $request, $dataTable);
             $dataTable = addData("gender", "gender", $request, $dataTable);
@@ -82,6 +64,11 @@ class ProfileController extends Controller
             $dataTable = checkifexist("cover_picture", "cover_picture", $request, $dataTable);
             $dataTable = checkifexist("social_media", "social_media", $request, $dataTable);
             $dataTable = checkifexist("token", "token", $request, $dataTable);
+            $dataTable = checkifexist("name", "name", $request, $dataTable);
+            $dataTable = checkifexist("date_of_birth", "date_of_birth", $request, $dataTable);
+            $dataTable = checkifexist("username", "username", $request, $dataTable);
+            $dataTable = checkifexist("email", "email", $request, $dataTable);
+            $dataTable = checkifexist("handphone", "handphone", $request, $dataTable);
             // return $dataTable;
             $items = profile::create($dataTable);
             $data["success"] = true;
@@ -100,20 +87,6 @@ class ProfileController extends Controller
     {
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
-        {
-            if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
-                return $databaru;
-            } else {
-                return $dataTable;
-            }
-        }
-        function addData($column, $request_name, $request, $dataTable)
-        {
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
         try {
             $dataTable = checkifexist("token", "token", $request, $dataTable);
 
@@ -172,40 +145,27 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $request = json_decode($request->payload, true);
         // return $request;
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
-        {
-            if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
-                return $databaru;
-            } else {
-                return $dataTable;
-            }
-        }
-        function addData($column, $request_name, $request, $dataTable)
-        {
-            if ($column == "social_media") {
-                $str = json_encode($request["social_media"]);
-                $dataTable[$column] = $str;
-                return $dataTable;
-            }
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
         try {
             $dataTable = checkifexist("gender", "gender", $request, $dataTable);
             $dataTable = checkifexist("profile_picture", "profile_picture", $request, $dataTable);
             $dataTable = checkifexist("cover_picture", "cover_picture", $request, $dataTable);
             $dataTable = checkifexist("social_media", "social_media", $request, $dataTable);
             $dataTable = checkifexist("token", "token", $request, $dataTable);
+            $dataTable = checkifexist("name", "name", $request, $dataTable);
+            $dataTable = checkifexist("date_of_birth", "date_of_birth", $request, $dataTable);
+            $dataTable = checkifexist("username", "username", $request, $dataTable);
+            $dataTable = checkifexist("email", "email", $request, $dataTable);
+            $dataTable = checkifexist("handphone", "handphone", $request, $dataTable);
 
             $items = profile::findOrFail($id)->update($dataTable);
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
-            $data["data"] = ["request_data" => $dataTable];
+            $data["data"] = ["updatedField" => "1"];
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -236,5 +196,46 @@ class ProfileController extends Controller
             $data["message"] = $th->getMessage();
         }
         return $data;
+    }
+}
+function checkifexist($column, $request_name, $request, $dataTable)
+{
+    if (array_key_exists($request_name, $request)) {
+        $databaru = addData($column, $request_name, $request, $dataTable);
+        return $databaru;
+    } else {
+        return $dataTable;
+    }
+}
+function addData($column, $request_name, $request, $dataTable)
+{
+
+    if ($request_name == "social_media") {
+        $sosmed = json_encode($request[$request_name]);
+        $dataTable[$column] = $sosmed;
+    } else {
+        $dataTable[$column] = $request[$request_name];
+    }
+
+    return $dataTable;
+}
+function getRespond($success, $msg, $datas)
+{
+    if ($success) {
+        $data["code"] = 200;
+    } else {
+        $data["code"] = 500;
+    }
+    $data["success"] = $success;
+    $data["message"] = $msg;
+    $data["data"] = $datas;
+    return $data;
+}
+function checkNull($var)
+{
+    if ($var == null) {
+        return true;
+    } else {
+        return false;
     }
 }
