@@ -18,8 +18,10 @@ use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CourierController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\RefCourierController;
 use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
 use App\Http\Controllers\ScheduleController;
@@ -213,3 +215,15 @@ Route::get('follow', [FollowController::class, 'index']);
 Route::get('follow/{id}', [FollowController::class, 'show']);
 Route::get('follow/store/{id}', [FollowController::class, 'isFollowing']);
 Route::post('follow', [FollowController::class, 'store']);
+
+//ref kurir
+Route::get('ref_courier', [RefCourierController::class, 'index']);
+Route::get('ref_courier/set_active/{id}', [RefCourierController::class, 'show']);
+Route::put('ref_courier/{id}', [RefCourierController::class, 'update']);
+Route::post('ref_courier', [RefCourierController::class, 'store']);
+Route::delete('ref_courier/{id}', [RefCourierController::class, 'destroy']);
+
+//user kurir
+Route::get('courier/idrs/{id}', [CourierController::class, 'show']);
+Route::post('courier', [CourierController::class, 'store']);
+Route::delete('courier/{id}', [CourierController::class, 'destroy']);
