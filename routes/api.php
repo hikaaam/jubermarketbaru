@@ -227,3 +227,11 @@ Route::delete('ref_courier/{id}', [RefCourierController::class, 'destroy']);
 Route::get('courier/idrs/{id}', [CourierController::class, 'show']);
 Route::post('courier', [CourierController::class, 'store']);
 Route::delete('courier/{id}', [CourierController::class, 'destroy']);
+
+
+
+//API pin driver
+Route::post('pin/generate', [PinDriverController::class, 'generatePin']);
+Route::post('pin/check', [PinDriverController::class, 'check']);
+Route::post('pin/delete/head/{id}', [PinDriverController::class, 'destroyHead']);
+Route::post('pin/delete/detail/{id}', [PinDriverController::class, 'destroyDetail']);

@@ -9,4 +9,5 @@ class head extends Model
 {
     protected $table = 'transaction_head';
     protected $guarded = [];
+    public $timestamps = false;
 }
