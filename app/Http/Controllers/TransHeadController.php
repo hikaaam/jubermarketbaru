@@ -81,10 +81,17 @@ class TransHeadController extends Controller
     {
         try {
             $trans_head = trans_head::where("store_id", $id)->where("status", 4)->with('profile')->orderBy('id', 'desc')->get();
+            $trans_head_cancel = trans_head::where("store_id", $id)->where("status", 0)->with('profile')->orderBy('id', 'desc')->get();
             $data = [];
+            $data["done"] = [];
+            $data["canceled"] = [];
             foreach ($trans_head as $key => $value) {
                 $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
-                array_push($data, ["head" => $value, "body" => $trans]);
+                array_push($data["done"], ["head" => $value, "body" => $trans]);
+            }
+            foreach ($trans_head_cancel as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data["canceled"], ["head" => $value, "body" => $trans]);
             }
             return getRespond(true, "Berhasil Fetching Data", $data);
         } catch (\Throwable $th) {
@@ -126,10 +133,18 @@ class TransHeadController extends Controller
     {
         try {
             $trans_head = trans_head::where("user_idrs", $id)->where("status", 4)->with('store')->orderBy('id', 'desc')->get();
+            $trans_head_cancel = trans_head::where("user_idrs", $id)->where("status", 0)->with('profile')->orderBy('id', 'desc')->get();
+
             $data = [];
+            $data["done"] = [];
+            $data["canceled"] = [];
             foreach ($trans_head as $key => $value) {
                 $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
-                array_push($data, ["head" => $value, "body" => $trans]);
+                array_push($data["done"], ["head" => $value, "body" => $trans]);
+            }
+            foreach ($trans_head_cancel as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data["canceled"], ["head" => $value, "body" => $trans]);
             }
             return getRespond(true, "Berhasil Fetching Data", $data);
         } catch (\Throwable $th) {
