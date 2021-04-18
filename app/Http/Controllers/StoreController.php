@@ -78,6 +78,8 @@ class StoreController extends Controller
             $dataTable = checkifexist("sub_district", "sub_district", $request, $dataTable);
             $dataTable = checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = checkifexist("parent_id", "parent_id", $request, $dataTable);
+            $dataTable = checkifexist("picture", "picture", $request, $dataTable);
+            $dataTable = checkifexist("cover_picture", "cover_picture", $request, $dataTable);
             $items = store::create($dataTable);
             $data["success"] = true;
             $data["code"] = 202;
@@ -198,6 +200,8 @@ class StoreController extends Controller
             $dataTable = checkifexist("district", "district", $request, $dataTable);
             $dataTable = checkifexist("district_code", "district_code", $request, $dataTable);
             $dataTable = checkifexist("email", "email", $request, $dataTable);
+            $dataTable = checkifexist("picture", "picture", $request, $dataTable);
+            $dataTable = checkifexist("cover_picture", "cover_picture", $request, $dataTable);
             $dataTable = checkifexist("fax", "fax", $request, $dataTable);
             $dataTable = checkifexist("latitude", "latitude", $request, $dataTable);
             $dataTable = checkifexist("longitude", "longitude", $request, $dataTable);

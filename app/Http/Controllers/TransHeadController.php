@@ -102,11 +102,18 @@ class TransHeadController extends Controller
     public function byStoreReturn($id)
     {
         try {
-            $trans_head = trans_head::where("store_id", $id)->where("status", 6)->with('profile')->orderBy('id', 'desc')->get();
+            $trans_head = trans_head::where("store_id", $id)->where("status", 5)->with('profile')->orderBy('id', 'desc')->get();
+            $trans_head_return = trans_head::where("store_id", $id)->where("status", 6)->with('profile')->orderBy('id', 'desc')->get();
             $data = [];
+            $data["proses"] = [];
+            $data["done"] = [];
             foreach ($trans_head as $key => $value) {
                 $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
-                array_push($data, ["head" => $value, "body" => $trans]);
+                array_push($data["proses"], ["head" => $value, "body" => $trans]);
+            }
+            foreach ($trans_head_return as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data["done"], ["head" => $value, "body" => $trans]);
             }
             return getRespond(true, "Berhasil Fetching Data", $data);
         } catch (\Throwable $th) {
@@ -155,11 +162,18 @@ class TransHeadController extends Controller
     public function byUserReturn($id)
     {
         try {
-            $trans_head = trans_head::where("user_idrs", $id)->where("status", 6)->with('store')->orderBy('id', 'desc')->get();
+            $trans_head = trans_head::where("user_idrs", $id)->where("status", 5)->with('store')->orderBy('id', 'desc')->get();
+            $trans_head_return = trans_head::where("user_idrs", $id)->where("status", 6)->with('store')->orderBy('id', 'desc')->get();
             $data = [];
+            $data["proses"] = [];
+            $data["done"] = [];
             foreach ($trans_head as $key => $value) {
                 $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
-                array_push($data, ["head" => $value, "body" => $trans]);
+                array_push($data["proses"], ["head" => $value, "body" => $trans]);
+            }
+            foreach ($trans_head_return as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data["done"], ["head" => $value, "body" => $trans]);
             }
             return getRespond(true, "Berhasil Fetching Data", $data);
         } catch (\Throwable $th) {
