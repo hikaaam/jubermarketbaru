@@ -9,4 +9,9 @@ class category extends Model
 {
     protected $table = 'category_tokopedia';
     protected $guarded = [];
+
+    public function child()
+    {
+        return $this->hasMany(catTokpedChild::class, 'parent_category');
+    }
 }

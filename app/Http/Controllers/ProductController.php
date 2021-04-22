@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
+use App\Http\Controllers\helper;
+use Facade\FlareClient\Http\Response;
 
 use function PHPUnit\Framework\isEmpty;
 use function PHPUnit\Framework\isNull;
@@ -149,6 +151,7 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
+
             $dataTable = addData("item_type", "item_type", $request, $dataTable);
             $dataTable = addData("minimal_stock", "minimal_stock", $request, $dataTable);
             $dataTable = addData("category_id", "category_id", $request, $dataTable);
@@ -187,6 +190,13 @@ class ProductController extends Controller
             $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexist("merk", "merk", $request, $dataTable);
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
+            if ($namaExist) {
+                $data["success"] = false;
+                $data["code"] = 402;
+                $data["message"] = "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
+                $data["data"] = [];
+                return $data;
+            }
             $dataTable = checkifexist("origin", "origin", $request, $dataTable);
             item::create($dataTable);
             $items = item::orderBy('id', 'desc')->limit(1)->get();
@@ -216,26 +226,25 @@ class ProductController extends Controller
             return $data;
         } finally {
             // if (!$namaExist) {
-            //     $tokopedia_data =  \App::call('App\Http\Controllers\ScheduleController@getToken');
-            //     return $tokopedia_data;
+            //     $tokopedia_data = helper::getToken();
             //     $token = $tokopedia_data["token"];
             //     $fs_id = $tokopedia_data["fs_id"];
             //     $pictures = [];
-            //     if ($dataTable["picture"] != "null") {
-            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture"]]);
+            //     if (helper::isPicture($dataTable["picture"])) {
+            //         array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture"]]);
             //     } else {
             //         array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
             //     }
-            //     if (!$dataTable["picture_two"] == "null") {
-            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_two"]]);
+            //     if (helper::isPicture($dataTable["picture_two"])) {
+            //         array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture_two"]]);
             //     }
-            //     if (!$dataTable["picture_three"] == "null") {
+            //     if (helper::isPicture($dataTable["picture_three"])) {
             //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
             //     }
-            //     if (!$dataTable["picture_four"] == "null") {
+            //     if (helper::isPicture($dataTable["picture_four"])) {
             //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
             //     }
-            //     if (!$dataTable["picture_five"] == "null") {
+            //     if (helper::isPicture($dataTable["picture_five"])) {
             //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
             //     }
             //     $products = [];
@@ -251,15 +260,14 @@ class ProductController extends Controller
             //     $products["sku"] = $dataTable["sku"];
             //     $products["is_free_return"] = false;
             //     $products["is_must_insurance"] = false;
-            //     $product["stock"] = $dataTable["minimal_stock"];
-            //     $product["min_order"] = 1;
+            //     $products["stock"] = intval($dataTable["minimal_stock"]);
+            //     $products["min_order"] = 1;
             //     $products["pictures"] = $pictures;
             //     $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=10408203';
-            //     $response =  http::withHeaders([
-            //         'Authorization' => 'Bearer ' . $token,
-            //         'Content-Type' => 'application/json'
-            //     ])->post($url, $products);
-            // }
+            //     // $response =  http::withHeaders(helper::getAuth($token))->post($url, $products);
+            //     $response = $products;
+            //     return Response($response, 200);
+            }
         }
     }
 
@@ -477,6 +485,52 @@ class ProductController extends Controller
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
+        } finally {
+            //   if (!$namaExist) {
+            //     $tokopedia_data =  \App::call('App\Http\Controllers\ScheduleController@getToken');
+            //     $token = $tokopedia_data["token"];
+            //     $fs_id = $tokopedia_data["fs_id"];
+            //     $pictures = [];
+            //     if ($dataTable["picture"] != "null") {
+            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture"]]);
+            //     } else {
+            //         array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
+            //     }
+            //     // if (!$dataTable["picture_two"] == "null") {
+            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_two"]]);
+            //     // }
+            //     // if (!$dataTable["picture_three"] == "null") {
+            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
+            //     // }
+            //     // if (!$dataTable["picture_four"] == "null") {
+            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
+            //     // }
+            //     // if (!$dataTable["picture_five"] == "null") {
+            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
+            //     // }
+            //     $products = [];
+            //     $products["name"] = $dataTable["name"];
+            //     $products["condition"] = ($dataTable["condition"] == 1) ? "new" : "used";
+            //     $products["description"] = $dataTable["description"];
+            //     $products["price"] = $dataTable["selling_price"];
+            //     $products["status"] = "limited";
+            //     $products["price_currency"] = "IDR";
+            //     $products["weight"] = $dataTable["weight"];
+            //     $products["weight_unit"] = $dataTable["weight_unit"];
+            //     $products["category_id"] = $dataTable["category_id"];
+            //     $products["sku"] = $dataTable["sku"];
+            //     $products["is_free_return"] = false;
+            //     $products["is_must_insurance"] = false;
+            //     $product["stock"] = $dataTable["minimal_stock"];
+            //     $product["min_order"] = 1;
+            //     $products["pictures"] = $pictures;
+            //     $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=10408203';
+            //     $response =  http::withHeaders([
+            //         'Authorization' => 'Bearer ' . $token,
+            //         'Content-Type' => 'application/json'
+            //     ])->post($url, $products);
+            //     // return $response;
+            // }
         }
         return $data;
     }

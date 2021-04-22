@@ -8,7 +8,8 @@ use App\Models\ref_cat;
 use DateTime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\partner;
+use App\Models\tokopedia_token;
+use App\Models\catTokpedChild as child_cat;
 
 class ScheduleController extends Controller
 {
@@ -21,53 +22,51 @@ class ScheduleController extends Controller
     {
         $app_id = 14523;
         $now = Carbon::now()->timestamp;
-        $partner = partner::find(1);
-        $token = $partner->token;
+        $partner = tokopedia_token::find(1);
+        $token = $partner->access_token;
         $updated_at = $partner->updated_at;
-        $expired_at = $partner->expired_at;
         $updated_at_second  = Carbon::parse($updated_at)->timestamp;
-        $diff = $now - $updated_at_second;
-        $is_expired = $diff > $expired_at;
+        if ($updated_at == null) {
+            $is_expired = true;
+        } else {
+            $is_expired = $updated_at_second >= $now;
+        }
         if ($is_expired) {
             $response =  http::withHeaders([
-                'Authorization' => 'Basic e72998ade06043db98e9ebbc90e9c56c',
+                'Authorization' => 'Basic YzY0MDYyNjNmYmY1NDMxZWE3OTNiOWFkYzUxNTg3NDk6ZTcyOTk4YWRlMDYwNDNkYjk4ZTllYmJjOTBlOWM1NmM=',
                 'Content-Length' => '0',
                 'User-Agent' => 'PostmanRuntime/7.17.1'
-            ])->post('https://accounts.tokopedia.com/token?grant_type=c6406263fbf5431ea793b9adc5158749');
+            ])->post('https://accounts.tokopedia.com/token?grant_type=client_credentials');
             $res_data = $response->json();
-            $token = $res_data["data"]["access_token"];
-            $expired_at = $res_data["data"]["expired_in"];
+            // return $res_data;
+            $token = $res_data["access_token"];
+            $expired_at = $res_data["expires_in"];
+            $last_login_type = $res_data["last_login_type"];
+            $refresh = true;
             $updated_at = Carbon::now()->toDateTimeString();
-            partner::find(1)->update(["token" => $token, "expired_at" => $expired_at, "updated_at" => $updated_at]);
+            tokopedia_token::find(1)->update(
+                [
+                    "access_token" => $token,
+                    "expires_in" => $expired_at,
+                    "updated_at" => $updated_at,
+                    "last_login_type" => $last_login_type
+                ]
+            );
+        } else {
+            $refresh = false;
         }
-        return ["token" => $token, "fs_id" => $app_id];
+        return ["token" => $token, "fs_id" => $app_id, "refresh" => $refresh, "last_updated_at" => $updated_at];
     }
+
     public function index()
     {
-        $app_id = 14523;
-        $url = "https://fs.tokopedia.net/inventory/v1/fs/" . $app_id . "/product/category";
+
         $now = Carbon::now()->timestamp;
         try {
-            $partner = partner::find(1);
-            $token = $partner->token;
-            $updated_at = $partner->updated_at;
-            $expired_at = $partner->expired_at;
-            $updated_at_second  = Carbon::parse($updated_at)->timestamp;
-            $diff = $now - $updated_at_second;
-            $is_expired = $diff > $expired_at;
-            if ($is_expired) {
-                return "token_expired";
-                $response =  http::withHeaders([
-                    'Authorization' => 'Basic e72998ade06043db98e9ebbc90e9c56c',
-                    'Content-Length' => '0',
-                    'User-Agent' => 'PostmanRuntime/7.17.1'
-                ])->post('https://accounts.tokopedia.com/token?grant_type=c6406263fbf5431ea793b9adc5158749');
-                $res_data = $response->json();
-                $token = $res_data["data"]["access_token"];
-                $expired_at = $res_data["data"]["expired_in"];
-                $updated_at = Carbon::now()->toDateTimeString();
-                partner::find(1)->update(["token" => $token, "expired_at" => $expired_at, "updated_at" => $updated_at]);
-            }
+            $getToken = $this->getToken();
+            $token = $getToken["token"];
+            $app_id = $getToken["fs_id"];
+            $url = "https://fs.tokopedia.net/inventory/v1/fs/" . $app_id . "/product/category";
             ref_cat::where('id', '>', 0)->delete();
             $response = http::withToken($token)->get($url);
             $res_data = $response->json();
@@ -75,25 +74,42 @@ class ScheduleController extends Controller
             foreach ($data as $key => $value) {
                 $ref_name = $value['name'];
                 $ref_id = $value['id'];
+                $ref_cat = ["name" => $ref_name, "id" => $ref_id];
+                ref_cat::create($ref_cat);
                 if (array_key_exists("child", $value)) {
                     $child = $value['child'];
-                    $ref_cat = ["name" => $ref_name, "id" => $ref_id];
-                    ref_cat::create($ref_cat);
                     foreach ($child as $child_key => $child_value) {
                         $child_name = $child_value['name'];
                         $child_id = $child_value['id'];
                         $cat = ["name" => $child_name, "id" => $child_id, "ref_category" => $ref_id];
                         category::create($cat);
+                        if ($child_value["child"] == null) {
+                            // return $child_value;
+                            $_child = ["name" => $child_name, "id" => $child_id, "ref_category" => $ref_id, "parent_category" => $child_id];
+                            child_cat::create($_child);
+                        } else {
+                            foreach ($child_value["child"] as $key => $_child_value) {
+                                # code...
+                                // return $_child_value;
+                                $_child = ["name" => $_child_value["name"], "id" => $_child_value["id"], "ref_category" => $ref_id, "parent_category" => $child_id];
+                                child_cat::create($_child);
+                            }
+                        }
                     }
+                } else {
+                    $cat = ["name" => $ref_name, "id" => $ref_id, "ref_category" => $ref_id];
+                    category::create($cat);
+                    $_child = ["name" => $ref_name, "id" => $ref_id, "ref_category" => $ref_id, "parent_category" => $ref_id];
+                    child_cat::create($_child);
                 }
             }
-            $end_time = Carbon::now()->timestamp;;
-            $runTime = $end_time - $now . " detik";
+            $end_time = Carbon::now()->timestamp;
+            $runTime = ($end_time - $now) . " detik";
             return ["runTime" => $runTime];
         } catch (\Throwable $th) {
             $end_time = Carbon::now()->timestamp;
             $runTime = $end_time - $now . " detik";
-            return ["msg" => $th->getMessage()];
+            return ["msg" => $th->getMessage(), "runTime" => $runTime];
         }
     }
 

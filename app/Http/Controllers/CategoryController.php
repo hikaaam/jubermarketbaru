@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\category;
+use App\Models\ref_cat;
+use App\Models\catTokpedChild as child;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
     /**
      * Display a listing of the resource.
@@ -20,15 +22,12 @@ class CategoryController extends Controller
      */
     public function index()
     {
-      
         try {
-            $result = category::all();
-
+            $result = ref_cat::with("child.child")->get();
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -56,39 +55,39 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
+                return $databaru;
+            } else {
                 return $dataTable;
             }
         }
-        function addData($column,$request_name,$request,$dataTable){
+        function addData($column, $request_name, $request, $dataTable)
+        {
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
-      
+
         try {
-           $dataTable = addData("name","name",$request,$dataTable);
-           $dataTable = addData("store_id","store_id",$request,$dataTable);
-           $dataTable = addData("created_by","created_by",$request,$dataTable);
-           $dataTable = addData("ref_category","ref_category",$request,$dataTable);
-            
-           $dataTable = checkifexist("created_by_id","created_by_id",$request,$dataTable);
-           $dataTable = checkifexist("description","description",$request,$dataTable);
-           $dataTable = checkifexist("parent_id","parent_id",$request,$dataTable);
+            $dataTable = addData("name", "name", $request, $dataTable);
+            $dataTable = addData("store_id", "store_id", $request, $dataTable);
+            $dataTable = addData("created_by", "created_by", $request, $dataTable);
+            $dataTable = addData("ref_category", "ref_category", $request, $dataTable);
+
+            $dataTable = checkifexist("created_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = checkifexist("description", "description", $request, $dataTable);
+            $dataTable = checkifexist("parent_id", "parent_id", $request, $dataTable);
 
             category::create($dataTable);
 
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil tambah data";
-            $data["data"] = ["request_data"=>$dataTable];
-        
+            $data["data"] = ["request_data" => $dataTable];
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -113,7 +112,6 @@ class CategoryController extends Controller
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -143,39 +141,39 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
+        function checkifexist($column, $request_name, $request, $dataTable)
+        {
+            if (array_key_exists($request_name, $request)) {
+                $databaru = addData($column, $request_name, $request, $dataTable);
+                return $databaru;
+            } else {
                 return $dataTable;
             }
         }
-        function addData($column,$request_name,$request,$dataTable){
+        function addData($column, $request_name, $request, $dataTable)
+        {
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         }
-      
+
         try {
-           $dataTable = addData("name","name",$request,$dataTable);
-           $dataTable = addData("store_id","store_id",$request,$dataTable);
-           $dataTable = addData("created_by","created_by",$request,$dataTable);
-           $dataTable = addData("ref_category","ref_category",$request,$dataTable);
-            
-           $dataTable = checkifexist("created_by_id","created_by_id",$request,$dataTable);
-           $dataTable = checkifexist("description","description",$request,$dataTable);
-           $dataTable = checkifexist("parent_id","parent_id",$request,$dataTable);
+            $dataTable = addData("name", "name", $request, $dataTable);
+            $dataTable = addData("store_id", "store_id", $request, $dataTable);
+            $dataTable = addData("created_by", "created_by", $request, $dataTable);
+            $dataTable = addData("ref_category", "ref_category", $request, $dataTable);
+
+            $dataTable = checkifexist("created_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = checkifexist("description", "description", $request, $dataTable);
+            $dataTable = checkifexist("parent_id", "parent_id", $request, $dataTable);
 
             category::find($id)->update($dataTable);
 
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil update data";
-            $data["data"] = ["request_data"=>$dataTable];
-        
+            $data["data"] = ["request_data" => $dataTable];
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -185,14 +183,14 @@ class CategoryController extends Controller
         return $data;
     }
 
-    public function Getbystoreid($id){
+    public function Getbystoreid($id)
+    {
         try {
-            $result = category::where('store_id',$id)->get();
+            $result = category::where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -208,18 +206,17 @@ class CategoryController extends Controller
      * @param  \App\Models\category  $category
      * @return \Illuminate\Http\Response
      */
-    
+
     public function destroy($id)
     {
         try {
-  
+
             category::find($id)->delete();
 
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil hapus data";
             $data["data"] = [];
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
