@@ -14,8 +14,6 @@ use Config;
 use App\Http\Controllers\helper;
 use Facade\FlareClient\Http\Response;
 
-use function PHPUnit\Framework\isEmpty;
-use function PHPUnit\Framework\isNull;
 
 class ProductController extends Controller
 {
@@ -98,6 +96,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $shopid = helper::shopid();
         $request = json_decode($request->payload, true);
         $dataTable = [];
         function checkifexist($column, $request_name, $request, $dataTable)
@@ -198,9 +197,7 @@ class ProductController extends Controller
                 return $data;
             }
             $dataTable = checkifexist("origin", "origin", $request, $dataTable);
-            item::create($dataTable);
-            $items = item::orderBy('id', 'desc')->limit(1)->get();
-            $items = $items[0];
+            $items = item::create($dataTable);
             $id = $items->id;
 
             if (count($request["variant"]) > 0) {
@@ -225,48 +222,64 @@ class ProductController extends Controller
             $data["message"] = $th->getMessage();
             return $data;
         } finally {
-            // if (!$namaExist) {
-            //     $tokopedia_data = helper::getToken();
-            //     $token = $tokopedia_data["token"];
-            //     $fs_id = $tokopedia_data["fs_id"];
-            //     $pictures = [];
-            //     if (helper::isPicture($dataTable["picture"])) {
-            //         array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture"]]);
-            //     } else {
-            //         array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
-            //     }
-            //     if (helper::isPicture($dataTable["picture_two"])) {
-            //         array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture_two"]]);
-            //     }
-            //     if (helper::isPicture($dataTable["picture_three"])) {
-            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
-            //     }
-            //     if (helper::isPicture($dataTable["picture_four"])) {
-            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
-            //     }
-            //     if (helper::isPicture($dataTable["picture_five"])) {
-            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
-            //     }
-            //     $products = [];
-            //     $products["name"] = $dataTable["name"];
-            //     $products["condition"] = ($dataTable["condition"] == 1) ? "new" : "used";
-            //     $products["description"] = $dataTable["description"];
-            //     $products["price"] = $dataTable["selling_price"];
-            //     $products["status"] = "limited";
-            //     $products["price_currency"] = "IDR";
-            //     $products["weight"] = $dataTable["weight"];
-            //     $products["weight_unit"] = $dataTable["weight_unit"];
-            //     $products["category_id"] = $dataTable["category_id"];
-            //     $products["sku"] = $dataTable["sku"];
-            //     $products["is_free_return"] = false;
-            //     $products["is_must_insurance"] = false;
-            //     $products["stock"] = intval($dataTable["minimal_stock"]);
-            //     $products["min_order"] = 1;
-            //     $products["pictures"] = $pictures;
-            //     $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=10408203';
-            //     // $response =  http::withHeaders(helper::getAuth($token))->post($url, $products);
-            //     $response = $products;
-            //     return Response($response, 200);
+            if (!$namaExist) {
+                $tokopedia_data = helper::getToken();
+                $token = $tokopedia_data["token"];
+                $fs_id = $tokopedia_data["fs_id"];
+                $pictures = [];
+                if (helper::isPicture($dataTable["picture"])) {
+                    array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture"]]);
+                } else {
+                    array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
+                }
+                if (helper::isPicture($dataTable["picture_two"])) {
+                    array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture_two"]]);
+                }
+                if (helper::isPicture($dataTable["picture_three"])) {
+                    array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
+                }
+                if (helper::isPicture($dataTable["picture_four"])) {
+                    array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
+                }
+                if (helper::isPicture($dataTable["picture_five"])) {
+                    array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
+                }
+                $products = [];
+                $products["name"] = $dataTable["name"];
+                $products["condition"] = ($dataTable["condition"] == 1) ? "NEW" : "USED";
+                $products["description"] = $dataTable["description"];
+                $products["price"] = intval($dataTable["selling_price"]);
+                $products["status"] = "LIMITED";
+                $products["price_currency"] = "IDR";
+                $products["weight"] = intval($dataTable["weight"]);
+                $products["weight_unit"] = $dataTable["weight_unit"];
+                $products["category_id"] = intval($dataTable["category_id"]);
+                $products["sku"] = $dataTable["sku"];
+                $products["is_free_return"] = false;
+                $products["is_must_insurance"] = false;
+                $products["stock"] = intval($dataTable["minimal_stock"]);
+                $products["min_order"] = 1;
+                $products["pictures"] = $pictures;
+                $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=' . $shopid;
+                $products = ["products" => [$products]];
+                $response =  http::withHeaders(helper::getAuth($token))->post($url, $products);
+                $response = $response->json();
+                try {
+                    $uploadId = $response["data"]["upload_id"];
+                    $response = http::withHeaders(helper::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
+                    $resdata = $response->json();
+                    $resdata = $resdata["body"];
+                    if ($resdata["success_rows"] >= 1) {
+                        $productid = $resdata["succcess_rows_data"][0]["prodduct_id"];
+                        item::findOrFail($id)->update(["tokopedia_id" => $productid]);
+                        // return Response($response, 200);
+                    }
+                    if ($resdata["unprocessed_rows"] >= 1) {
+                        item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
+                        // return Response($response, 200);
+                    }
+                } catch (\Throwable $th) {
+                }
             }
         }
     }

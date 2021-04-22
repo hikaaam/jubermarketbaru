@@ -29,7 +29,7 @@ class ScheduleController extends Controller
         if ($updated_at == null) {
             $is_expired = true;
         } else {
-            $is_expired = $updated_at_second >= $now;
+            $is_expired = $updated_at_second <= $now;
         }
         if ($is_expired) {
             $response =  http::withHeaders([

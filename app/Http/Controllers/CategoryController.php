@@ -6,6 +6,7 @@ use App\Models\category;
 use App\Models\ref_cat;
 use App\Models\catTokpedChild as child;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -23,7 +24,9 @@ class CategoryController extends Controller
     public function index()
     {
         try {
+            // DB::enableQueryLog();
             $result = ref_cat::with("child.child")->get();
+            // dd(DB::getQueryLog());
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
