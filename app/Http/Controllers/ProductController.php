@@ -150,7 +150,13 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
-
+            $namaExist = false;
+            $success = false;
+            $withVariant = false;
+            $variant_ = null;
+            if (!helper::isPicture($request["picture"])) {
+                return getRespond(false, "Masukan minimal 1 foto untuk upload produk", []);
+            }
             $dataTable = addData("item_type", "item_type", $request, $dataTable);
             $dataTable = addData("minimal_stock", "minimal_stock", $request, $dataTable);
             $dataTable = addData("category_id", "category_id", $request, $dataTable);
@@ -200,85 +206,38 @@ class ProductController extends Controller
             $items = item::create($dataTable);
             $id = $items->id;
 
+
+            // $id = 240; //for trial purpose
+            // $items = []; //for trial purpose
+
             if (count($request["variant"]) > 0) {
                 $withVariant = true;
+                $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
                     $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
                     Variant::create($variant);
                 }
-            } else {
-                $withVariant = false;
             }
 
             $data["success"] = true;
             $data["code"] = 202;
             $data["message"] = "berhasil";
             $data["data"] = ["request_data" => $items];
+            $success = true;
             return $data;
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
+            $success = false;
             return $data;
         } finally {
-            if (!$namaExist) {
-                $tokopedia_data = helper::getToken();
-                $token = $tokopedia_data["token"];
-                $fs_id = $tokopedia_data["fs_id"];
-                $pictures = [];
-                if (helper::isPicture($dataTable["picture"])) {
-                    array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture"]]);
-                } else {
-                    array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
-                }
-                if (helper::isPicture($dataTable["picture_two"])) {
-                    array_push($pictures, ["file_path" => \config('app.url') . "" . $dataTable["picture_two"]]);
-                }
-                if (helper::isPicture($dataTable["picture_three"])) {
-                    array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
-                }
-                if (helper::isPicture($dataTable["picture_four"])) {
-                    array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
-                }
-                if (helper::isPicture($dataTable["picture_five"])) {
-                    array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
-                }
-                $products = [];
-                $products["name"] = $dataTable["name"];
-                $products["condition"] = ($dataTable["condition"] == 1) ? "NEW" : "USED";
-                $products["description"] = $dataTable["description"];
-                $products["price"] = intval($dataTable["selling_price"]);
-                $products["status"] = "LIMITED";
-                $products["price_currency"] = "IDR";
-                $products["weight"] = intval($dataTable["weight"]);
-                $products["weight_unit"] = $dataTable["weight_unit"];
-                $products["category_id"] = intval($dataTable["category_id"]);
-                $products["sku"] = $dataTable["sku"];
-                $products["is_free_return"] = false;
-                $products["is_must_insurance"] = false;
-                $products["stock"] = intval($dataTable["minimal_stock"]);
-                $products["min_order"] = 1;
-                $products["pictures"] = $pictures;
-                $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=' . $shopid;
-                $products = ["products" => [$products]];
-                $response =  http::withHeaders(helper::getAuth($token))->post($url, $products);
-                $response = $response->json();
+            if (!$namaExist && $success) {
                 try {
-                    $uploadId = $response["data"]["upload_id"];
-                    $response = http::withHeaders(helper::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
-                    $resdata = $response->json();
-                    $resdata = $resdata["body"];
-                    if ($resdata["success_rows"] >= 1) {
-                        $productid = $resdata["succcess_rows_data"][0]["prodduct_id"];
-                        item::findOrFail($id)->update(["tokopedia_id" => $productid]);
-                        // return Response($response, 200);
-                    }
-                    if ($resdata["unprocessed_rows"] >= 1) {
-                        item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
-                        // return Response($response, 200);
-                    }
+                    helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
                 } catch (\Throwable $th) {
+                    return $data;
                 }
             }
         }
@@ -493,57 +452,13 @@ class ProductController extends Controller
             $data["code"] = 202;
             $data["message"] = "berhasil";
             $data["data"] = ["request_data" => $request];
+            return $data;
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
         } finally {
-            //   if (!$namaExist) {
-            //     $tokopedia_data =  \App::call('App\Http\Controllers\ScheduleController@getToken');
-            //     $token = $tokopedia_data["token"];
-            //     $fs_id = $tokopedia_data["fs_id"];
-            //     $pictures = [];
-            //     if ($dataTable["picture"] != "null") {
-            //         array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture"]]);
-            //     } else {
-            //         array_push($pictures, ["file_path" => "https://ecs7.tokopedia.net/img/cache/700/product-1/2017/9/27/5510391/5510391_9968635e-a6f4-446a-84d0-ff3a98a5d4a2.jpg"]);
-            //     }
-            //     // if (!$dataTable["picture_two"] == "null") {
-            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_two"]]);
-            //     // }
-            //     // if (!$dataTable["picture_three"] == "null") {
-            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_three"]]);
-            //     // }
-            //     // if (!$dataTable["picture_four"] == "null") {
-            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_four"]]);
-            //     // }
-            //     // if (!$dataTable["picture_five"] == "null") {
-            //     //     array_push($pictures, ["file_path" => \config('app.url') . ":8001" . $dataTable["picture_five"]]);
-            //     // }
-            //     $products = [];
-            //     $products["name"] = $dataTable["name"];
-            //     $products["condition"] = ($dataTable["condition"] == 1) ? "new" : "used";
-            //     $products["description"] = $dataTable["description"];
-            //     $products["price"] = $dataTable["selling_price"];
-            //     $products["status"] = "limited";
-            //     $products["price_currency"] = "IDR";
-            //     $products["weight"] = $dataTable["weight"];
-            //     $products["weight_unit"] = $dataTable["weight_unit"];
-            //     $products["category_id"] = $dataTable["category_id"];
-            //     $products["sku"] = $dataTable["sku"];
-            //     $products["is_free_return"] = false;
-            //     $products["is_must_insurance"] = false;
-            //     $product["stock"] = $dataTable["minimal_stock"];
-            //     $product["min_order"] = 1;
-            //     $products["pictures"] = $pictures;
-            //     $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=10408203';
-            //     $response =  http::withHeaders([
-            //         'Authorization' => 'Bearer ' . $token,
-            //         'Content-Type' => 'application/json'
-            //     ])->post($url, $products);
-            //     // return $response;
-            // }
         }
         return $data;
     }
@@ -581,8 +496,6 @@ class ProductController extends Controller
         try {
             $item = item::find($id);
             $variant = Variant::where('item_id', $id)->get();
-            deleteItemPicture($item);
-            deleteVariantPicture($variant);
             $item->delete();
             Variant::where('item_id', $id)->delete();
             $data["success"] = true;
@@ -598,34 +511,7 @@ class ProductController extends Controller
         return $data;
     }
 }
-function deleteItemPicture($item)
-{
-    $pictures = [];
-    if ($item['picture'] !== 'null') {
-        array_push($pictures, $item['picture']);
-    } else if ($item['picture_two'] !== 'null') {
-        array_push($pictures, $item['picture_two']);
-    } else if ($item['picture_three'] !== 'null') {
-        array_push($pictures, $item['picture_three']);
-    } else if ($item['picture_four'] !== 'null') {
-        array_push($pictures, $item['picture_four']);
-    } else if ($item['picture_five'] !== 'null') {
-        array_push($pictures, $item['picture_five']);
-    }
-    foreach ($pictures as $key => $value) {
-        app('App\Http\Controllers\uploadController')->deleteImgBackend($value);
-    }
-    return;
-}
-function deleteVariantPicture($item)
-{
-    if (count($item) > 0) {
-        foreach ($item as $key => $value) {
-            app('App\Http\Controllers\uploadController')->deleteImgBackend($value['picture']);
-        }
-    }
-    return;
-}
+
 function getRespond($success, $msg, $datas)
 {
     if ($success) {
