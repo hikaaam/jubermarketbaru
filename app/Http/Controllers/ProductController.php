@@ -178,7 +178,7 @@ class ProductController extends Controller
             $dataTable = checkifexist("video", "video", $request, $dataTable);
             $dataTable = checkifexist("type_of_item", "type_of_item", $request, $dataTable);
             $dataTable = checkifexist("item_unit_id", "item_unit_id", $request, $dataTable);
-            $dataTable = checkifexist("si_active", "is_active", $request, $dataTable);
+            $dataTable = checkifexist("is_active", "is_active", $request, $dataTable);
             $dataTable = checkifexist("basic_price", "basic_price", $request, $dataTable);
             $dataTable = checkifexist("cost_of_good_sold", "cost_of_good_sold", $request, $dataTable);
             $dataTable = checkifexist("item_tax_type", "item_tax_type", $request, $dataTable);
@@ -401,6 +401,12 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
+            $dontHaveTokopediaId = false;
+            $table = item::findOrFail($id);
+            $check = item::where("name", $request["name"])->count();
+            if ($table->name != $request["name"] && $check >= 1) {
+                return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
+            }
             $dataTable = checkifexist("item_type", "item_type", $request, $dataTable);
             $dataTable = checkifexist("minimal_stock", "minimal_stock", $request, $dataTable);
             $dataTable = checkifexist("category_id", "category_id", $request, $dataTable);
@@ -423,7 +429,7 @@ class ProductController extends Controller
             $dataTable = checkifexist("video", "video", $request, $dataTable);
             $dataTable = checkifexist("type_of_item", "type_of_item", $request, $dataTable);
             $dataTable = checkifexist("item_unit_id", "item_unit_id", $request, $dataTable);
-            $dataTable = checkifexist("si_active", "is_active", $request, $dataTable);
+            $dataTable = checkifexist("is_active", "is_active", $request, $dataTable);
             $dataTable = checkifexist("basic_price", "basic_price", $request, $dataTable);
             $dataTable = checkifexist("cost_of_good_sold", "cost_of_good_sold", $request, $dataTable);
             $dataTable = checkifexist("item_tax_type", "item_tax_type", $request, $dataTable);
@@ -439,7 +445,8 @@ class ProductController extends Controller
             $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
             $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexist("merk", "merk", $request, $dataTable);
-            item::findOrFail($id)->update($dataTable);
+            $table->update($dataTable);
+            $dontHaveTokopediaId = $table->tokopedia_id == null;
             Variant::where('item_id', $id)->delete();
             if (count($request["variant"]) > 0) {
                 foreach ($request["variant"] as $key => $value) {
@@ -458,9 +465,17 @@ class ProductController extends Controller
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
+            return $data;
         } finally {
+            if (!$dontHaveTokopediaId) {
+                try {
+                    helper::tokopediaUpdate($dataTable, $table["tokopedia_id"], $table);
+                } catch (\Throwable $th) {
+                    return $data;
+                }
+            }
         }
-        return $data;
+        // return $data
     }
 
     public function getRelatedProduct(Request $request, $id)
@@ -490,11 +505,39 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function updateIsShown(Request $request, $id)
+    {
+        $request = json_decode($request->payload, true);
+        $dataTable = [];
+        $dontHaveTokopediaId = true;
+        try {
+            $dataTable = helper::addData("is_shown", "is_shown", $request, $dataTable);
+            $isActive = intval($dataTable["is_shown"]) == 1;
+            $table = item::findOrFail($id);
+            $table->update($dataTable);
+            $dontHaveTokopediaId = $table->tokopedia_id == null;
+            $msg = $isActive ? 'aktif' : 'tidak aktif';
+            $data = getRespond(true, "berhasil mengubah produk menjadi {$msg}", ["updatedField" => 1, "status" => $msg]);
+            return $data;
+        } catch (\Throwable $th) {
+            $data = getRespond(true, "gagal mengubah produk menjadi {$msg}", ["updatedField" => 0, "status" => $msg, "Reason" => $th->getMessage()]);
+            return $data;
+        } finally {
+            if (!$dontHaveTokopediaId) {
+                try {
+                    helper::tokopediaChangeVisibility($table->tokopedia_id, $isActive);
+                } catch (\Throwable $th) {
+                    return $data;
+                }
+            }
+        }
+    }
+
     public function destroy($id)
     {
-
         try {
             $item = item::find($id);
+            $dontHaveTokopediaId = $item["tokopedia_id"] == null;
             $variant = Variant::where('item_id', $id)->get();
             $item->delete();
             Variant::where('item_id', $id)->delete();
@@ -502,13 +545,22 @@ class ProductController extends Controller
             $data["code"] = 202;
             $data["message"] = "berhasil di hapus";
             $data["data"] = [];
+            return $data;
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
+            return $data;
+        } finally {
+            if (!$dontHaveTokopediaId) {
+                try {
+                    helper::deleteTokopedia($item["tokopedia_id"]);
+                } catch (\Throwable $th) {
+                    return $data;
+                }
+            }
         }
-        return $data;
     }
 }
 
