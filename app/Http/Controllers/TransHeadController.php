@@ -140,7 +140,7 @@ class TransHeadController extends Controller
     {
         try {
             $trans_head = trans_head::where("user_idrs", $id)->where("status", 4)->with('store')->orderBy('id', 'desc')->get();
-            $trans_head_cancel = trans_head::where("user_idrs", $id)->where("status", 0)->with('profile')->orderBy('id', 'desc')->get();
+            $trans_head_cancel = trans_head::where("user_idrs", $id)->where("status", 0)->with('store')->orderBy('id', 'desc')->get();
 
             $data = [];
             $data["done"] = [];
