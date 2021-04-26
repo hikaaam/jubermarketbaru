@@ -167,12 +167,14 @@ Route::get('schedule', [ScheduleController::class, 'index']);
 
 //order or transactions
 Route::get('order/{id}', [TransHeadController::class, 'show']);
+Route::get('order/store/all/{id}', [TransHeadController::class, 'byStoreAll']);
 Route::get('order/store/{id}', [TransHeadController::class, 'byStoreRecent']);
 Route::get('order/store/past/{id}', [TransHeadController::class, 'byStorePast']);
 Route::get('order/store/unreview/{id}', [TransHeadController::class, 'byStoreUnreviewed']);
 Route::get('order/store/return/{id}', [TransHeadController::class, 'byStoreReturn']);
 Route::get('order/user/idrs/{id}', [TransHeadController::class, 'byUserRecent']);
 Route::get('order/user/past/idrs/{id}', [TransHeadController::class, 'byUserPast']);
+Route::get('order/user/all/idrs/{id}', [TransHeadController::class, 'byUserAll']);
 Route::get('order/user/unreview/idrs/{id}', [TransHeadController::class, 'byUserUnreviewed']);
 Route::get('order/user/return/idrs/{id}', [TransHeadController::class, 'byUserReturn']);
 Route::get('order/all/status', [TransHeadController::class, 'allOrderStatus']);

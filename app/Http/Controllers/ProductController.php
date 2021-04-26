@@ -12,6 +12,8 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
 use App\Http\Controllers\helper;
+use App\Models\trans;
+use Exception;
 use Facade\FlareClient\Http\Response;
 
 
@@ -36,7 +38,7 @@ class ProductController extends Controller
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/product");
+            $data["data"] = $result->setPath("/api/product");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -52,7 +54,7 @@ class ProductController extends Controller
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/product/hidden");
+            $data["data"] = $result->setPath("/api/product/hidden");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -68,7 +70,7 @@ class ProductController extends Controller
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/product/visible");
+            $data["data"] = $result->setPath("/api/product/visible");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -252,7 +254,11 @@ class ProductController extends Controller
     public function show($id)
     {
         try {
-            $result = item::find($id);
+            $id = intval($id);
+            if ($id == 0) {
+                throw new Exception("ID must be a number and bigger than 0");
+            }
+            $result = item::findOrFail($id);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -334,7 +340,7 @@ class ProductController extends Controller
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
-            $data["data"] = $result->setPath(\config('app.url') . ":8001/api/productByRef");
+            $data["data"] = $result->setPath("/api/productByRef");
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -527,7 +533,7 @@ class ProductController extends Controller
                 try {
                     helper::tokopediaChangeVisibility($table->tokopedia_id, $isActive);
                 } catch (\Throwable $th) {
-                    return $data;
+                    // return $data;
                 }
             }
         }
@@ -536,28 +542,47 @@ class ProductController extends Controller
     public function destroy($id)
     {
         try {
-            $item = item::find($id);
+            $item = item::findOrFail($id);
             $dontHaveTokopediaId = $item["tokopedia_id"] == null;
+            $countTrans = trans::where('item_id', $id)->count();
+            $haveTrans = $countTrans >= 1;
+            // return [$item, $haveTrans];
+            if ($haveTrans) {
+                $item->update(["is_shown" => 0]);
+                $data["success"] = true;
+                $data["code"] = 200;
+                $data["message"] = "Barang di non aktifkan karena memiliki transaksi";
+                $data["data"] = ["updatedRow" => 1, "product_id" => $id];
+                return $data;
+            }
             $variant = Variant::where('item_id', $id)->get();
             $item->delete();
             Variant::where('item_id', $id)->delete();
             $data["success"] = true;
-            $data["code"] = 202;
+            $data["code"] = 200;
             $data["message"] = "berhasil di hapus";
-            $data["data"] = [];
+            $data["data"] =  ["deletedRow" => 0, "product_id" => $id];
             return $data;
         } catch (\Throwable $th) {
-            $data["data"] = [];
+            $data["data"] = ["successfulRow" => 0, "product_id" => $id];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
             return $data;
         } finally {
             if (!$dontHaveTokopediaId) {
-                try {
-                    helper::deleteTokopedia($item["tokopedia_id"]);
-                } catch (\Throwable $th) {
-                    return $data;
+                if ($haveTrans) {
+                    try {
+                        helper::tokopediaChangeVisibility($item->tokopedia_id, false);
+                    } catch (\Throwable $th) {
+                        // return $data;
+                    }
+                } else {
+                    try {
+                        helper::deleteTokopedia($item["tokopedia_id"]);
+                    } catch (\Throwable $th) {
+                        // return $data;
+                    }
                 }
             }
         }

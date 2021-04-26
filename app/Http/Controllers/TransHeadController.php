@@ -62,6 +62,21 @@ class TransHeadController extends Controller
         }
         // return $data;
     }
+    public function byStoreAll($id)
+    {
+        try {
+            $trans_head = trans_head::where("store_id", $id)->with('profile')->orderBy('id', 'desc')->get();
+            $data = [];
+            foreach ($trans_head as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data, ["head" => $value, "body" => $trans]);
+            }
+            return getRespond(true, "Berhasil Fetching Data", $data);
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
+        // return $data;
+    }
     public function byStoreRecent($id)
     {
         try {
@@ -114,6 +129,21 @@ class TransHeadController extends Controller
             foreach ($trans_head_return as $key => $value) {
                 $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
                 array_push($data["done"], ["head" => $value, "body" => $trans]);
+            }
+            return getRespond(true, "Berhasil Fetching Data", $data);
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), []);
+        }
+        // return $data;
+    }
+    public function byUserAll($id)
+    {
+        try {
+            $trans_head = trans_head::where("user_idrs", $id)->with('store')->orderBy('id', 'desc')->get();
+            $data = [];
+            foreach ($trans_head as $key => $value) {
+                $trans = trans::where("transaction_id", $value["id"])->with("item")->get();
+                array_push($data, ["head" => $value, "body" => $trans]);
             }
             return getRespond(true, "Berhasil Fetching Data", $data);
         } catch (\Throwable $th) {

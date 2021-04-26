@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 class bridgeController extends Controller
@@ -20,15 +22,15 @@ class bridgeController extends Controller
      */
     public function index()
     {
-        $host = "http://127.0.0.1:8000/api/";
-        if (isset($_GET['product'])) {
-            $url = $host . 'product?page=' . $_GET['product'];
-            $request = Request::create($url, 'POST', []);
-            $response = Route::dispatch($request);
-            return $response;
-        }
-        if (isset($_GET['category'])) {
-        }
+        // $host = "http://127.0.0.1:8000/api/";
+        // if (isset($_GET['product'])) {
+        //     $url = $host . 'product?page=' . $_GET['product'];
+        //     $request = Request::create($url, 'POST', []);
+        //     $response = Route::dispatch($request);
+        //     return $response;
+        // }
+        // if (isset($_GET['category'])) {
+        // }
     }
 
     /**
@@ -50,141 +52,127 @@ class bridgeController extends Controller
     public function store(Request $request)
     {
         return 'gak dipake';
-        // try {
-        //     $host = "http://127.0.0.1:8000/api/";
-        //     if($request->has("payload")){
-        //         $bounds = html_entity_decode($request->payload);
-        //         $payload = json_decode($bounds,true);
-        //     }
-        //     if($request->method == "POST"){
-        //         $url = $host.$request->key;
-        //         $ch = curl_init();
-        //         curl_setopt($ch, CURLOPT_URL, $url);
-        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        //         curl_setopt($ch, CURLOPT_POST, 1);
-        //         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
-        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //         $response  = curl_exec($ch);
-        //         curl_close($ch);
-        //         return $response;
-        //     }else if($request->method == "PUT"){
-        //         $url = $host.$request->key.'/'.$payload['id'];
-        //         // return $url;
-        //         $ch = curl_init();
-        //         curl_setopt($ch, CURLOPT_URL, $url);
-        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Content-Length: ' . strlen(json_encode($payload))));
-        //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-        //         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
-        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //         $response  = curl_exec($ch);
-        //         curl_close($ch);
-        //         return $response;
-        //     }else if($request->method == "DELETE"){
-        //         $url = $host.$request->key.'/'.$payload['id'];
-        //         // return $url;
-        //         $ch = curl_init();
-        //         curl_setopt($ch, CURLOPT_URL, $url);
-        //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        //         curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($payload));
-        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //         $response  = curl_exec($ch);
-        //         curl_close($ch);
-        //         return $response;
-        //     }else{
-        //         $url = $host.$request->key;
-        //         // return $url;
-        //         if($request->has("payload")){
-        //            $url = $host.$request->key."/".$payload['id'];
-        //         }
-        //         // return $url;
-        //         $ch = curl_init();
-        //         curl_setopt($ch, CURLOPT_URL, $url);
-        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //         $response = curl_exec($ch);
-        //         curl_close($ch);
-        //         return $response;
-        //     }
-        //     // CallAPI("POST","http://localhost/JuberMarketPlace/api/".$request->key,$data);
-        //     // return $payload;
-        // } catch (\Throwable $th) {
-        //     $data["data"] = [];
-        //     $data["success"] = false;
-        //     $data["code"] = 500;
-        //     $data["message"] = $th->getMessage();
-        //     return $data;
-        // }
     }
-
     public function bridge(Request $request)
     {
-
-
         $host = "http://127.0.0.1:8000/api/";
+        $url = $host . $request->key;
         if ($request->has("payload")) {
-            $bounds = html_entity_decode($request->payload);
-            $payload = json_decode($bounds, true);
+            $payload = json_decode(html_entity_decode($request->payload), true);
         }
-        if (strtoupper($request->method) == "POST") {
-            try {
-                $url = $host . $request->key;
-                $request = Request::create($url, 'POST', []);
-                $response = Route::dispatch($request);
-                return $response;
-            } catch (\Throwable $th) {
-                $data["data"] = [];
-                $data["success"] = false;
-                $data["code"] = 500;
-                $data["message"] = $th->getMessage();
-                return $data;
+
+        try {
+            switch (strtoupper($request->method)) {
+                case "POST":
+                    return Route::dispatch(Request::create($url, 'POST', []));
+                case "PUT":
+                    $url .= '/' . $payload['id'];
+                    return Route::dispatch(Request::create($url, 'PUT', []));
+                case "DELETE":
+                    $url .= '/' . $payload['id'];
+                    return Route::dispatch(Request::create($url, 'DELETE', []));
+                default:
+                    if ($request->has("payload")) {
+                        if (array_key_exists("id", $payload)) {
+                            if ($payload["id"] == null) {
+                                throw new Exception("Can't get ID with null");
+                            }
+                            $url .= "/" . $payload['id'];
+                        } else if (array_key_exists("page", $payload)) {
+                            if ($payload["page"] == null) {
+                                throw new Exception("Can't get ID with null");
+                            }
+                            $url .= "?page=" . $payload['page'];
+                            try {
+                                $response = Request::create($url, 'GET');
+                                return app()->handle($response);
+                            } catch (\Throwable $th) {
+                                return $th->getMessage();
+                            }
+                        } else {
+                            throw new Exception("Route not found");
+                        }
+                    }
+                    return Route::dispatch(Request::create($url, 'GET'));
             }
-        } else if (strtoupper($request->method) == "PUT") {
-            try {
-                // return $payload;
-                $url = $host . $request->key . '/' . $payload['id'];
-                $request = Request::create($url, 'PUT', []);
-                $response = Route::dispatch($request);
-                return $response;
-            } catch (\Throwable $th) {
-                $data["data"] = [];
-                $data["success"] = false;
-                $data["code"] = 500;
-                $data["message"] = $th->getMessage();
-                return $data;
-            }
-        } else if (strtoupper($request->method) == "DELETE") {
-            try {
-                $url = $host . $request->key . '/' . $payload['id'];
-                $request = Request::create($url, 'DELETE', []);
-                $response = Route::dispatch($request);
-                return $response;
-            } catch (\Throwable $th) {
-                $data["data"] = [];
-                $data["success"] = false;
-                $data["code"] = 500;
-                $data["message"] = $th->getMessage();
-                return $data;
-            }
-        } else {
-            $url = $host . $request->key;
-            // return $url;
-            try {
-                if ($request->has("payload")) {
-                    $url = $host . $request->key . "/" . $payload['id'];
-                }
-                // return $url;
-                $request = Request::create($url, 'GET');
-                $response = Route::dispatch($request);
-                return $response;
-            } catch (\Throwable $th) {
-                $data["data"] = [];
-                $data["success"] = false;
-                $data["code"] = 500;
-                $data["message"] = $th->getMessage();
-                return $data;
-            }
+        } catch (\Throwable $th) {
+            return [
+                "data" => ["payload" => $payload ?? [], "key" => $request->key, "url" => $url],
+                "success" => false,
+                "code" => 404,
+                "message" => $th->getMessage() == "" ? "Route not found" : $th->getMessage(),
+            ];
         }
     }
+    // public function bridge(Request $request)
+    // {
+
+
+    //     $host = "http://127.0.0.1:8000/api/";
+    //     if ($request->has("payload")) {
+    //         $bounds = html_entity_decode($request->payload);
+    //         $payload = json_decode($bounds, true);
+    //     }
+    //     if (strtoupper($request->method) == "POST") {
+    //         try {
+    //             $url = $host . $request->key;
+    //             $request = Request::create($url, 'POST', []);
+    //             $response = Route::dispatch($request);
+    //             return $response;
+    //         } catch (\Throwable $th) {
+    //             $data["data"] = [];
+    //             $data["success"] = false;
+    //             $data["code"] = 500;
+    //             $data["message"] = $th->getMessage();
+    //             return $data;
+    //         }
+    //     } else if (strtoupper($request->method) == "PUT") {
+    //         try {
+    //             // return $payload;
+    //             $url = $host . $request->key . '/' . $payload['id'];
+    //             $request = Request::create($url, 'PUT', []);
+    //             $response = Route::dispatch($request);
+    //             return $response;
+    //         } catch (\Throwable $th) {
+    //             $data["data"] = [];
+    //             $data["success"] = false;
+    //             $data["code"] = 500;
+    //             $data["message"] = $th->getMessage();
+    //             return $data;
+    //         }
+    //     } else if (strtoupper($request->method) == "DELETE") {
+    //         try {
+    //             $url = $host . $request->key . '/' . $payload['id'];
+    //             $request = Request::create($url, 'DELETE', []);
+    //             $response = Route::dispatch($request);
+    //             return $response;
+    //         } catch (\Throwable $th) {
+    //             $data["data"] = [];
+    //             $data["success"] = false;
+    //             $data["code"] = 500;
+    //             $data["message"] = $th->getMessage();
+    //             return $data;
+    //         }
+    //     } else {
+    //         $url = $host . $request->key;
+    //         // return $url;
+    //         try {
+    //             if ($request->has("payload")) {
+    //                 $url = $host . $request->key . "/" . $payload['id'];
+    //             }
+    //             // return $url;
+    //             $request = Request::create($url, 'GET');
+    //             $response = Route::dispatch($request);
+    //             return $response;
+    //         } catch (\Throwable $th) {
+    //             $data["data"] = [];
+    //             $data["success"] = false;
+    //             $data["code"] = 500;
+    //             $data["message"] = $th->getMessage();
+    //             return $data;
+    //         }
+    //     }
+    // }
 
     /**
      * Display the specified resource.
