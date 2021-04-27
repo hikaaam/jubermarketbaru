@@ -7,6 +7,7 @@ use App\Http\Controllers\ScheduleController as schedule;
 use App\Models\item;
 use App\Models\tokopedia_token;
 use Carbon\Carbon;
+use Exception;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -359,10 +360,13 @@ class helper extends Controller
         switch (strtolower($type)) {
             case 'err':
                 Log::alert("[Tokopedia Error]: {$msg}");
+                break;
             case 'jbrerr':
                 Log::alert("[Juber Error]: {$msg}");
+                break;
             default:
                 Log::info("[Tokopedia]: {$msg}");
+                break;
         }
     }
 
@@ -378,10 +382,11 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
+            throw new Exception("Tolollllllllllll");
             http::withHeaders(self::getJuberHeaders())->post($url, $body);
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
-            self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
+            // self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
             self::Logger("Reason: {$th->getMessage()}", "jbrerr");
         }
     }
