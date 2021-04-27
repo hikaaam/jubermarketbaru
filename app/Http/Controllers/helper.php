@@ -73,106 +73,14 @@ class helper extends Controller
     {
         return 10408203;
     }
-    public static function tokopediaUpdate($dataTable, $id, $table)
-    {
 
-        try {
-            self::Logger("Trying to update product with id {$id}");
-            $shopid = self::shopid();
-            $tokopedia_data = self::getToken();
-            $token = $tokopedia_data["token"];
-            $fs_id = $tokopedia_data["fs_id"];
-            $oldPictures = [];
-            if (self::isPicture($table->picture)) {
-                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture)]);
-            }
-            if (self::isPicture($table->picture_two)) {
-                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_two)]);
-            }
-            if (self::isPicture($table->picture_three)) {
-                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_three)]);
-            }
-            if (self::isPicture($table->picture_four)) {
-                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_two)]);
-            }
-            if (self::isPicture($table->picture_five)) {
-                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_five)]);
-            }
-
-            $pictures = [];
-            if (self::isPicture($dataTable["picture"])) {
-                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture"])]);
-            }
-            if (self::isPicture($dataTable["picture_two"])) {
-                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_two"])]);
-            }
-            if (self::isPicture($dataTable["picture_three"])) {
-                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_three"])]);
-            }
-            if (self::isPicture($dataTable["picture_four"])) {
-                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_four"])]);
-            }
-            if (self::isPicture($dataTable["picture_five"])) {
-                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_five"])]);
-            }
-            $products = [];
-            $products["id"] = $id;
-            array_key_exists("name", $dataTable) ? $products["name"] = $dataTable["name"] :
-                $products["name"] = $table->name;
-            array_key_exists("condition", $dataTable) ? $products["condition"] = ($dataTable["condition"] == 1) ? "NEW" : "USED" :
-                $products["condition"] = ($table->condition == 1) ? "NEW" : "USED";
-            array_key_exists("description", $dataTable) ? $products["description"] = $dataTable["description"] :
-                $products["description"] = $table->description;
-            array_key_exists("selling_price", $dataTable) ?  $products["price"] = intval($dataTable["selling_price"]) :
-                $products["price"] = intval($table->selling_price);
-            array_key_exists("weight", $dataTable) ? $products["weight"] = intval($dataTable["weight"]) :
-                $products["weight"] = intval($table->weight);
-            array_key_exists("weight_unit", $dataTable) ? $products["weight_unit"] = $dataTable["weight_unit"] :
-                $products["weight_unit"] = $table->weight_unit;
-            array_key_exists("category_id", $dataTable) ? $products["category_id"] = intval($dataTable["category_id"]) :
-                $products["category_id"] = intval($table->category_id);
-            array_key_exists("minimal_stock", $dataTable) ?  $products["stock"] = intval($dataTable["minimal_stock"]) :
-                $products["minimal_stock"] = intval($table->minimal_stock);
-            count($pictures) >= 1 ? $products["pictures"] = $pictures :
-                $products["pictures"] = $oldPictures;
-            $products["status"] = "LIMITED";
-            $products["is_free_return"] = false;
-            $products["is_must_insurance"] = false;
-            $products["price_currency"] = "IDR";
-            $products["min_order"] = 1;
-            $url = "https://fs.tokopedia.net/v2/products/fs/{$fs_id}/edit?shop_id={$shopid}";  //the patch request need to put all data
-            $products = ["products" => [$products]]; //even if you just want to change the product name you still need to put the old data
-            $response =  http::withHeaders(self::getAuth($token))->patch($url, $products); //i hate you tokopedia :) 
-            $response = $response->json();
-            $uploadId = $response["data"]["upload_id"];
-            $response = http::withHeaders(self::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
-            $resdata = $response->json();
-            $resdata = $resdata["data"];
-            if ($resdata["success_rows"] >= 1) {
-                $productid = $resdata["success_rows_data"][0]["product_id"];
-                item::findOrFail($table->id)->update(["tokopedia_id" => $productid, "tokopedia_is_upload" => 1]);
-                self::Logger("data with id {$table->id} is succesfully updated to tokopedia with product id of {$productid}");
-            }
-            if ($resdata["unprocessed_rows"] >= 1) {
-                item::findOrFail($table->id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
-                // return Response($response, 200);
-                self::tokopediaUploadCheck($uploadId, $token, $fs_id, $table->id);
-            }
-        } catch (\Throwable $th) {
-            // return $th->getMessage();
-            self::Logger("data with id {$table->id} is failed to update tokopedia", "err");
-            self::Logger("Reason ~> {$th->getMessage()}", "err");
-        }
-    }
     public static function tokopediaUpload($dataTable, $id, $withVariant, $variant)
     {
         try {
             $tokopedia_data = self::getToken();
             $token = $tokopedia_data["token"];
             $fs_id = $tokopedia_data["fs_id"];
-            self::Logger("Trying to upload to tokopedia");
             $shopid = self::shopid();
-
             $pictures = [];
             if (self::isPicture($dataTable["picture"])) {
                 array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture"])]);
@@ -226,23 +134,32 @@ class helper extends Controller
             } else {
                 $products = ["products" => [$products]];
             }
-
-
+            // return $products;
             $response =  http::withHeaders(self::getAuth($token))->post($url, $products);
+            self::isForbidden($response->headers(), $response->body());
             $response = $response->json();
             $uploadId = $response["data"]["upload_id"];
             $response = http::withHeaders(self::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
             $resdata = $response->json();
             $resdata = $resdata["data"];
-            if ($resdata["success_rows"] >= 1) {
-                $productid = $resdata["success_rows_data"][0]["product_id"];
-                item::findOrFail($id)->update(["tokopedia_id" => $productid, "tokopedia_is_upload" => 1]);
-                // return Response($response, 200);
-                self::Logger("data with id {$id} is succesfully updated to tokopedia with product id of {$productid}");
+            // return $resdata;
+            if ($resdata['processed_rows'] >= 1) {
+                if ($resdata["success_rows"] >= 1) {
+                    $productid = $resdata["success_rows_data"][0]["product_id"];
+                    item::findOrFail($id)->update(["tokopedia_id" => $productid, "tokopedia_is_upload" => 1]);
+                    self::Logger("data with id {$id} is succesfully updated to tokopedia with product id of {$productid}");
+                }
+                if ($resdata["failed_rows"] >= 1) {
+                    // return $resdata["failed_rows_data"];
+                    $error = $resdata["failed_rows_data"][0]['error'];
+                    item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
+                    throw new Exception(implode("", $error));
+                }
             }
+
             if ($resdata["unprocessed_rows"] >= 1) {
+                // return $resdata;
                 item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
-                // return Response($response, 200);
                 self::tokopediaUploadCheck($uploadId, $token, $fs_id, $id);
             }
         } catch (\Throwable $th) {
@@ -316,8 +233,12 @@ class helper extends Controller
             if ($resdata["success_rows"] >= 1) {
                 $productid = $resdata["success_rows_data"][0]["product_id"];
                 item::findOrFail($id)->update(["tokopedia_id" => $productid, "tokopedia_is_upload" => 1]);
-
                 self::Logger("data with id {$id} is succesfully processed to tokopedia with product id of {$productid}");
+            }
+            if ($resdata["failed_rows"] >= 1) {
+                $error = $resdata["failed_rows_data"][0]['error'];
+                item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
+                throw new Exception(implode(" ", $error));
             }
             if ($resdata["unprocessed_rows"] >= 1) {
                 item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
@@ -405,9 +326,119 @@ class helper extends Controller
             return $dataTable;
         }
     }
+    public static function isForbidden($headers, $body)
+    {
+        if ($headers["Content-Type"] != "application/json") {
+            if (is_string($body)) {
+                if (str_contains($body, "Forbidden")) {
+                    throw new Exception("Forbidden Request");
+                }
+            }
+        }
+    }
     public static function addData($column, $request_name, $request, $dataTable)
     {
         $dataTable[$column] = $request[$request_name];
         return $dataTable;
+    }
+    public static function tokopediaUpdate($dataTable, $id, $table)
+    {
+
+        try {
+            self::Logger("Trying to update product with id {$id}");
+            $shopid = self::shopid();
+            $tokopedia_data = self::getToken();
+            $token = $tokopedia_data["token"];
+            $fs_id = $tokopedia_data["fs_id"];
+            $oldPictures = [];
+            if (self::isPicture($table->picture)) {
+                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture)]);
+            }
+            if (self::isPicture($table->picture_two)) {
+                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_two)]);
+            }
+            if (self::isPicture($table->picture_three)) {
+                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_three)]);
+            }
+            if (self::isPicture($table->picture_four)) {
+                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_two)]);
+            }
+            if (self::isPicture($table->picture_five)) {
+                array_push($oldPictures, ["file_path" => self::imageTokopediaFormat($table->picture_five)]);
+            }
+
+            $pictures = [];
+            if (self::isPicture($dataTable["picture"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture"])]);
+            }
+            if (self::isPicture($dataTable["picture_two"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_two"])]);
+            }
+            if (self::isPicture($dataTable["picture_three"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_three"])]);
+            }
+            if (self::isPicture($dataTable["picture_four"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_four"])]);
+            }
+            if (self::isPicture($dataTable["picture_five"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_five"])]);
+            }
+            $products = [];
+            $products["id"] = $id;
+            array_key_exists("name", $dataTable) ? $products["name"] = $dataTable["name"] :
+                $products["name"] = $table->name;
+            array_key_exists("condition", $dataTable) ? $products["condition"] = ($dataTable["condition"] == 1) ? "NEW" : "USED" :
+                $products["condition"] = ($table->condition == 1) ? "NEW" : "USED";
+            array_key_exists("description", $dataTable) ? $products["description"] = $dataTable["description"] :
+                $products["description"] = $table->description;
+            array_key_exists("selling_price", $dataTable) ?  $products["price"] = intval($dataTable["selling_price"]) :
+                $products["price"] = intval($table->selling_price);
+            array_key_exists("weight", $dataTable) ? $products["weight"] = intval($dataTable["weight"]) :
+                $products["weight"] = intval($table->weight);
+            array_key_exists("weight_unit", $dataTable) ? $products["weight_unit"] = $dataTable["weight_unit"] :
+                $products["weight_unit"] = $table->weight_unit;
+            array_key_exists("category_id", $dataTable) ? $products["category_id"] = intval($dataTable["category_id"]) :
+                $products["category_id"] = intval($table->category_id);
+            array_key_exists("minimal_stock", $dataTable) ?  $products["stock"] = intval($dataTable["minimal_stock"]) :
+                $products["minimal_stock"] = intval($table->minimal_stock);
+            count($pictures) >= 1 ? $products["pictures"] = $pictures :
+                $products["pictures"] = $oldPictures;
+            $products["status"] = "LIMITED";
+            $products["is_free_return"] = false;
+            $products["is_must_insurance"] = false;
+            $products["price_currency"] = "IDR";
+            $products["min_order"] = 1;
+            $url = "https://fs.tokopedia.net/v2/products/fs/{$fs_id}/edit?shop_id={$shopid}";  //the patch request need to put all data
+            $products = ["products" => [$products]]; //even if you just want to change the product name you still need to put the old data
+            $response =  http::withHeaders(self::getAuth($token))->patch($url, $products); //i hate you tokopedia :) 
+            self::isForbidden($response->headers(), $response->body());
+            $response = $response->json();
+            $uploadId = $response["data"]["upload_id"];
+            $response = http::withHeaders(self::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
+            $resdata = $response->json();
+            $resdata = $resdata["data"];
+            if ($resdata['processed_rows'] >= 1) {
+                if ($resdata["success_rows"] >= 1) {
+                    $productid = $resdata["success_rows_data"][0]["product_id"];
+                    item::findOrFail($table->id)->update(["tokopedia_id" => $productid, "tokopedia_is_upload" => 1]);
+                    self::Logger("data with id {$table->id} is succesfully updated to tokopedia with product id of {$productid}");
+                }
+                if ($resdata["failed_rows"] >= 1) {
+                    // return $resdata["failed_rows_data"];
+                    $error = $resdata["failed_rows_data"][0]['error'];
+                    item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 1]);
+                    throw new Exception(implode("", $error));
+                }
+            }
+            if ($resdata["unprocessed_rows"] >= 1) {
+                item::findOrFail($table->id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 1]);
+                // return Response($response, 200);
+                self::tokopediaUploadCheck($uploadId, $token, $fs_id, $table->id);
+            }
+        } catch (\Throwable $th) {
+            // return $th->getMessage();
+            self::Logger("data with id {$table->id} is failed to update tokopedia", "err");
+            self::Logger("Reason ~> {$th->getMessage()}", "err");
+        }
     }
 }

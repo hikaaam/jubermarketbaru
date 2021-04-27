@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Intervention\Image\ImageManagerStatic as Image;
 // use Faker\Provider\Image;
@@ -22,6 +23,6 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-    Route::get('storage/{filename}', function ($filename) {
-        return Image::make(storage_path() . '/app/images/' . $filename)->response();
-    });
+Route::get('storage/{filename}', function ($filename) {
+    return Image::make(storage_path() . '/app/images/' . $filename)->response();
+});

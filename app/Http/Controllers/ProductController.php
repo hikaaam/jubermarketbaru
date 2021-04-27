@@ -214,7 +214,7 @@ class ProductController extends Controller
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
             $items = item::create($dataTable);
             $id = $items->id;
-            // $id = 285; //for trial purpose
+            // $id = 321; //for trial purpose
             // $items = []; //for trial purpose
             $dataTable["id"] = $id;
             if (count($request["variant"]) > 0) {
@@ -222,7 +222,7 @@ class ProductController extends Controller
                 $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
                     $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
-                    Variant::create($variant);
+                    // Variant::create($variant);
                 }
             }
 
