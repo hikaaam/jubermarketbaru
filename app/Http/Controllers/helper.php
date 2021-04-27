@@ -351,7 +351,7 @@ class helper extends Controller
 
     public static function strContains($var, $str)
     {
-        return strpos($var ?? '', $str);
+        return str_contains($var, $str);
     }
 
     public static function Logger($msg, $type = "default")
