@@ -382,7 +382,6 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
-            throw new Exception("Tolollllllllllll");
             http::withHeaders(self::getJuberHeaders())->post($url, $body);
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
