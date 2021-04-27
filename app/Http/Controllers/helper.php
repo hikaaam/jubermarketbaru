@@ -335,7 +335,7 @@ class helper extends Controller
             if (self::strContains(config('app.url'), 800)) {
                 return config('app.url') . "{$img}";
             }
-            return config('app.url') . ":/8001/{$img}";
+            return config('app.url') . ":/8001{$img}";
         }
         if (self::strContains($img, "http")) {
             return $img;
@@ -370,7 +370,7 @@ class helper extends Controller
     {
         try {
             $image = self::imageTokopediaFormat($data['picture']);
-            return $image;
+            // return $image;
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                 "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":\"{$data['selling_price']}\"," .
