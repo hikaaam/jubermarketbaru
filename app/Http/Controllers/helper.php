@@ -224,9 +224,10 @@ class helper extends Controller
         } else {
             $products = ["products" => [$products]];
         }
-        $response =  http::withHeaders(self::getAuth($token))->post($url, $products);
-        $response = $response->json();
         try {
+            $response =  http::withHeaders(self::getAuth($token))->post($url, $products);
+            $response = $response->json();
+
             $uploadId = $response["data"]["upload_id"];
             $response = http::withHeaders(self::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
             $resdata = $response->json();
