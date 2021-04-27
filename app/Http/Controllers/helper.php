@@ -359,9 +359,34 @@ class helper extends Controller
         switch (strtolower($type)) {
             case 'err':
                 Log::alert("[Tokopedia Error]: {$msg}");
+            case 'jbrErr':
+                Log::alert("[Juber Error]: {$msg}");
             default:
                 Log::info("[Tokopedia]: {$msg}");
         }
+    }
+
+    public static function juberSyncInsert($data)
+    {
+        try {
+            $image = self::imageTokopediaFormat($data['picture']);
+            $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
+                "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
+                "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":\"{$data['selling_price']}\"," .
+                "\"hargapromo\":\"{$data['selling_price']}\",\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"type\":\"{$data['service']}\"}";
+            $url = "http://192.168.2.45:9888/jbmiddleware";
+            $key = "createproduk";
+            $body = ["key" => $key, "payload" => $payload];
+            http::withHeaders(self::getJuberHeaders())->post($url, $body);
+        } catch (\Throwable $th) {
+            $id = $data['id'] ?? '';
+            self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrErr");
+            self::Logger("Reason: {$th->getMessage()}", "jbrErr");
+        }
+    }
+    public static function getJuberHeaders()
+    {
+        return ["Cookie" => "JSESSIONID=FDCDF7969FB1F9F89EB1E0AA4B3C4359; PHPSESSID=dacd3c46c86606a8d51bec99bcf858b9; XSRF-TOKEN=N587398437849043239", "Content-Type" => "application/json"];
     }
     public static function checkifexist($column, $request_name, $request, $dataTable)
     {

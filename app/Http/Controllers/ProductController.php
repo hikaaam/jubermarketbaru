@@ -16,6 +16,7 @@ use App\Models\trans;
 use Exception;
 use Facade\FlareClient\Http\Response;
 
+use function PHPSTORM_META\type;
 
 class ProductController extends Controller
 {
@@ -101,31 +102,32 @@ class ProductController extends Controller
         $shopid = helper::shopid();
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
+        function checkifexistStore($column, $request_name, $request, $dataTable)
         {
             if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
+                $databaru = addDataStore($column, $request_name, $request, $dataTable);
                 return $databaru;
             } else {
                 if ($column == "description") {
                     $request[$request_name] = "";
-                    $databaru = addData($column, $request_name, $request, $dataTable);
+                    $databaru = addDataStore($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
                 if ($column == "condition") {
                     $request[$request_name] = "1";
-                    $databaru = addData($column, $request_name, $request, $dataTable);
+                    $databaru = addDataStore($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
                 if ($column == "weight") {
-                    $request[$request_name] = "200";
-                    $databaru = addData($column, $request_name, $request, $dataTable);
-                    return $databaru;
+                    // $request[$request_name] = "200";
+                    // $databaru = addDataStore($column, $request_name, $request, $dataTable);
+                    return throw new Exception("Berat wajib di isi!");
                 }
                 if ($column == "weight_unit") {
-                    $request[$request_name] = "GR";
-                    $databaru = addData($column, $request_name, $request, $dataTable);
-                    return $databaru;
+                    // $request[$request_name] = "GR";
+                    // $databaru = addDataStore($column, $request_name, $request, $dataTable);
+                    // return $databaru;
+                    return throw new Exception("Satuan berat wajib di isi! silahkan pilih GR atau KG");
                 }
                 if ($column == "sku") {
                     $str_id = $request["store_id"];
@@ -140,13 +142,13 @@ class ProductController extends Controller
                     }
                     $acronym = $acronym . $str_id . "P" . $item_last_id;
                     $request[$request_name] = strtoupper($acronym);
-                    $databaru = addData($column, $request_name, $request, $dataTable);
+                    $databaru = addDataStore($column, $request_name, $request, $dataTable);
                     return $databaru;
                 }
                 return $dataTable;
             }
         }
-        function addData($column, $request_name, $request, $dataTable)
+        function addDataStore($column, $request_name, $request, $dataTable)
         {
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
@@ -159,43 +161,48 @@ class ProductController extends Controller
             if (!helper::isPicture($request["picture"])) {
                 return getRespond(false, "Masukan minimal 1 foto untuk upload produk", []);
             }
-            $dataTable = addData("item_type", "item_type", $request, $dataTable);
-            $dataTable = addData("minimal_stock", "minimal_stock", $request, $dataTable);
-            $dataTable = addData("category_id", "category_id", $request, $dataTable);
-            $dataTable = addData("store_id", "store_id", $request, $dataTable);
-            $dataTable = addData("selling_price", "selling_price", $request, $dataTable);
-            $dataTable = addData("name", "name", $request, $dataTable);
-            $dataTable = addData("created_by_id", "created_by_id", $request, $dataTable);
-            $dataTable = addData("created_by", "created_by", $request, $dataTable);
-            $dataTable = addData("last_updated_by_id", "created_by_id", $request, $dataTable);
-            $dataTable = checkifexist("sku", "sku", $request, $dataTable);
-            $dataTable = checkifexist("description", "description", $request, $dataTable);
-            $dataTable = checkifexist("item_code", "item_code", $request, $dataTable);
-            $dataTable = checkifexist("stockable", "stockable", $request, $dataTable);
-            $dataTable = checkifexist("picture", "picture", $request, $dataTable);
-            $dataTable = checkifexist("picture_two", "picture_two", $request, $dataTable);
-            $dataTable = checkifexist("picture_three", "picture_three", $request, $dataTable);
-            $dataTable = checkifexist("picture_four", "picture_four", $request, $dataTable);
-            $dataTable = checkifexist("picture_five", "picture_five", $request, $dataTable);
-            $dataTable = checkifexist("video", "video", $request, $dataTable);
-            $dataTable = checkifexist("type_of_item", "type_of_item", $request, $dataTable);
-            $dataTable = checkifexist("item_unit_id", "item_unit_id", $request, $dataTable);
-            $dataTable = checkifexist("is_active", "is_active", $request, $dataTable);
-            $dataTable = checkifexist("basic_price", "basic_price", $request, $dataTable);
-            $dataTable = checkifexist("cost_of_good_sold", "cost_of_good_sold", $request, $dataTable);
-            $dataTable = checkifexist("item_tax_type", "item_tax_type", $request, $dataTable);
-            $dataTable = checkifexist("weight", "weight", $request, $dataTable);
-            $dataTable = checkifexist("weight_unit", "weight_unit", $request, $dataTable);
-            $dataTable = checkifexist("condition", "condition", $request, $dataTable);
-            $dataTable = checkifexist("pre_order", "pre_order", $request, $dataTable);
-            $dataTable = checkifexist("pre_order_estimation", "pre_order_estimation", $request, $dataTable);
-            $dataTable = checkifexist("dimension_length", "dimension_length", $request, $dataTable);
-            $dataTable = checkifexist("dimension_width", "dimension_width", $request, $dataTable);
-            $dataTable = checkifexist("dimension_height", "dimension_height", $request, $dataTable);
-            $dataTable = checkifexist("is_shown", "is_shown", $request, $dataTable);
-            $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
-            $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
-            $dataTable = checkifexist("merk", "merk", $request, $dataTable);
+            $dataTable = addDataStore("item_type", "item_type", $request, $dataTable);
+            $dataTable = addDataStore("minimal_stock", "minimal_stock", $request, $dataTable);
+            $dataTable = addDataStore("category_id", "category_id", $request, $dataTable);
+            $dataTable = addDataStore("store_id", "store_id", $request, $dataTable);
+            $dataTable = addDataStore("selling_price", "selling_price", $request, $dataTable);
+            $dataTable = addDataStore("name", "name", $request, $dataTable);
+            $dataTable = addDataStore("created_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = addDataStore("created_by", "created_by", $request, $dataTable);
+            $dataTable = addDataStore("last_updated_by_id", "created_by_id", $request, $dataTable);
+            $dataTable = checkifexistStore("sku", "sku", $request, $dataTable);
+            $dataTable = checkifexistStore("description", "description", $request, $dataTable);
+            $dataTable = checkifexistStore("item_code", "item_code", $request, $dataTable);
+            $dataTable = checkifexistStore("stockable", "stockable", $request, $dataTable);
+            $dataTable = checkifexistStore("picture", "picture", $request, $dataTable);
+            $dataTable = checkifexistStore("picture_two", "picture_two", $request, $dataTable);
+            $dataTable = checkifexistStore("picture_three", "picture_three", $request, $dataTable);
+            $dataTable = checkifexistStore("picture_four", "picture_four", $request, $dataTable);
+            $dataTable = checkifexistStore("picture_five", "picture_five", $request, $dataTable);
+            $dataTable = checkifexistStore("video", "video", $request, $dataTable);
+            $dataTable = checkifexistStore("type_of_item", "type_of_item", $request, $dataTable);
+            $dataTable = checkifexistStore("item_unit_id", "item_unit_id", $request, $dataTable);
+            $dataTable = checkifexistStore("is_active", "is_active", $request, $dataTable);
+            $dataTable = checkifexistStore("basic_price", "basic_price", $request, $dataTable);
+            $dataTable = checkifexistStore("cost_of_good_sold", "cost_of_good_sold", $request, $dataTable);
+            $dataTable = checkifexistStore("item_tax_type", "item_tax_type", $request, $dataTable);
+            $dataTable = checkifexistStore("weight", "weight", $request, $dataTable);
+            $dataTable = checkifexistStore("weight_unit", "weight_unit", $request, $dataTable);
+            $wgUnit = $dataTable["weight_unit"];
+            if ($wgUnit !== 'GR' && $wgUnit !== 'KG') {
+                throw new Exception("Satuan berat cuma ada GR dan KG");
+            }
+            $dataTable = checkifexistStore("condition", "condition", $request, $dataTable);
+            $dataTable = checkifexistStore("pre_order", "pre_order", $request, $dataTable);
+            $dataTable = checkifexistStore("pre_order_estimation", "pre_order_estimation", $request, $dataTable);
+            $dataTable = checkifexistStore("dimension_length", "dimension_length", $request, $dataTable);
+            $dataTable = checkifexistStore("dimension_width", "dimension_width", $request, $dataTable);
+            $dataTable = checkifexistStore("dimension_height", "dimension_height", $request, $dataTable);
+            $dataTable = checkifexistStore("is_shown", "is_shown", $request, $dataTable);
+            $dataTable = checkifexistStore("ownership", "ownership", $request, $dataTable);
+            $dataTable = checkifexistStore("bahan", "bahan", $request, $dataTable);
+            $dataTable = checkifexistStore("merk", "merk", $request, $dataTable);
+            $dataTable["service"] = "jbmarket";
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
             if ($namaExist) {
                 $data["success"] = false;
@@ -204,12 +211,12 @@ class ProductController extends Controller
                 $data["data"] = [];
                 return $data;
             }
-            $dataTable = checkifexist("origin", "origin", $request, $dataTable);
+            $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
             $items = item::create($dataTable);
             $id = $items->id;
+            $dataTable["id"] = $id;
 
-
-            // $id = 240; //for trial purpose
+            // $id = 285; //for trial purpose
             // $items = []; //for trial purpose
 
             if (count($request["variant"]) > 0) {
@@ -239,7 +246,14 @@ class ProductController extends Controller
                 try {
                     helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
                 } catch (\Throwable $th) {
-                    return $data;
+                    // return $data;
+                }
+            }
+            if ($success) {
+                try {
+                    helper::juberSyncInsert($dataTable);
+                } catch (\Throwable $th) {
+                    //throw $th;
                 }
             }
         }
@@ -332,11 +346,12 @@ class ProductController extends Controller
     public function productByRefId(Request $request, $id)
     {
         try {
-            $result = DB::table('ref_category')
-                ->join('category', 'category.ref_category', '=', 'ref_category.id')
-                ->join('item', 'item.category_id', '=', 'category.id')
-                ->select('item.*')->where('ref_category.id', $id)
-                ->paginate(6);
+            // $result = DB::table('ref_category')
+            //     ->join('category', 'category.ref_category', '=', 'ref_category.id')
+            //     ->join('item', 'item.category_id', '=', 'category.id')
+            //     ->select('item.*')->where('ref_category.id', $id)
+            //     ->paginate(6);
+            $result = item::where("category_id", $id)->paginate(8);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
