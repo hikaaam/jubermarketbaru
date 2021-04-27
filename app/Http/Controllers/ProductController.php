@@ -242,14 +242,14 @@ class ProductController extends Controller
         } finally {
             if (!$namaExist && $success) {
                 try {
-                    // helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
+                    helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
                 } catch (\Throwable $th) {
                     // return $data;
                 }
             }
             if ($success) {
                 try {
-                    helper::juberSyncInsert($dataTable);
+                    // helper::juberSyncInsert($dataTable);
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
