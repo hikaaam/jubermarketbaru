@@ -166,68 +166,69 @@ class helper extends Controller
     }
     public static function tokopediaUpload($dataTable, $id, $withVariant, $variant)
     {
-        self::Logger("Trying to upload to tokopedia");
-        $shopid = self::shopid();
-        $tokopedia_data = self::getToken();
-        $token = $tokopedia_data["token"];
-        $fs_id = $tokopedia_data["fs_id"];
-        $pictures = [];
-        if (self::isPicture($dataTable["picture"])) {
-            array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture"])]);
-        }
-        if (self::isPicture($dataTable["picture_two"])) {
-            array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_two"])]);
-        }
-        if (self::isPicture($dataTable["picture_three"])) {
-            array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_three"])]);
-        }
-        if (self::isPicture($dataTable["picture_four"])) {
-            array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_four"])]);
-        }
-        if (self::isPicture($dataTable["picture_five"])) {
-            array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_five"])]);
-        }
-        $products = [];
-        $products["name"] = $dataTable["name"];
-        $products["condition"] = ($dataTable["condition"] == 1) ? "NEW" : "USED";
-        $products["description"] = $dataTable["description"];
-        $products["price"] = intval($dataTable["selling_price"]);
-        $products["status"] = "LIMITED";
-        $products["price_currency"] = "IDR";
-        $products["weight"] = intval($dataTable["weight"]);
-        $products["weight_unit"] = $dataTable["weight_unit"];
-        $products["category_id"] = intval($dataTable["category_id"]);
-        $products["sku"] = $dataTable["sku"];
-        $products["is_free_return"] = false;
-        $products["is_must_insurance"] = false;
-        $products["stock"] = intval($dataTable["minimal_stock"]);
-        $products["min_order"] = 1;
-        $products["pictures"] = $pictures;
-        $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=' . $shopid;
-        $variants = [];
-        $selections = [];
-        if ($withVariant && $variant !== null && false) { //disabled this function on purpose by using && false (Reason infrastructure not supported)
-            foreach ($variant as $key => $value) {
-                $pv = []; //product variants
-                $so = []; //selection options
-                $pv["is_primary"] = $key == 0;
-                $pv["status"] = "LIMITED";
-                $pv["price"] = $value['harga'];
-                $pv["stock"] = $value['stock'];
-                $pv["sku"] = $dataTable["sku"];
-                $pv["combination"] = [$key];
-                $pv["pictures"] = self::imageTokopediaFormat($value['picture']);
-                array_push($variants, $pv);
-                //not done yet (Reason infrastructure not supported)
-            }
-            $products = ["products" => [$products], "variants" => ["products" => $variants]];
-        } else {
-            $products = ["products" => [$products]];
-        }
         try {
+            self::Logger("Trying to upload to tokopedia");
+            $shopid = self::shopid();
+
+            $pictures = [];
+            if (self::isPicture($dataTable["picture"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture"])]);
+            }
+            if (self::isPicture($dataTable["picture_two"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_two"])]);
+            }
+            if (self::isPicture($dataTable["picture_three"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_three"])]);
+            }
+            if (self::isPicture($dataTable["picture_four"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_four"])]);
+            }
+            if (self::isPicture($dataTable["picture_five"])) {
+                array_push($pictures, ["file_path" => self::imageTokopediaFormat($dataTable["picture_five"])]);
+            }
+            $products = [];
+            $products["name"] = $dataTable["name"];
+            $products["condition"] = ($dataTable["condition"] == 1) ? "NEW" : "USED";
+            $products["description"] = $dataTable["description"];
+            $products["price"] = intval($dataTable["selling_price"]);
+            $products["status"] = "LIMITED";
+            $products["price_currency"] = "IDR";
+            $products["weight"] = intval($dataTable["weight"]);
+            $products["weight_unit"] = $dataTable["weight_unit"];
+            $products["category_id"] = intval($dataTable["category_id"]);
+            $products["sku"] = $dataTable["sku"];
+            $products["is_free_return"] = false;
+            $products["is_must_insurance"] = false;
+            $products["stock"] = intval($dataTable["minimal_stock"]);
+            $products["min_order"] = 1;
+            $products["pictures"] = $pictures;
+            $url = 'https://fs.tokopedia.net/v2/products/fs/' . $fs_id . '/create?shop_id=' . $shopid;
+            $variants = [];
+            $selections = [];
+            if ($withVariant && $variant !== null && false) { //disabled this function on purpose by using && false (Reason infrastructure not supported)
+                foreach ($variant as $key => $value) {
+                    $pv = []; //product variants
+                    $so = []; //selection options
+                    $pv["is_primary"] = $key == 0;
+                    $pv["status"] = "LIMITED";
+                    $pv["price"] = $value['harga'];
+                    $pv["stock"] = $value['stock'];
+                    $pv["sku"] = $dataTable["sku"];
+                    $pv["combination"] = [$key];
+                    $pv["pictures"] = self::imageTokopediaFormat($value['picture']);
+                    array_push($variants, $pv);
+                    //not done yet (Reason infrastructure not supported)
+                }
+                $products = ["products" => [$products], "variants" => ["products" => $variants]];
+            } else {
+                $products = ["products" => [$products]];
+            }
+
+            $tokopedia_data = self::getToken();
+            $token = $tokopedia_data["token"];
+            $fs_id = $tokopedia_data["fs_id"];
             $response =  http::withHeaders(self::getAuth($token))->post($url, $products);
             $response = $response->json();
-
             $uploadId = $response["data"]["upload_id"];
             $response = http::withHeaders(self::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
             $resdata = $response->json();
