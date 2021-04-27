@@ -121,7 +121,7 @@ class ProductController extends Controller
                 if ($column == "weight") {
                     // $request[$request_name] = "200";
                     // $databaru = addDataStore($column, $request_name, $request, $dataTable);
-                  throw new Exception("Berat wajib di isi!");
+                    throw new Exception("Berat wajib di isi!");
                 }
                 if ($column == "weight_unit") {
                     // $request[$request_name] = "GR";
@@ -212,19 +212,17 @@ class ProductController extends Controller
                 return $data;
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            $items = item::create($dataTable);
-            $id = $items->id;
+            // $items = item::create($dataTable);
+            // $id = $items->id;
+            $id = 285; //for trial purpose
+            $items = []; //for trial purpose
             $dataTable["id"] = $id;
-
-            // $id = 285; //for trial purpose
-            // $items = []; //for trial purpose
-
             if (count($request["variant"]) > 0) {
                 $withVariant = true;
                 $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
                     $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
-                    Variant::create($variant);
+                    // Variant::create($variant);
                 }
             }
 
@@ -244,7 +242,7 @@ class ProductController extends Controller
         } finally {
             if (!$namaExist && $success) {
                 try {
-                    helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
+                    // helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
                 } catch (\Throwable $th) {
                     // return $data;
                 }

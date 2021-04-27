@@ -351,7 +351,7 @@ class helper extends Controller
 
     public static function strContains($var, $str)
     {
-        return strpos($var, $str);
+        return strpos($var ?? '', $str);
     }
 
     public static function Logger($msg, $type = "default")
@@ -359,7 +359,7 @@ class helper extends Controller
         switch (strtolower($type)) {
             case 'err':
                 Log::alert("[Tokopedia Error]: {$msg}");
-            case 'jbrErr':
+            case 'jbrerr':
                 Log::alert("[Juber Error]: {$msg}");
             default:
                 Log::info("[Tokopedia]: {$msg}");
@@ -370,6 +370,7 @@ class helper extends Controller
     {
         try {
             $image = self::imageTokopediaFormat($data['picture']);
+            return $image;
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                 "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":\"{$data['selling_price']}\"," .
