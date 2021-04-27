@@ -121,13 +121,13 @@ class ProductController extends Controller
                 if ($column == "weight") {
                     // $request[$request_name] = "200";
                     // $databaru = addDataStore($column, $request_name, $request, $dataTable);
-                    return throw new Exception("Berat wajib di isi!");
+                  throw new Exception("Berat wajib di isi!");
                 }
                 if ($column == "weight_unit") {
                     // $request[$request_name] = "GR";
                     // $databaru = addDataStore($column, $request_name, $request, $dataTable);
                     // return $databaru;
-                    return throw new Exception("Satuan berat wajib di isi! silahkan pilih GR atau KG");
+                    throw new Exception("Satuan berat wajib di isi! silahkan pilih GR atau KG");
                 }
                 if ($column == "sku") {
                     $str_id = $request["store_id"];
