@@ -167,6 +167,9 @@ class helper extends Controller
     public static function tokopediaUpload($dataTable, $id, $withVariant, $variant)
     {
         try {
+            $tokopedia_data = self::getToken();
+            $token = $tokopedia_data["token"];
+            $fs_id = $tokopedia_data["fs_id"];
             self::Logger("Trying to upload to tokopedia");
             $shopid = self::shopid();
 
@@ -224,9 +227,7 @@ class helper extends Controller
                 $products = ["products" => [$products]];
             }
 
-            $tokopedia_data = self::getToken();
-            $token = $tokopedia_data["token"];
-            $fs_id = $tokopedia_data["fs_id"];
+
             $response =  http::withHeaders(self::getAuth($token))->post($url, $products);
             $response = $response->json();
             $uploadId = $response["data"]["upload_id"];
