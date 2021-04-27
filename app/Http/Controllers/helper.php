@@ -381,8 +381,8 @@ class helper extends Controller
             http::withHeaders(self::getJuberHeaders())->post($url, $body);
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
-            self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrErr");
-            self::Logger("Reason: {$th->getMessage()}", "jbrErr");
+            self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
+            self::Logger("Reason: {$th->getMessage()}", "jbrerr");
         }
     }
     public static function getJuberHeaders()
