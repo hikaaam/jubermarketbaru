@@ -311,7 +311,7 @@ class helper extends Controller
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             $decode = json_decode(html_entity_decode($response->body()), true);
-            return $decode["data"];
+            dd($decode);
 
             if (str_contains("500", $response)) {
                 throw new Exception($response);
