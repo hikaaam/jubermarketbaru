@@ -311,6 +311,7 @@ class helper extends Controller
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             $response = $response->body();
+            return $response;
             if ($response["data"]["code"] != 200) {
                 throw new Exception($response["data"]["msg"]);
             }
