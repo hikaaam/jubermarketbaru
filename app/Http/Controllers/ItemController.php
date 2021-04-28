@@ -63,7 +63,7 @@ class ItemController extends Controller
         try {
             $request = json_decode($request->payload, true);
             $search = $request["search"];
-            $result = item::where('is_shown', 1)->where("name", "ILIKE", "%" . $search . "%")->get();
+            $result = item::where('is_shown', 1)->where("name", "ILIKE", "%" . $search . "%")->where('service', 'jbmarket')->get();
             $data["data"] = $result;
             $data["success"] = true;
             $data["code"] = 200;
@@ -127,7 +127,7 @@ class ItemController extends Controller
             }
             $result = item::selectRaw("item.*,(select SUM(quantity) as item_selled from transaction_detail where
             transaction_detail.item_id = item.id group by transaction_detail.item_id) as item_selled")
-                ->where("name", "ilike", "%" . $search . "%")->where('is_shown', 1)->orderByRaw("item_selled " . $orderBy)->get();
+                ->where("name", "ilike", "%" . $search . "%")->where('is_shown', 1)->where('service', 'jbmarket')->orderByRaw("item_selled " . $orderBy)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "{$result->count()} Produk Ditemukan";
@@ -154,7 +154,7 @@ class ItemController extends Controller
             }
         }
         try {
-            $result = item::where("name", "ILIKE", "%" . $search . "%")->where('is_shown', 1)->orderByRaw("created " . $orderBy)->get();
+            $result = item::where("name", "ILIKE", "%" . $search . "%")->where('is_shown', 1)->where('service', 'jbmarket')->orderByRaw("created " . $orderBy)->get();
             $data["data"] = $result;
             $data["success"] = true;
             $data["code"] = 200;
@@ -182,7 +182,7 @@ class ItemController extends Controller
             }
         }
         try {
-            $result = item::where("name", "ILIKE", "%" . $search . "%")->where('is_shown', 1)->orderByRaw("selling_price " . $orderBy)->get();
+            $result = item::where("name", "ILIKE", "%" . $search . "%")->where('is_shown', 1)->where('service', 'jbmarket')->orderByRaw("selling_price " . $orderBy)->get();
             $data["data"] = $result;
             $data["success"] = true;
             $data["code"] = 200;

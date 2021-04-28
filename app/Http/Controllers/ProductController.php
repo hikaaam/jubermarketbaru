@@ -35,7 +35,7 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $result = item::where('is_shown', 1)->paginate(6);
+            $result = item::where('is_shown', 1)->where('service', 'jbmarket')->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -51,7 +51,7 @@ class ProductController extends Controller
     public function isNotShown()
     {
         try {
-            $result = item::where('is_shown', 0)->paginate(6);
+            $result = item::where('is_shown', 0)->where('service', 'jbmarket')->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -67,7 +67,7 @@ class ProductController extends Controller
     public function visible()
     {
         try {
-            $result = item::paginate(6);
+            $result = item::where('service', 'jbmarket')->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -206,7 +206,7 @@ class ProductController extends Controller
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
             if ($namaExist) {
                 $data["success"] = false;
-                $data["code"] = 402;
+                $data["code"] = 400;
                 $data["message"] = "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
                 $data["data"] = [];
                 return $data;
@@ -298,7 +298,7 @@ class ProductController extends Controller
     public function all()
     {
         try {
-            $result = item::where('is_shown', 1)->get();
+            $result = item::where('is_shown', 1)->where('service', 'jbmarket')->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -314,7 +314,7 @@ class ProductController extends Controller
     public function productbycat(Request $request, $id)
     {
         try {
-            $result = item::where('is_shown', 1)->where('category_id', $id)->get();
+            $result = item::where('is_shown', 1)->where('service', 'jbmarket')->where('category_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -330,7 +330,7 @@ class ProductController extends Controller
     public function productByStId(Request $request, $id)
     {
         try {
-            $result = item::where('is_shown', 1)->where('store_id', $id)->get();
+            $result = item::where('is_shown', 1)->where('service', 'jbmarket')->where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -351,7 +351,7 @@ class ProductController extends Controller
             //     ->join('item', 'item.category_id', '=', 'category.id')
             //     ->select('item.*')->where('ref_category.id', $id)
             //     ->paginate(6);
-            $result = item::where("category_id", $id)->paginate(8);
+            $result = item::where("category_id", $id)->where('service', 'jbmarket')->paginate(8);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -367,7 +367,7 @@ class ProductController extends Controller
     public function productByStId_(Request $request, $id)
     {
         try {
-            $result = item::where('is_shown', 0)->where('store_id', $id)->get();
+            $result = item::where('is_shown', 0)->where('service', 'jbmarket')->where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -383,7 +383,7 @@ class ProductController extends Controller
     public function productByStIdVisible(Request $request, $id)
     {
         try {
-            $result = item::where('store_id', $id)->get();
+            $result = item::where('store_id', $id)->where('service', 'jbmarket')->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
