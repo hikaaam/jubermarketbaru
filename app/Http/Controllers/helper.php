@@ -310,8 +310,7 @@ class helper extends Controller
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
-            return $response->body();
-            $response = $response->json();
+            $response = $response->body();
             if ($response["data"]["code"] != 200) {
                 throw new Exception($response["data"]["msg"]);
             }
