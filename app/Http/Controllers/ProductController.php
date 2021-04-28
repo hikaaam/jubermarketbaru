@@ -203,19 +203,21 @@ class ProductController extends Controller
             $dataTable = checkifexistStore("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexistStore("merk", "merk", $request, $dataTable);
             $dataTable["service"] = "jbmarket";
-            $namaExist = item::where("name", $dataTable["name"])->count() > 0;
-            if ($namaExist) {
-                $data["success"] = false;
-                $data["code"] = 402;
-                $data["message"] = "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
-                $data["data"] = [];
-                return $data;
-            }
+            // $namaExist = item::where("name", $dataTable["name"])->count() > 0;
+            // if ($namaExist) {
+            //     $data["success"] = false;
+            //     $data["code"] = 402;
+            //     $data["message"] = "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
+            //     $data["data"] = [];
+            //     return $data;
+            // }
+
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            $items = item::create($dataTable);
-            $id = $items->id;
-            // $id = 321; //for trial purpose
-            // $items = []; //for trial purpose
+            // $items = item::create($dataTable);
+            // $id = $items->id;
+            $id = 324; //for trial purpose
+            $items = []; //for trial purpose
+            $namaExist = false; // for trial purpose
             $dataTable["id"] = $id;
             if (count($request["variant"]) > 0) {
                 $withVariant = true;
@@ -242,14 +244,14 @@ class ProductController extends Controller
         } finally {
             if (!$namaExist && $success) {
                 try {
-                    helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
+                    // helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
                 } catch (\Throwable $th) {
                     // return $data;
                 }
             }
             if ($success) {
                 try {
-                    helper::juberSyncInsert($dataTable);
+                    return helper::juberSyncInsert($dataTable);
                 } catch (\Throwable $th) {
                     //throw $th;
                 }

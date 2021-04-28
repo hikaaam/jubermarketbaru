@@ -286,7 +286,7 @@ class helper extends Controller
                 Log::alert("[Tokopedia Error]: {$msg}");
                 break;
             case 'jbr':
-                Log::alert("[Juber]: {$msg}");
+                Log::info("[Juber]: {$msg}");
                 break;
             case 'jbrerr':
                 Log::alert("[Juber Error]: {$msg}");
@@ -309,7 +309,7 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
-            http::withHeaders(self::getJuberHeaders())->post($url, $body);
+            return http::withHeaders(self::getJuberHeaders())->post($url, $body);
             self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
