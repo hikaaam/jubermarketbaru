@@ -309,7 +309,11 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
-            return http::withHeaders(self::getJuberHeaders())->post($url, $body);
+            $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
+            $response = $response->json();
+            if ($response["data"]["code"] != 200) {
+                throw new Exception($response["data"]["msg"]);
+            }
             self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
