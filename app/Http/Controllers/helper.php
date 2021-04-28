@@ -310,8 +310,9 @@ class helper extends Controller
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
-            $decode = json_decode(html_entity_decode($response->body()), true);
-            dd($decode);
+            $decode = json_encode($response->body());
+            $encode = json_decode($decode, true);
+            dd($encode);
 
             if (str_contains("500", $response)) {
                 throw new Exception($response);
