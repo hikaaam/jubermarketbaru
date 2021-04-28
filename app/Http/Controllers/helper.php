@@ -311,10 +311,11 @@ class helper extends Controller
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             $response = $response->body();
-            $response = json_decode($response, true);
-            return $response["data"];
-            if ($response["data"]["code"] != 200) {
-                throw new Exception($response["data"]["msg"]);
+            $response = json_encode($response);
+            // $response = json_decode($response, true);
+            // return $response["data"];
+            if (str_contains("500", $response)) {
+                throw new Exception($response);
             }
             self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
         } catch (\Throwable $th) {
