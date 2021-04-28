@@ -249,7 +249,7 @@ class ProductController extends Controller
             }
             if ($success) {
                 try {
-                    // helper::juberSyncInsert($dataTable);
+                    helper::juberSyncInsert($dataTable);
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
