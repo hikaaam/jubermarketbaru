@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\alamat;
 use App\Models\trans;
 use App\Models\trans_head;
+use Error;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -75,7 +76,7 @@ class AlamatController extends Controller
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $location = helper::getLocationCode($dataTable["district"]);
             if (!$location["success"]) {
-                throw new Exception($location["msg"]);
+                throw new Error($location["msg"]);
             }
             $dataTable["juber_place_code"] = $location["data"];
             $items = alamat::create($dataTable);
@@ -158,7 +159,7 @@ class AlamatController extends Controller
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $location = helper::getLocationCode($dataTable["district"]);
             if (!$location["success"]) {
-                throw new Exception($location["msg"]);
+                throw new Error($location["msg"]);
             }
             $dataTable["juber_place_code"] = $location["data"];
             $items = alamat::findOrFail($id)->update($dataTable);
