@@ -492,8 +492,8 @@ class helper extends Controller
             }
             $url = "http://192.168.2.45:9888/cariwilayah";
             $data = ["key" => $district, "code" => 3]; //code province=1;city=2;district=3;
-            $response = http::withHeaders(self::getJuberHeaders())->post($url, $data);
-            return ["success" => true, "data" => $response];
+            return http::post($url, $data);
+            // return ["success" => true, "data" => $response];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }
