@@ -7,7 +7,7 @@ use App\Http\Controllers\ScheduleController as schedule;
 use App\Models\item;
 use App\Models\tokopedia_token;
 use Carbon\Carbon;
-use Exception;
+use Error;
 use Facade\FlareClient\Http\Response;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Facades\Http;
@@ -154,7 +154,7 @@ class helper extends Controller
                     // return $resdata["failed_rows_data"];
                     $error = $resdata["failed_rows_data"][0]['error'];
                     item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
-                    throw new Exception(implode("", $error));
+                    throw new Error(implode("", $error));
                 }
             }
 
@@ -239,7 +239,7 @@ class helper extends Controller
             if ($resdata["failed_rows"] >= 1) {
                 $error = $resdata["failed_rows_data"][0]['error'];
                 item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
-                throw new Exception(implode(" ", $error));
+                throw new Error(implode(" ", $error));
             }
             if ($resdata["unprocessed_rows"] >= 1) {
                 item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
@@ -314,7 +314,7 @@ class helper extends Controller
             $encode = json_encode($response->body());
             $decode = json_decode($encode, true);
             if (str_contains("500", $encode)) {
-                throw new Exception($encode);
+                throw new Error($encode);
             }
             self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
         } catch (\Throwable $th) {
@@ -342,7 +342,7 @@ class helper extends Controller
             $dataTable[$column] = $request[$request_name];
             return $dataTable;
         } else {
-            throw new Exception("{$request_name} is required");
+            throw new Error("{$request_name} is required");
         }
     }
     public static function isForbidden($headers, $body)
@@ -350,7 +350,7 @@ class helper extends Controller
         if ($headers["Content-Type"] != "application/json") {
             if (is_string($body)) {
                 if (str_contains($body, "Forbidden")) {
-                    throw new Exception("Forbidden Request");
+                    throw new Error("Forbidden Request");
                 }
             }
         }
@@ -441,7 +441,7 @@ class helper extends Controller
                     // return $resdata["failed_rows_data"];
                     $error = $resdata["failed_rows_data"][0]['error'];
                     item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 1]);
-                    throw new Exception(implode("", $error));
+                    throw new Error(implode("", $error));
                 }
             }
             if ($resdata["unprocessed_rows"] >= 1) {
@@ -488,17 +488,17 @@ class helper extends Controller
     {
         try {
             if ($district == null && $district == "") {
-                throw new Exception("district not found !!");
+                throw new Error("district not found !!");
             }
             $url = "http://192.168.2.45:9888/cariwilayah";
             $data = ["key" => $district, "code" => "3"]; //code province=1;city=2;district=3;
             $response = http::post($url, $data);
             $location = $response->json();
             if ($location["code"] != "200") {
-                throw new Exception($location["msg"]);
+                throw new Error($location["msg"]);
             }
             if (count($location["lobj"]) <= 0) {
-                throw new Exception("Lokasi tidak ditemukan");
+                throw new Error("Lokasi tidak ditemukan");
             }
             $juber_place_code = $location["lobj"][0]["kode"];
             return  ["success" => true, "data" => $juber_place_code];
