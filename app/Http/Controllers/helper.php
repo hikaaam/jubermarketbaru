@@ -493,7 +493,7 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/cariwilayah";
             $data = ["key" => $district, "code" => "3"]; //code province=1;city=2;district=3;
             $response = http::post($url, $data);
-            return ["success" => true, "data" => $response];
+            return ["success" => true, "data" => $response->json()];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }
