@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\alamat;
 use App\Models\trans;
 use App\Models\trans_head;
+use Exception;
 use Illuminate\Http\Request;
 
 class AlamatController extends Controller
@@ -73,7 +74,10 @@ class AlamatController extends Controller
             $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $location = helper::getLocationCode($dataTable["district"]);
-            return $location;
+            if (!$location["success"]) {
+                throw new Exception($location["msg"]);
+            }
+            $dataTable["juber_place_code"] = $location["data"];
             $items = alamat::create($dataTable);
             $data = helper::resp(true, 'store', "berhasil membuat alamat", $items);
             return $data;
