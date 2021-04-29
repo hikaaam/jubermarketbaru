@@ -500,7 +500,7 @@ class helper extends Controller
             if (count($location["lobj"]) <= 0) {
                 throw new Exception("Lokasi tidak ditemukan");
             }
-            $juber_place_code = $location["lobj"][0]["code"];
+            $juber_place_code = $location["lobj"][0];
             return  ["success" => true, "data" => $juber_place_code];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
