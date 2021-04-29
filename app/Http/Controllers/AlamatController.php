@@ -156,7 +156,11 @@ class AlamatController extends Controller
             $dataTable = helper::addData("receiver_name", "receiver_name", $request, $dataTable);
             $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
-
+            $location = helper::getLocationCode($dataTable["district"]);
+            if (!$location["success"]) {
+                throw new Exception($location["msg"]);
+            }
+            $dataTable["juber_place_code"] = $location["data"];
             $items = alamat::findOrFail($id)->update($dataTable);
             $data["success"] = true;
             $data["code"] = 200;
