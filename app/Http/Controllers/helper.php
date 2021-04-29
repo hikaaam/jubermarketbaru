@@ -503,7 +503,7 @@ class helper extends Controller
             $juber_place_code = $location["lobj"][0]["code"];
             return  ["success" => true, "data" => $juber_place_code];
         } catch (\Throwable $th) {
-            return ["success" => false, "msg" => $juber_place_code];
+            return ["success" => false, "msg" => $th->getMessage()];
         }
     }
 }
