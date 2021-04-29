@@ -162,17 +162,10 @@ class AlamatController extends Controller
             }
             $dataTable["juber_place_code"] = $location["data"];
             $items = alamat::findOrFail($id)->update($dataTable);
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = ["updated_rows" => 1, "data" => $dataTable];
+            return helper::resp(true, 'update', "success", $dataTable);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return helper::resp(false, 'update', $th->getMessage(), $dataTable, 400);
         }
-        return $data;
     }
 
     /**
