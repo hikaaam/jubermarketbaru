@@ -475,7 +475,7 @@ class helper extends Controller
             case 'store':
                 $data["data"] = ["created_rows" => $success ? 1 : 0, "data" => $datas];
                 return $data;
-            case 'store':
+            case 'update':
                 $data["data"] = ["updated_rows" => $success ? 1 : 0, "data" => $datas];
                 return $data;
             default:
