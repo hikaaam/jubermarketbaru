@@ -493,9 +493,17 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/cariwilayah";
             $data = ["key" => $district, "code" => "3"]; //code province=1;city=2;district=3;
             $response = http::post($url, $data);
-            return ["success" => true, "data" => $response->json()];
+            $location = $response->json();
+            if ($location["code"] != "200") {
+                throw new Exception($location["msg"]);
+            }
+            if (count($location["lobj"]) <= 0) {
+                throw new Exception("Lokasi tidak ditemukan");
+            }
+            $juber_place_code = $location["lobj"][0]["code"];
+            return  ["success" => true, "data" => $juber_place_code];
         } catch (\Throwable $th) {
-            return ["success" => false, "msg" => $th->getMessage()];
+            return ["success" => false, "msg" => $juber_place_code];
         }
     }
 }

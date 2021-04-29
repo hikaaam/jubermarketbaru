@@ -72,7 +72,8 @@ class AlamatController extends Controller
             $dataTable = helper::addData("receiver_name", "receiver_name", $request, $dataTable);
             $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
-            return helper::getLocationCode($dataTable["district"]);
+            $location = helper::getLocationCode($dataTable["district"]);
+            return $location;
             $items = alamat::create($dataTable);
             $data = helper::resp(true, 'store', "berhasil membuat alamat", $items);
             return $data;
