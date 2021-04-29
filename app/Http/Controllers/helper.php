@@ -9,6 +9,7 @@ use App\Models\tokopedia_token;
 use Carbon\Carbon;
 use Exception;
 use Facade\FlareClient\Http\Response;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -329,10 +330,19 @@ class helper extends Controller
     public static function checkifexist($column, $request_name, $request, $dataTable)
     {
         if (array_key_exists($request_name, $request)) {
-            $databaru = addData($column, $request_name, $request, $dataTable);
+            $databaru = self::addData($column, $request_name, $request, $dataTable);
             return $databaru;
         } else {
             return $dataTable;
+        }
+    }
+    public static function addData($column, $request_name, $request, $dataTable)
+    {
+        if (array_key_exists($request_name, $request)) {
+            $dataTable[$column] = $request[$request_name];
+            return $dataTable;
+        } else {
+            throw new Exception("{$request_name} is required");
         }
     }
     public static function isForbidden($headers, $body)
@@ -344,11 +354,6 @@ class helper extends Controller
                 }
             }
         }
-    }
-    public static function addData($column, $request_name, $request, $dataTable)
-    {
-        $dataTable[$column] = $request[$request_name];
-        return $dataTable;
     }
     public static function tokopediaUpdate($dataTable, $id, $table)
     {
@@ -448,6 +453,49 @@ class helper extends Controller
             // return $th->getMessage();
             self::Logger("data with id {$table->id} is failed to update tokopedia", "err");
             self::Logger("Reason ~> {$th->getMessage()}", "err");
+        }
+    }
+    public static function resp($success, $type, $msg, $datas, $code = 200)
+    {
+        if ($success) {
+            $data["code"] = 200;
+        } else {
+            if ($code) {
+                $data["code"] = $code;
+            } else {
+                $data["code"] = 500;
+            }
+        }
+        $data["success"] = $success;
+        $data["message"] = $msg;
+        switch (strtolower($type)) {
+            case 'destroy':
+                $data["data"] = ["deleted_rows" => $success ? 1 : 0, "data" => $datas];
+                return $data;
+            case 'store':
+                $data["data"] = ["created_rows" => $success ? 1 : 0, "data" => $datas];
+                return $data;
+            case 'store':
+                $data["data"] = ["updated_rows" => $success ? 1 : 0, "data" => $datas];
+                return $data;
+            default:
+                $data["data"] = $datas;
+                return $data;
+        }
+    }
+
+    public static function getLocationCode($district)
+    {
+        try {
+            if ($district == null && $district == "") {
+                throw new Exception("district not found !!");
+            }
+            $url = "http://192.168.2.45:9888/cariwilayah";
+            $data = ["key" => $district, "code" => 3]; //code province=1;city=2;district=3;
+            $response = http::withHeaders(self::getJuberHeaders())->post($url, $data);
+            return ["success" => true, "data" => $response];
+        } catch (\Throwable $th) {
+            return ["success" => false, "msg" => $th->getMessage()];
         }
     }
 }

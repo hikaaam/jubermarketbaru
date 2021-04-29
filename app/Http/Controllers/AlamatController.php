@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\alamat;
+use App\Models\trans;
+use App\Models\trans_head;
 use Illuminate\Http\Request;
 
 class AlamatController extends Controller
@@ -13,20 +15,19 @@ class AlamatController extends Controller
      * @return \Illuminate\Http\Response
      */
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
     public function index()
     {
         try {
-            $result = alamat::all();
+            $result = alamat::where('soft_delete', 0)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -54,42 +55,31 @@ class AlamatController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
-                return $dataTable;
-            }
-        }
-        function addData($column,$request_name,$request,$dataTable){
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
         try {
-           $dataTable = addData("name","name",$request,$dataTable);
-           $dataTable = addData("address_title","address_title",$request,$dataTable);
-           $dataTable = addData("long","long",$request,$dataTable);
-           $dataTable = addData("lat","lat",$request,$dataTable);
-           $dataTable = addData("idrs","idrs",$request,$dataTable);
-           $dataTable = checkifexist("description","description",$request,$dataTable);
-
-           $items = alamat::create($dataTable);
-           $data["success"] = true;
-           $data["code"] = 202;
-           $data["message"] = "berhasil";
-           $data["data"] = ["request_data"=>$items];
-       
-       } catch (\Throwable $th) {
-           $data["data"] = [];
-           $data["success"] = false;
-           $data["code"] = 500;
-           $data["message"] = $th->getMessage();
-       }
-       return $data;
+            $dataTable = helper::addData("name", "name", $request, $dataTable);
+            $dataTable = helper::addData("address_title", "address_title", $request, $dataTable);
+            $dataTable = helper::addData("long", "long", $request, $dataTable);
+            $dataTable = helper::addData("lat", "lat", $request, $dataTable);
+            $dataTable = helper::addData("idrs", "idrs", $request, $dataTable);
+            $dataTable = helper::addData("state", "state", $request, $dataTable);
+            $dataTable = helper::addData("state_code", "state_code", $request, $dataTable);
+            $dataTable = helper::addData("district", "district", $request, $dataTable);
+            $dataTable = helper::addData("district_code", "district_code", $request, $dataTable);
+            $dataTable = helper::addData("city", "city", $request, $dataTable);
+            $dataTable = helper::addData("city_code", "city_code", $request, $dataTable);
+            $dataTable = helper::addData("receiver_name", "receiver_name", $request, $dataTable);
+            $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
+            $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
+            return helper::getLocationCode($dataTable["district"]);
+            $items = alamat::create($dataTable);
+            $data = helper::resp(true, 'store', "berhasil membuat alamat", $items);
+            return $data;
+        } catch (\Throwable $th) {
+            $data = helper::resp(false, 'store', $th->getMessage(), [], 400);
+            return $data;
+        }
     }
 
     /**
@@ -106,7 +96,6 @@ class AlamatController extends Controller
             $data["code"] = 200;
             $data["message"] = "berhasil";
             $data["data"] = $result;
-        
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = false;
@@ -128,21 +117,13 @@ class AlamatController extends Controller
     }
     public function getByIdrs($id)
     {
-        
+
         try {
-            $result = alamat::where('idrs',$id)->get();
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
-        
+            $result = alamat::where('idrs', $id)->where('soft_delete', 0)->get();
+            return helper::resp(true, 'get', 'berhasil', $result);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return helper::resp(false, 'get', $th->getMessage(), []);
         }
-        return $data;
     }
     /**
      * Update the specified resource in storage.
@@ -153,42 +134,36 @@ class AlamatController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request = json_decode($request->payload,true);
+        $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column,$request_name,$request,$dataTable){
-            if( array_key_exists($request_name,$request)){
-               $databaru = addData($column,$request_name,$request,$dataTable);
-               return $databaru;
-            }
-            else{
-                return $dataTable;
-            }
-        }
-        function addData($column,$request_name,$request,$dataTable){
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
         try {
-           $dataTable = addData("name","name",$request,$dataTable);
-           $dataTable = addData("address_title","address_title",$request,$dataTable);
-           $dataTable = addData("long","long",$request,$dataTable);
-           $dataTable = addData("lat","lat",$request,$dataTable);
-           $dataTable = addData("idrs","idrs",$request,$dataTable);
-           $dataTable = checkifexist("description","description",$request,$dataTable);
+            $dataTable = helper::addData("name", "name", $request, $dataTable);
+            $dataTable = helper::addData("address_title", "address_title", $request, $dataTable);
+            $dataTable = helper::addData("long", "long", $request, $dataTable);
+            $dataTable = helper::addData("lat", "lat", $request, $dataTable);
+            $dataTable = helper::addData("idrs", "idrs", $request, $dataTable);
+            $dataTable = helper::addData("state", "state", $request, $dataTable);
+            $dataTable = helper::addData("state_code", "state_code", $request, $dataTable);
+            $dataTable = helper::addData("district", "district", $request, $dataTable);
+            $dataTable = helper::addData("district_code", "district_code", $request, $dataTable);
+            $dataTable = helper::addData("city", "city", $request, $dataTable);
+            $dataTable = helper::addData("city_code", "city_code", $request, $dataTable);
+            $dataTable = helper::addData("receiver_name", "receiver_name", $request, $dataTable);
+            $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
+            $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
 
-           $items = alamat::findOrFail($id)->update($dataTable);
-           $data["success"] = true;
-           $data["code"] = 202;
-           $data["message"] = "berhasil";
-           $data["data"] = ["request_data"=>$dataTable];
-       
-       } catch (\Throwable $th) {
-           $data["data"] = [];
-           $data["success"] = false;
-           $data["code"] = 500;
-           $data["message"] = $th->getMessage();
-       }
-       return $data;
+            $items = alamat::findOrFail($id)->update($dataTable);
+            $data["success"] = true;
+            $data["code"] = 200;
+            $data["message"] = "berhasil";
+            $data["data"] = ["updated_rows" => 1, "data" => $dataTable];
+        } catch (\Throwable $th) {
+            $data["data"] = [];
+            $data["success"] = false;
+            $data["code"] = 500;
+            $data["message"] = $th->getMessage();
+        }
+        return $data;
     }
 
     /**
@@ -200,18 +175,15 @@ class AlamatController extends Controller
     public function destroy($id)
     {
         try {
+            $count = trans_head::where("address_id", $id)->count();
+            if ($count >= 1) {
+                $result = alamat::findOrFail($id)->update(["soft_delete" => 1]);
+                return helper::resp(true, 'destroy', 'berhasil menghapus alamat', $result);
+            }
             $result = alamat::findOrFail($id)->delete();
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
-        
+            return helper::resp(true, 'destroy', 'berhasil menghapus alamat', $result);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return helper::resp(false, 'destroy', $th->getMessage(), []);
         }
-        return $data;
     }
 }
