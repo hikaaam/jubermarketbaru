@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\store;
-use Exception;
+use Error;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller
@@ -84,7 +84,7 @@ class StoreController extends Controller
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
                 if (!$location["success"]) {
-                    throw new Exception($location["msg"]);
+                    throw new Error($location["msg"]);
                 }
                 $dataTable["juber_place_code"] = $location["data"];
             }
@@ -217,7 +217,7 @@ class StoreController extends Controller
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
                 if (!$location["success"]) {
-                    throw new Exception($location["msg"]);
+                    throw new Error($location["msg"]);
                 }
                 $dataTable["juber_place_code"] = $location["data"];
             }
