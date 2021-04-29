@@ -491,9 +491,9 @@ class helper extends Controller
                 throw new Exception("district not found !!");
             }
             $url = "http://192.168.2.45:9888/cariwilayah";
-            $data = ["key" => $district, "code" => 3]; //code province=1;city=2;district=3;
-            return http::post($url, $data);
-            // return ["success" => true, "data" => $response];
+            $data = ["key" => $district, "code" => "3"]; //code province=1;city=2;district=3;
+            $response = http::post($url, $data);
+            return ["success" => true, "data" => $response];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }
