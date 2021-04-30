@@ -89,9 +89,9 @@ class StoreController extends Controller
                 $dataTable["juber_place_code"] = $location["data"];
             }
             $items = store::create($dataTable);
-            return helper::resp(true, 'store', "berhasil update toko", $items);
+            return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
-            return helper::resp(false, 'store', "berhasil update toko", [], 400);
+            return helper::resp(false, 'store', $th->getMessage(), [], 400);
         }
     }
 
