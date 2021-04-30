@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Error;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -58,8 +59,13 @@ class bridgeController extends Controller
         try {
             $host = "http://127.0.0.1:8001/api/";
             $url = $host . $request->key;
+            $jsonErr = false;
             if ($request->has("payload")) {
                 $payload = json_decode(html_entity_decode($request->payload), true);
+            }
+            if (helper::getJsonError(json_last_error()) != "false") {
+                $jsonErr = true;
+                throw new Error(helper::getJsonError(json_last_error()));
             }
             switch (strtoupper($request->method)) {
                 case "POST":
@@ -96,7 +102,7 @@ class bridgeController extends Controller
             }
         } catch (\Throwable $th) {
             return [
-                "data" => ["payload" => $payload ?? [], "key" => $request->key, "url" => $url],
+                "data" => $jsonErr ? ["payload" => "Failed to get payload, because malformed JSON!!"] : ["payload" => $payload ?? [], "key" => $request->key, "url" => $url],
                 "success" => false,
                 "code" => 404,
                 "message" => $th->getMessage() == "" ? "Route not found" : $th->getMessage(),
