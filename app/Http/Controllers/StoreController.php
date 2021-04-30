@@ -76,8 +76,8 @@ class StoreController extends Controller
             $dataTable = helper::addData("state_code", "state_code", $request, $dataTable);
             $dataTable = helper::addData("state", "state", $request, $dataTable);
             $dataTable = helper::checkifexist("store_type", "store_type", $request, $dataTable);
-            $dataTable = helper::addData("sub_district", "sub_district", $request, $dataTable);
-            $dataTable = helper::addData("sub_district_code", "sub_district_code", $request, $dataTable);
+            $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
+            $dataTable = helper::checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
             $dataTable = helper::addData("picture", "picture", $request, $dataTable);
             $dataTable = helper::addData("cover_picture", "cover_picture", $request, $dataTable);
