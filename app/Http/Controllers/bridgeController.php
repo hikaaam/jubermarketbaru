@@ -55,13 +55,12 @@ class bridgeController extends Controller
     }
     public function bridge(Request $request)
     {
-        $host = "http://127.0.0.1:8000/api/";
-        $url = $host . $request->key;
-        if ($request->has("payload")) {
-            $payload = json_decode(html_entity_decode($request->payload), true);
-        }
-
         try {
+            $host = "http://127.0.0.1:8001/api/";
+            $url = $host . $request->key;
+            if ($request->has("payload")) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            }
             switch (strtoupper($request->method)) {
                 case "POST":
                     return Route::dispatch(Request::create($url, 'POST', []));
