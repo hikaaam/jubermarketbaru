@@ -314,8 +314,10 @@ class helper extends Controller
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
-            return $response["code"];
-            self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
+            if ($response["code"] == 200) {
+                self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
+                return $response;
+            }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
             // self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
