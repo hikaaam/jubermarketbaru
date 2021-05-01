@@ -68,6 +68,7 @@ class ProductController extends Controller
     public function visible()
     {
         try {
+            return helper::getToken();
             $result = item::where('service', 'jbmarket')->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
