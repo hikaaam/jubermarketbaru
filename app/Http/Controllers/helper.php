@@ -37,7 +37,6 @@ class helper extends Controller
             $is_expired = true;
         } else {
             $is_expired = $updated_at_second <= $now;
-            $is_expired = true;
         }
         if ($is_expired) {
             $response =  Http::withHeaders([
