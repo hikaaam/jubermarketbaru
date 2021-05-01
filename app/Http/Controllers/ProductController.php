@@ -211,13 +211,14 @@ class ProductController extends Controller
                 $data["data"] = [];
                 return $data;
             }
-
+            $dataTable["id"] = 999;
+            return helper::juberSyncInsert($dataTable);
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
 
             $items = item::create($dataTable);
             $id = $items->id;
 
-            return helper::juberSyncInsert($items);
+
             // $id = 324; //for trial purpose
             // $items = []; //for trial purpose
             // $namaExist = false; // for trial purpose

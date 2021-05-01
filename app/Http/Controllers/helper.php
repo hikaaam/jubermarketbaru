@@ -305,18 +305,19 @@ class helper extends Controller
             if ($data["weight_unit"] == "GR") {
                 $data["weight"] = intval($data["weight"]) / 1000;
             }
+            $harga = intval($data["selling_price"]);
             $image = self::imageTokopediaFormat($data['picture']);
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
-                "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":\"{$data['selling_price']}\"," .
-                "\"hargapromo\":\"{$data['selling_price']}\",\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"type\":\"{$data['service']}\"}";
+                "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":{$harga}," .
+                "\"hargapromo\":{$harga},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"type\":\"{$data['service']}\"}";
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             if ($response["code"] == 200) {
                 self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
-                return ["res" => $response, "req" => $payload];
+                return $response;
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
