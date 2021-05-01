@@ -136,7 +136,6 @@ class helper extends Controller
             } else {
                 $products = ["products" => [$products]];
             }
-            // return $products;
             $response =  http::withHeaders(self::getAuth($token))->post($url, $products);
             self::isForbidden($response->headers(), $response->body());
             $response = $response->json();
@@ -144,15 +143,15 @@ class helper extends Controller
             $response = http::withHeaders(self::getAuth($token))->get("https://fs.tokopedia.net/v2/products/fs/{$fs_id}/status/{$uploadId}?shop_id={$shopid}");
             $resdata = $response->json();
             $resdata = $resdata["data"];
-            // return $resdata;
             if ($resdata['processed_rows'] >= 1) {
                 if ($resdata["success_rows"] >= 1) {
                     $productid = $resdata["success_rows_data"][0]["product_id"];
+                    // return $resdata; //for dev only 
                     item::findOrFail($id)->update(["tokopedia_id" => $productid, "tokopedia_is_upload" => 1]);
                     self::Logger("data with id {$id} is succesfully updated to tokopedia with product id of {$productid}");
                 }
                 if ($resdata["failed_rows"] >= 1) {
-                    // return $resdata["failed_rows_data"];
+                    // return $resdata; //for dev only 
                     $error = $resdata["failed_rows_data"][0]['error'];
                     item::findOrFail($id)->update(["tokopedia_upload_id" => $uploadId, "tokopedia_is_upload" => 0]);
                     throw new Error(implode("", $error));

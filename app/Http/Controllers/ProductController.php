@@ -160,7 +160,7 @@ class ProductController extends Controller
             $withVariant = false;
             $variant_ = null;
             if (!helper::isPicture($request["picture"])) {
-                return getRespond(false, "Masukan minimal 1 foto untuk upload produk", []);
+                return  helper::resp(false, 'store', "Masukan minimal 1 foto untuk upload produk", []);
             }
             $dataTable = addDataStore("item_type", "item_type", $request, $dataTable);
             $dataTable = addDataStore("minimal_stock", "minimal_stock", $request, $dataTable);
