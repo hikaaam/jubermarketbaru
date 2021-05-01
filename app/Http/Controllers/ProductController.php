@@ -213,9 +213,11 @@ class ProductController extends Controller
             }
 
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            return helper::juberSyncInsert($dataTable);
+
             $items = item::create($dataTable);
             $id = $items->id;
+
+            return helper::juberSyncInsert($items);
             // $id = 324; //for trial purpose
             // $items = []; //for trial purpose
             // $namaExist = false; // for trial purpose

@@ -301,12 +301,11 @@ class helper extends Controller
     public static function juberSyncInsert($data)
     {
         try {
-            return [$data["weight"], $data["weight_unit"]];
-            if ($data["weight_unit" == "GR"]) {
+
+            if ($data["weight_unit"] == "GR") {
                 $data["weight"] = intval($data["weight"]) / 1000;
             }
             $image = self::imageTokopediaFormat($data['picture']);
-            // return $image;
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                 "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":\"{$data['selling_price']}\"," .
@@ -314,17 +313,11 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
-            return $payload;
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
-            $encode = json_encode($response->body());
-            $decode = json_decode($encode, true);
-            if (str_contains("500", $encode)) {
-                throw new Error($encode);
-            }
+            return $response["code"];
             self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
-            return $th->getMessage();
             // self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
             self::Logger("Reason: {$th->getMessage()}", "jbrerr");
         }
