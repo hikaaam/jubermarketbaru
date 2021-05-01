@@ -206,11 +206,8 @@ class ProductController extends Controller
             $dataTable["service"] = "jbmarket";
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
             if ($namaExist) {
-                $data["success"] = false;
-                $data["code"] = 400;
-                $data["message"] = "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
-                $data["data"] = [];
-                return $data;
+                $msg =  "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
+                return helper::resp(false, 'store', $msg, [], 400);
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
             $items = item::create($dataTable);
