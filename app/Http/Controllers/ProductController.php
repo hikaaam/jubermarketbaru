@@ -231,20 +231,11 @@ class ProductController extends Controller
                     Variant::create($variant);
                 }
             }
-
-            $data["success"] = true;
-            $data["code"] = 202;
-            $data["message"] = "berhasil";
-            $data["data"] = ["request_data" => $items];
             $success = true;
-            return $data;
+            return helper::resp(true, 'store', "berhasil menambahkan product", $items);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
             $success = false;
-            return $data;
+            return helper::resp(false, 'store', $th->getMessage(), []);
         } finally {
             if (!$namaExist && $success) {
                 try {
