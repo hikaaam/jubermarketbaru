@@ -316,7 +316,7 @@ class helper extends Controller
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             if ($response["code"] == 200) {
                 self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
-                return $response;
+                return ["res" => $response, "req" => $payload];
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
