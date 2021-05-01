@@ -301,7 +301,6 @@ class helper extends Controller
     public static function juberSyncInsert($data)
     {
         try {
-            return $data;
             if ($data["weight_unit" == "GR"]) {
                 $data["weight"] = intval($data["weight"]) / 1000;
             }
@@ -324,6 +323,7 @@ class helper extends Controller
             self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
+            return $th->getMessage();
             // self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
             self::Logger("Reason: {$th->getMessage()}", "jbrerr");
         }
