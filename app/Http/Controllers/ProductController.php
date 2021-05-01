@@ -213,6 +213,7 @@ class ProductController extends Controller
             }
 
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
+            return helper::juberSyncInsert($dataTable);
             $items = item::create($dataTable);
             $id = $items->id;
             // $id = 324; //for trial purpose
@@ -247,13 +248,6 @@ class ProductController extends Controller
                     helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
                 } catch (\Throwable $th) {
                     // return $data;
-                }
-            }
-            if ($success) {
-                try {
-                    helper::juberSyncInsert($dataTable);
-                } catch (\Throwable $th) {
-                    //throw $th;
                 }
             }
         }

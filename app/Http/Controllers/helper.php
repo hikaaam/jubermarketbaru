@@ -301,6 +301,9 @@ class helper extends Controller
     public static function juberSyncInsert($data)
     {
         try {
+            if ($data["weight_unit" == "GR"]) {
+                $data["weight"] = intval($data["weight"]) / 1000;
+            }
             $image = self::imageTokopediaFormat($data['picture']);
             // return $image;
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
@@ -310,6 +313,7 @@ class helper extends Controller
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
+            return $payload;
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             $encode = json_encode($response->body());
             $decode = json_decode($encode, true);
