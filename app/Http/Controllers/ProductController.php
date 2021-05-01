@@ -211,7 +211,7 @@ class ProductController extends Controller
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
             $items = item::create($dataTable);
-            $syncJuber = helper::juberSyncInsert($dataTable);
+            $syncJuber = helper::juberSyncInsert($items);
             if (!$syncJuber["success"]) {
                 throw new Error($syncJuber["msg"]);
             }
