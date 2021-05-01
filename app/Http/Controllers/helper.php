@@ -301,6 +301,7 @@ class helper extends Controller
     public static function juberSyncInsert($data)
     {
         try {
+            return $data;
             if ($data["weight_unit" == "GR"]) {
                 $data["weight"] = intval($data["weight"]) / 1000;
             }
