@@ -31,8 +31,9 @@ class helper extends Controller
         $now = Carbon::now()->timestamp;
         $partner = tokopedia_token::find(1);
         $token = $partner->access_token;
+        $expired_at = $partner->expires_in;
         $updated_at = $partner->updated_at;
-        $updated_at_second  = Carbon::parse($updated_at)->timestamp;
+        $updated_at_second  = Carbon::parse($updated_at)->addSecond($expired_at)->timestamp;
         if ($updated_at == null) {
             $is_expired = true;
         } else {
