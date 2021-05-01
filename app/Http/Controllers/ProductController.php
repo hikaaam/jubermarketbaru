@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Http;
 use Config;
 use App\Http\Controllers\helper;
 use App\Models\trans;
+use Error;
 use Exception;
 use Facade\FlareClient\Http\Response;
 
@@ -211,14 +212,13 @@ class ProductController extends Controller
                 $data["data"] = [];
                 return $data;
             }
-            $dataTable["id"] = 999;
-            return helper::juberSyncInsert($dataTable);
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-
             $items = item::create($dataTable);
+            $syncJuber = helper::juberSyncInsert($dataTable);
+            if (!$syncJuber["success"]) {
+                throw new Error($syncJuber["msg"]);
+            }
             $id = $items->id;
-
-
             // $id = 324; //for trial purpose
             // $items = []; //for trial purpose
             // $namaExist = false; // for trial purpose

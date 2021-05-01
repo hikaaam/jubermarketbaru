@@ -316,13 +316,22 @@ class helper extends Controller
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             if ($response["code"] == 200) {
-                self::Logger("sync upload produk with id {$data['id']} on juber ", "jbr");
-                return $response;
+                $lobj = $response["lobj"][0];
+                $id = $lobj['idproduk'];
+                item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                self::Logger("sync upload produk with id {$data['id']} on juber {$id}", "jbr");
+                return ["success" => true];
+            } else {
+                throw new Error($response->msg);
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
-            // self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
+            if ($id !== '') {
+                item::findOrFail($id)->delete();
+            }
+            self::Logger("Gagal sync data product dengan id => {$id} ke juber database", "jbrerr");
             self::Logger("Reason: {$th->getMessage()}", "jbrerr");
+            return ["success" => false, "msg" => $th->getMessage()];
         }
     }
     public static function getJuberHeaders()
