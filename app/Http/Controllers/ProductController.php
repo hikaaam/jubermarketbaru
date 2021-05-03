@@ -160,13 +160,16 @@ class ProductController extends Controller
             $withVariant = false;
             $variant_ = null;
             if (!helper::isPicture($request["picture"])) {
-                return  helper::resp(false, 'store', "Masukan minimal 1 foto untuk upload produk", []);
+                return  helper::resp(false, 'store', "Masukan minimal 1 foto untuk upload produk", [], 400);
             }
             $dataTable = addDataStore("item_type", "item_type", $request, $dataTable);
             $dataTable = addDataStore("minimal_stock", "minimal_stock", $request, $dataTable);
             $dataTable = addDataStore("category_id", "category_id", $request, $dataTable);
             $dataTable = addDataStore("store_id", "store_id", $request, $dataTable);
             $dataTable = addDataStore("selling_price", "selling_price", $request, $dataTable);
+            if (intval($dataTable["selling_price"]) < 100) {
+                return  helper::resp(false, 'store', "Harga minimal produk adalah 100", [], 400);
+            }
             $dataTable = addDataStore("name", "name", $request, $dataTable);
             $dataTable = addDataStore("created_by_id", "created_by_id", $request, $dataTable);
             $dataTable = addDataStore("created_by", "created_by", $request, $dataTable);
@@ -390,6 +393,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $dontHaveTokopediaId = true;
         $request = json_decode($request->payload, true);
         $dataTable = [];
         function checkifexist($column, $request_name, $request, $dataTable)
@@ -407,7 +411,7 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
-            $dontHaveTokopediaId = false;
+
             $table = item::findOrFail($id);
             if (array_key_exists("name", $request)) {
                 $check = item::where("name", $request["name"])->count();
@@ -516,9 +520,9 @@ class ProductController extends Controller
      */
     public function updateIsShown(Request $request, $id)
     {
+        $dontHaveTokopediaId = true;
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        $dontHaveTokopediaId = true;
         try {
             $dataTable = helper::addData("is_shown", "is_shown", $request, $dataTable);
             $isActive = intval($dataTable["is_shown"]) == 1;
@@ -544,6 +548,7 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
+        $dontHaveTokopediaId = true;
         try {
             $item = item::findOrFail($id);
             $dontHaveTokopediaId = $item["tokopedia_id"] == null;

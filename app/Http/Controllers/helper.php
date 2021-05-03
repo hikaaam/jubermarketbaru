@@ -253,6 +253,10 @@ class helper extends Controller
     }
 
 
+    public static function isEmpty($var)
+    {
+        return $var == 0 || $var == "null" || $var == false || $var == null;
+    }
 
 
     public static function imageTokopediaFormat($img)
@@ -297,7 +301,15 @@ class helper extends Controller
                 break;
         }
     }
-
+    public static function validateArray(array $array, array $rules)
+    {
+        foreach ($rules as $key => $value) {
+            $isExist = array_key_exists($value, $array);
+            if (!$isExist) {
+                throw new Error("{$value} is Required !!");
+            }
+        }
+    }
     public static function juberSyncInsert($data)
     {
         try {
@@ -471,7 +483,7 @@ class helper extends Controller
         if ($success) {
             $data["code"] = 200;
         } else {
-            if ($code) {
+            if ($code != 200) {
                 $data["code"] = $code;
             } else {
                 $data["code"] = 500;
