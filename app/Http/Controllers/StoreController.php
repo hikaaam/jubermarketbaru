@@ -122,9 +122,9 @@ class StoreController extends Controller
         try {
             $data = store::findOrFail($id);
             $data->update(["last_active" => time()]);
-            return getRespond(true, "berhasil update data", ["updatedField" => "1", "timestamp" => time()]);
+            return helper::resp(true, "get", "berhasil update data", ["updatedField" => "1", "timestamp" => time()]);
         } catch (\Throwable $th) {
-            return getRespond(false, $th->getMessage(), ["updatedField" => "0"]);
+            return helper::resp(false, "get", $th->getMessage(), ["updatedField" => "0"]);
         }
     }
     public function getByOwner(Request $request, $id)
