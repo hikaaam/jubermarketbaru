@@ -10,10 +10,10 @@ use Illuminate\Http\Request;
 class VariantController extends Controller
 {
     public $data = [
-        "success"=>"true",
-        "message"=>"Berhasil",
-        "code"=>200,
-        "data"=>[]
+        "success" => "true",
+        "message" => "Berhasil",
+        "code" => 200,
+        "data" => []
     ];
     /**
      * 
@@ -44,32 +44,32 @@ class VariantController extends Controller
      */
     public function store(Request $request)
     {
-        $request = json_decode($request->payload);     
-     try {
-        $nama = $request->variant_name;
-        $id = $request->item_id;
-        $harga = $request->harga;
-        $picture = $request->picture;
-        $stock = $request->stock;
-        $store = [
-            "name"=>$nama,
-            "item_id"=>$id,
-            "harga"=>$harga,
-            "picture"=>$picture,
-            "stock"=>$stock
-        ];
+        $request = json_decode($request->payload);
+        try {
+            $nama = $request->variant_name;
+            $id = $request->item_id;
+            $harga = $request->harga;
+            $picture = $request->picture;
+            $stock = $request->stock;
+            $store = [
+                "name" => $nama,
+                "item_id" => $id,
+                "harga" => $harga,
+                "picture" => $picture,
+                "stock" => $stock
+            ];
             Variant::create($store);
             $data["data"] = $store;
             $data["success"] = "true";
             $data["code"] = 201;
-            $data["message"] = "Variant ".$nama." berhasil ditambahkan"; 
+            $data["message"] = "Variant " . $nama . " berhasil ditambahkan";
         } catch (\Throwable $th) {
             $data["data"] = $store;
             $data["success"] = "false";
             $data["code"] = 500;
-            $data["message"] = "Error:".$th->getMessage(); 
-        } 
-     return $data;  
+            $data["message"] = "Error:" . $th->getMessage();
+        }
+        return $data;
     }
 
     /**
@@ -81,18 +81,18 @@ class VariantController extends Controller
     public function show($id)
     {
         try {
-            $show = Variant::where("item_id",$id)->get();
+            $show = Variant::where("item_id", $id)->get();
             $data["data"] = $show;
             $data["success"] = "true";
             $data["code"] = 200;
-            $data["message"] = "Berhasil"; 
+            $data["message"] = "Berhasil";
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = "false";
             $data["code"] = 500;
-            $data["message"] = "Error:".$th->getMessage(); 
-        } 
-        return $data; 
+            $data["message"] = "Error:" . $th->getMessage();
+        }
+        return $data;
     }
 
     /**
@@ -113,32 +113,22 @@ class VariantController extends Controller
      * @param  \App\Models\Variant  $variant
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        $request = json_decode($request->payload);
+        $request = json_decode($request->payload, true);
+        $dataTable = [];
         try {
-            $nama = $request->variant_name;
-            $harga = $request->harga;
-            $stock = $request->stock;
-            $picture = $request->picture;
-            $store = [
-                "name"=>$nama,
-                "harga"=>$harga,
-                "picture"=>$picture,
-                "stock"=>$stock
-            ];
-            Variant::find($id)->update($store);
-            $data["data"] = $store;
-            $data["success"] = "true";
-            $data["code"] = 202;
-            $data["message"] = "Variant berhasil diupdate"; 
+            $dataTable = helper::checkifexist("name", "variant_name", $request, $dataTable);
+            $dataTable = helper::checkifexist("harga", "harga", $request, $dataTable);
+            $dataTable = helper::checkifexist("picture", "picture", $request, $dataTable);
+            $dataTable = helper::checkifexist("stock", "stock", $request, $dataTable);
+            Variant::findOrFail($id)->update($dataTable);
+            $dataTable["id"] = $id;
+            $msg = "Variant berhasil diupdate";
+            return helper::resp(true, "update", $msg, $dataTable);
         } catch (\Throwable $th) {
-            $data["data"] = $store;
-            $data["success"] = "false";
-            $data["code"] = 500;
-            $data["message"] = "Error:".$th->getMessage(); 
-        } 
-        return $data;  
+            return helper::resp(false, "update", $th->getMessage(), []);
+        }
     }
 
     /**
@@ -154,28 +144,29 @@ class VariantController extends Controller
             $data["data"] = [];
             $data["success"] = "true";
             $data["code"] = 202;
-            $data["message"] = "Variant berhasil dihapus"; 
+            $data["message"] = "Variant berhasil dihapus";
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = "false";
             $data["code"] = 500;
-            $data["message"] = "Error:".$th->getMessage(); 
-        } 
-        return $data;  
+            $data["message"] = "Error:" . $th->getMessage();
+        }
+        return $data;
     }
-    public function showId($id){
+    public function showId($id)
+    {
         try {
             $show = Variant::find($id);
             $data["data"] = $show;
             $data["success"] = "true";
             $data["code"] = 200;
-            $data["message"] = "Berhasil"; 
+            $data["message"] = "Berhasil";
         } catch (\Throwable $th) {
             $data["data"] = [];
             $data["success"] = "false";
             $data["code"] = 500;
-            $data["message"] = "Error:".$th->getMessage(); 
-        } 
-        return $data; 
+            $data["message"] = "Error:" . $th->getMessage();
+        }
+        return $data;
     }
 }

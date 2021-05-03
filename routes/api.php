@@ -158,6 +158,7 @@ Route::delete('review/{id}', [ReviewController::class, 'destroy']);
 
 Route::get('cart', [CartController::class, 'index']);
 Route::get('cart/{id}', [CartController::class, 'show']);
+Route::get('cart/detail/{id}', [CartController::class, 'detailCart']);
 Route::post('cart', [CartController::class, 'store']);
 Route::put('cart/{id}', [CartController::class, 'update']);
 Route::delete('cart/{id}', [CartController::class, 'destroy']);

@@ -409,10 +409,13 @@ class ProductController extends Controller
         try {
             $dontHaveTokopediaId = false;
             $table = item::findOrFail($id);
-            $check = item::where("name", $request["name"])->count();
-            if ($table->name != $request["name"] && $check >= 1) {
-                return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
+            if (array_key_exists("name", $request)) {
+                $check = item::where("name", $request["name"])->count();
+                if ($table->name != $request["name"] && $check >= 1) {
+                    return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
+                }
             }
+
             $dataTable = checkifexist("item_type", "item_type", $request, $dataTable);
             $dataTable = checkifexist("minimal_stock", "minimal_stock", $request, $dataTable);
             $dataTable = checkifexist("category_id", "category_id", $request, $dataTable);
@@ -454,7 +457,7 @@ class ProductController extends Controller
             $table->update($dataTable);
             $dontHaveTokopediaId = $table->tokopedia_id == null;
             Variant::where('item_id', $id)->delete();
-            if (count($request["variant"]) > 0) {
+            if (array_key_exists("variant", $request)) {
                 foreach ($request["variant"] as $key => $value) {
                     $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
                     Variant::create($variant);

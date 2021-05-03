@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\cart;
 use App\Models\cart_ref;
+use App\Models\head;
 use App\Models\profile;
 use App\Models\model;
 use App\Models\store;
@@ -67,20 +68,6 @@ class CartController extends Controller
     {
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
-        {
-            if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
-                return $databaru;
-            } else {
-                return $dataTable;
-            }
-        }
-        function addData($column, $request_name, $request, $dataTable)
-        {
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
         try {
             $user_id = $request['user_id'];
             $store_id = $request['store_id'];
@@ -278,19 +265,11 @@ class CartController extends Controller
                 $total = array_sum($total);
                 $data_ = ['total_payment' => $total];
                 cart_ref::findOrFail($trxId)->update($data_);
-                $data["success"] = true;
-                $data["code"] = 202;
-                $data["message"] = "berhasil";
-                $data["data"] = ["cart_header_id" => $trxId];
+                return helper::resp(true, "store", "Berhasil membuat cart baru", ["cart_header_id" => $trxId]);
             }
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
-            $data["request"] = $request;
+            return helper::resp(false, "store", $th->getMessage(), []);
         }
-        return $data;
     }
 
     /**
@@ -328,6 +307,15 @@ class CartController extends Controller
         }
         return $data;
     }
+    public function detailCart($id)
+    {
+        try {
+            $cart = cart_ref::where('id', $id)->with("store", "body.item")->get();
+            return helper::resp(true, "GET", "berhasil get cart", $cart[0]);
+        } catch (\Throwable $th) {
+            return helper::resp(false, "GET", $th->getMessage(), []);
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -350,20 +338,6 @@ class CartController extends Controller
     {
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
-        {
-            if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
-                return $databaru;
-            } else {
-                return $dataTable;
-            }
-        }
-        function addData($column, $request_name, $request, $dataTable)
-        {
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
 
         try {
             $product = $request['product'];
@@ -453,20 +427,7 @@ class CartController extends Controller
     {
         $request = json_decode($request->payload, true);
         $dataTable = [];
-        function checkifexist($column, $request_name, $request, $dataTable)
-        {
-            if (array_key_exists($request_name, $request)) {
-                $databaru = addData($column, $request_name, $request, $dataTable);
-                return $databaru;
-            } else {
-                return $dataTable;
-            }
-        }
-        function addData($column, $request_name, $request, $dataTable)
-        {
-            $dataTable[$column] = $request[$request_name];
-            return $dataTable;
-        }
+
         try {
             $status = $request['status'];
             $trxId = $id;
@@ -503,7 +464,7 @@ class CartController extends Controller
                 array_push($total, $subtotal);
             }
             $total = array_sum($total);
-            $data_ = ['total_payment' => $total, 'note' => $note];
+            $data_ = ['total_payment' => $total]; //deleted note
             cart_ref::findOrFail($trxId)->update($data_);
             $data["success"] = true;
             $data["code"] = 202;
@@ -527,18 +488,12 @@ class CartController extends Controller
     public function destroy($id)
     {
         try {
-            $result = cart_ref::findOrFail($id)->delete();
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result . ' data';
+            $result = cart_ref::findOrFail($id);
+            $result->delete();
+            return helper::resp(true, "destroy", "Berhasil hapus cart", $result);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return helper::resp(false, "destroy", $th->getMessage(), []);
         }
-        return $data;
     }
 }
 function objToArray($value)

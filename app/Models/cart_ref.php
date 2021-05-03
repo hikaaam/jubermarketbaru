@@ -15,4 +15,8 @@ class cart_ref extends Model
     {
         return $this->belongsTo(store::class, 'store_id');
     }
+    public function Body()
+    {
+        return $this->hasMany(cart::class, 'transaction_id');
+    }
 }
