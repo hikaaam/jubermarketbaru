@@ -77,7 +77,7 @@ class ChatController extends Controller
                 throw new Error("User tidak ditemukan");
             }
             $store = store::find($dataTable["store_id"]);
-            if (!store) {
+            if (!$store) {
                 throw new Error("Toko tidak ditemukan");
             }
             $store_user = profile::where("idrs", $store->idrs)->first();
