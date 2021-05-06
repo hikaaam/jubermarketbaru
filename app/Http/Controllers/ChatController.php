@@ -115,7 +115,7 @@ class ChatController extends Controller
                 ->join("profile", 'profile.id', '=', 'chat.user_id')
                 ->join("profile as user", 'user.id', '=', 'chat.store_user_id')->where("chat.id", $id)->first(); //performance == 700ms one record test
             // return DB::getQueryLog();
-            if (helper::isEmpty($chat)) {
+            if (!$chat) {
                 throw new Error("Chat tidak ditemukan");
             }
             return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);

@@ -317,7 +317,7 @@ class CartController extends Controller
                     helper::validateArray($value, ["qty", "id", "variant_id"]); //throw error if one of the rules is doesn't exist
 
                     $findProduct = item::find($value['id']);
-                    if (helper::isEmpty($findProduct)) {
+                    if (!$findProduct) {
                         throw new Error("Produk tidak ditemukan!");
                     }
                     //find product with this id and throw custom error if not found
@@ -381,7 +381,7 @@ class CartController extends Controller
                 helper::validateArray($value, ["qty", "id", "variant_id"]); //throw error if one of the rules is doesn't exist
 
                 $findProduct = item::find($value['id']);
-                if (helper::isEmpty($findProduct)) {
+                if (!$findProduct) {
                     throw new Error("Produk tidak ditemukan!");
                 }
                 //find product with this id and throw custom error if not found
