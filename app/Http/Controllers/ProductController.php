@@ -100,6 +100,15 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        ob_end_clean();
+        header("Connection: close\r\n");
+        header("Content-Encoding: none\r\n");
+        header("Content-Type: application/json\r\n");
+        header('HTTP/1.1 201 Created', true, 201);
+        ignore_user_abort(true); // optional
+        ob_start();
+
+        // Unless both are called !
         $shopid = helper::shopid();
         $request = json_decode($request->payload, true);
         $dataTable = [];
@@ -232,7 +241,12 @@ class ProductController extends Controller
                 }
             }
             $success = true;
-            return helper::resp(true, 'store', "berhasil menambahkan product", $items);
+            $data = helper::resp(true, 'store', "berhasil menambahkan product", $items);
+            echo json_encode($data, JSON_PRETTY_PRINT);
+            $size = ob_get_length();
+            header("Content-Length: $size");
+            ob_end_flush();     // Strange behaviour, will not work
+            flush();
         } catch (\Throwable $th) {
             $success = false;
             return helper::resp(false, 'store', $th->getMessage(), []);

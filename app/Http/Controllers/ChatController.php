@@ -8,6 +8,7 @@ use App\Models\store;
 use Error;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
@@ -103,6 +104,7 @@ class ChatController extends Controller
     public function show($id)
     {
         try {
+            return response("i am speed", 202);
             // DB::enableQueryLog();
             $chat = chat::select(
                 'store.store_name',
@@ -121,8 +123,18 @@ class ChatController extends Controller
             return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);
         } catch (\Throwable $th) {
             return helper::resp(false, "get", $th->getMessage(), []);
+        } finally {
+            $i = 1;
+            $limit = 111111111;
+            while ($i <= $limit) {
+                $i++;
+                if ($i == $limit) {
+                    // return "it does take long idiot";
+                }
+            }
         }
     }
+
 
     /**
      * Show the form for editing the specified resource.
