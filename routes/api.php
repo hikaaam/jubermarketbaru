@@ -18,6 +18,7 @@ use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CourierController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\RefCourierController;
 use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\searchController;
 use App\Http\Controllers\TransHeadController;
 use App\Http\Controllers\TransReturnController;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -190,6 +192,13 @@ Route::put('order/return/{id}', [TransHeadController::class, 'returnOrder']);
 // Route::put('ref_rekening/{id}', [RefRekeningController::class, 'update']);
 // Route::delete('ref_rekening/{id}', [RefRekeningController::class, 'destroy']);
 
+//API List Chat
+Route::get('chat', [ChatController::class, 'index']);
+Route::get('chat/{id}', [ChatController::class, 'show']);
+Route::post('chat', [ChatController::class, 'store']);
+
+//Global Search
+Route::post('global/search', [searchController::class, 'store']);
 
 Route::get('problem', [ReturnProblemController::class, 'index']);
 Route::get('problem/{id}', [ReturnProblemController::class, 'show']);

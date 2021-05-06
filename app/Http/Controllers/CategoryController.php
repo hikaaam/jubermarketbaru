@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\category;
 use App\Models\ref_cat;
 use App\Models\catTokpedChild as child;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -76,6 +77,7 @@ class CategoryController extends Controller
         }
 
         try {
+            throw new Error("this api is disabled");
             $dataTable = addData("name", "name", $request, $dataTable);
             $dataTable = addData("store_id", "store_id", $request, $dataTable);
             $dataTable = addData("created_by", "created_by", $request, $dataTable);
@@ -109,7 +111,7 @@ class CategoryController extends Controller
     public function show($id)
     {
         try {
-            $result = category::find($id);
+            $result = ref_cat::where("id", $id)->with("child.child")->get();
 
             $data["success"] = true;
             $data["code"] = 200;
@@ -144,6 +146,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        throw new Error("this api is disabled");
         $request = json_decode($request->payload, true);
         $dataTable = [];
         function checkifexist($column, $request_name, $request, $dataTable)
@@ -189,7 +192,8 @@ class CategoryController extends Controller
     public function Getbystoreid($id)
     {
         try {
-            $result = category::where('store_id', $id)->get();
+            throw new Error("this api is disabled");
+            $result = category::first();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -213,7 +217,7 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-
+            throw new Error("this api is disabled");
             category::find($id)->delete();
 
             $data["success"] = true;

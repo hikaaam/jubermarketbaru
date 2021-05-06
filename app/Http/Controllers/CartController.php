@@ -68,7 +68,7 @@ class CartController extends Controller
     public function store(Request $request)
     {
         //READ STOREME INSTEAD
-        return;
+        return "oke";
     }
 
     /**
@@ -80,31 +80,14 @@ class CartController extends Controller
     public function show($id)
     {
         try {
-
-            $header = cart_ref::where('user_id', $id)->with("store")->get();
-            $data_cart = [];
-            foreach ($header as $key => $value) {
-                $cart = cart::where('transaction_id', $value->id)->with("item")->get();
-                array_push($data_cart, $cart);
+            $cart = cart_ref::where('id', $id)->with("store", "body.item")->get();
+            if (count($cart) <= 0) {
+                throw new Error("Cart tidak ditemukan");
             }
-            $result = [];
-            $i = 0;
-            foreach ($header as $key => $value) {
-                $data_ = ['cart_header' => $value, 'cart_item' => $data_cart[$i]];
-                array_push($result, $data_);
-                $i++;
-            }
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil";
-            $data["data"] = $result;
+            return helper::resp(true, "GET", "berhasil get cart", $cart[0]);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return helper::resp(false, "GET", $th->getMessage(), []);
         }
-        return $data;
     }
     public function detailCart($id)
     {
