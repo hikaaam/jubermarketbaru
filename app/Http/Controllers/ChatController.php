@@ -72,8 +72,14 @@ class ChatController extends Controller
                 $msg = "Anda sudah pernah membuat chat history";
                 return helper::resp(false, "store", $msg, $getOldChat);
             }
-            $user = profile::find($dataTable["user_id"]) ?? throw new Error("User tidak ditemukan");
-            $store = store::find($dataTable["store_id"]) ?? throw new Error("Toko tidak ditemukan");
+            $user = profile::find($dataTable["user_id"]);
+            if (!$user) {
+                throw new Error("User tidak ditemukan");
+            }
+            $store = store::find($dataTable["store_id"]);
+            if (!store) {
+                throw new Error("Toko tidak ditemukan");
+            }
             $store_user = profile::where("idrs", $store->idrs)->first();
             if ($store_user) {
                 $dataTable["store_user_id"] = $store_user->id;
