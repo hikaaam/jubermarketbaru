@@ -316,7 +316,10 @@ class CartController extends Controller
                 foreach ($product as $key => $value) {
                     helper::validateArray($value, ["qty", "id", "variant_id"]); //throw error if one of the rules is doesn't exist
 
-                    $findProduct = item::find($value['id']) ?? throw new Error("Produk tidak ditemukan!");
+                    $findProduct = item::find($value['id']);
+                    if (helper::isEmpty($findProduct)) {
+                        throw new Error("Produk tidak ditemukan!");
+                    }
                     //find product with this id and throw custom error if not found
 
                     if (helper::isEmpty($value['qty'])) { //check if quantity is empty
@@ -377,7 +380,10 @@ class CartController extends Controller
             foreach ($product as $key => $value) { //validate the product first
                 helper::validateArray($value, ["qty", "id", "variant_id"]); //throw error if one of the rules is doesn't exist
 
-                $findProduct = item::find($value['id']) ?? throw new Error("Produk tidak ditemukan!");
+                $findProduct = item::find($value['id']);
+                if (helper::isEmpty($findProduct)) {
+                    throw new Error("Produk tidak ditemukan!");
+                }
                 //find product with this id and throw custom error if not found
 
                 if (helper::isEmpty($value['qty'])) { //check if quantity is empty

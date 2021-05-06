@@ -6,6 +6,7 @@ use App\Models\chat;
 use App\Models\profile;
 use App\Models\store;
 use Error;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -114,6 +115,9 @@ class ChatController extends Controller
                 ->join("profile", 'profile.id', '=', 'chat.user_id')
                 ->join("profile as user", 'user.id', '=', 'chat.store_user_id')->where("chat.id", $id)->first(); //performance == 700ms one record test
             // return DB::getQueryLog();
+            if (helper::isEmpty($chat)) {
+                throw new Error("Chat tidak ditemukan");
+            }
             return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);
         } catch (\Throwable $th) {
             return helper::resp(false, "get", $th->getMessage(), []);
