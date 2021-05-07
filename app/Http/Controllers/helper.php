@@ -34,11 +34,12 @@ class helper extends Controller
         $expired_at = $partner->expires_in;
         $updated_at = $partner->updated_at;
         $updated_at_second  = Carbon::parse($updated_at)->addSecond($expired_at)->timestamp;
-        if ($updated_at == null) {
-            $is_expired = true;
-        } else {
-            $is_expired = $updated_at_second <= $now;
-        }
+        // if ($updated_at == null) {
+        //     $is_expired = true;
+        // } else {
+        //     $is_expired = $updated_at_second <= $now;
+        // }
+        $is_expired = true;
         if ($is_expired) {
             $response =  Http::withHeaders([
                 'Authorization' => 'Basic YzY0MDYyNjNmYmY1NDMxZWE3OTNiOWFkYzUxNTg3NDk6ZTcyOTk4YWRlMDYwNDNkYjk4ZTllYmJjOTBlOWM1NmM=',
