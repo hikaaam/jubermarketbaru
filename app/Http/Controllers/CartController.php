@@ -80,8 +80,20 @@ class CartController extends Controller
     public function show($id)
     {
         try {
-            $cart = cart_ref::where("user_id", $id)->with("store", "body.item")->paginate(6);
-            return helper::resp(true, "GET", "berhasil get cart", $cart);
+            $header = cart_ref::where('user_id', $id)->with("store")->get();
+            $data_cart = [];
+            foreach ($header as $key => $value) {
+                $cart = cart::where('transaction_id', $value->id)->with("item")->get();
+                array_push($data_cart, $cart);
+            }
+            $result = [];
+            $i = 0;
+            foreach ($header as $key => $value) {
+                $data_ = ['cart_header' => $value, 'cart_item' => $data_cart[$i]];
+                array_push($result, $data_);
+                $i++;
+            }
+            return helper::resp(true, "GET", "berhasil get cart", $result);
         } catch (\Throwable $th) {
             return helper::resp(false, "GET", $th->getMessage(), []);
         }
