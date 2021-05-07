@@ -35,7 +35,7 @@ class ChatController extends Controller
                 'chat.*'
             )->join("store", 'store.id', '=', 'chat.store_id')
                 ->join("profile", 'profile.id', '=', 'chat.user_id')
-                ->join("profile as user", 'user.id', '=', 'chat.store_user_id')->paginate(10);
+                ->join("profile as user", 'user.id', '=', 'chat.store_user_id')->paginate(12);
             // perfomance = 1800ms one record test & online DB : postgresql
             // return DB::getQueryLog();
 
@@ -104,7 +104,6 @@ class ChatController extends Controller
     public function show($id)
     {
         try {
-            return response("i am speed", 202);
             // DB::enableQueryLog();
             $chat = chat::select(
                 'store.store_name',
@@ -123,18 +122,50 @@ class ChatController extends Controller
             return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);
         } catch (\Throwable $th) {
             return helper::resp(false, "get", $th->getMessage(), []);
-        } finally {
-            $i = 1;
-            $limit = 111111111;
-            while ($i <= $limit) {
-                $i++;
-                if ($i == $limit) {
-                    // return "it does take long idiot";
-                }
-            }
         }
     }
 
+    public function getChatList($id)
+    {
+        try {
+            // DB::enableQueryLog();
+            $chat = chat::select(
+                'store.store_name',
+                'profile.name as user_name',
+                'user.name as store_user_name',
+                'user.token as store_token',
+                'profile.token as user_token',
+                'chat.*'
+            )->join("store", 'store.id', '=', 'chat.store_id')
+                ->join("profile", 'profile.id', '=', 'chat.user_id')
+                ->join("profile as user", 'user.id', '=', 'chat.store_user_id')->where("chat.user_idrs", $id)->paginate(12); //performance == 700ms one record test
+            // return DB::getQueryLog();
+            return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);
+        } catch (\Throwable $th) {
+            return helper::resp(false, "get", $th->getMessage(), []);
+        }
+    }
+
+    public function getChatToko($id)
+    {
+        try {
+            // DB::enableQueryLog();
+            $chat = chat::select(
+                'store.store_name',
+                'profile.name as user_name',
+                'user.name as store_user_name',
+                'user.token as store_token',
+                'profile.token as user_token',
+                'chat.*'
+            )->join("store", 'store.id', '=', 'chat.store_id')
+                ->join("profile", 'profile.id', '=', 'chat.user_id')
+                ->join("profile as user", 'user.id', '=', 'chat.store_user_id')->where("chat.store_id", $id)->paginate(12); //performance == 700ms one record test
+            // return DB::getQueryLog();
+            return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);
+        } catch (\Throwable $th) {
+            return helper::resp(false, "get", $th->getMessage(), []);
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.

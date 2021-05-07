@@ -80,11 +80,8 @@ class CartController extends Controller
     public function show($id)
     {
         try {
-            $cart = cart_ref::where('id', $id)->with("store", "body.item")->get();
-            if (count($cart) <= 0) {
-                throw new Error("Cart tidak ditemukan");
-            }
-            return helper::resp(true, "GET", "berhasil get cart", $cart[0]);
+            $cart = cart_ref::where("user_id", $id)->with("store", "body.item")->paginate(6);
+            return helper::resp(true, "GET", "berhasil get cart", $cart);
         } catch (\Throwable $th) {
             return helper::resp(false, "GET", $th->getMessage(), []);
         }

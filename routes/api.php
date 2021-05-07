@@ -196,6 +196,8 @@ Route::put('order/return/{id}', [TransHeadController::class, 'returnOrder']);
 //API List Chat
 Route::get('chat', [ChatController::class, 'index']);
 Route::get('chat/{id}', [ChatController::class, 'show']);
+Route::get('chat/idrs/{id}', [ChatController::class, 'getChatList']);
+Route::get('chat/toko/{id}', [ChatController::class, 'getChatToko']);
 Route::post('chat', [ChatController::class, 'store']);
 
 //Global Search
