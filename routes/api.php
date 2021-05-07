@@ -23,6 +23,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\globalController;
+use App\Http\Controllers\paymentController;
 use App\Http\Controllers\RefCourierController;
 use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
@@ -254,3 +255,6 @@ Route::post('pin/generate', [PinDriverController::class, 'generatePin']);
 Route::post('pin/check', [PinDriverController::class, 'check']);
 Route::post('pin/delete/head/{id}', [PinDriverController::class, 'destroyHead']);
 Route::post('pin/delete/detail/{id}', [PinDriverController::class, 'destroyDetail']);
+
+//PAYMENT
+Route::post('payment/checkout', [paymentController::class, 'checkoutPayment']);

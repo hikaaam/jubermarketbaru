@@ -34,12 +34,12 @@ class helper extends Controller
         $expired_at = $partner->expires_in;
         $updated_at = $partner->updated_at;
         $updated_at_second  = Carbon::parse($updated_at)->addSecond($expired_at)->timestamp;
-        // if ($updated_at == null) {
-        //     $is_expired = true;
-        // } else {
-        //     $is_expired = $updated_at_second <= $now;
-        // }
-        $is_expired = true;
+        if ($updated_at == null) {
+            $is_expired = true;
+        } else {
+            $is_expired = $updated_at_second <= $now;
+        }
+        // $is_expired = true;
         if ($is_expired) {
             $response =  Http::withHeaders([
                 'Authorization' => 'Basic YzY0MDYyNjNmYmY1NDMxZWE3OTNiOWFkYzUxNTg3NDk6ZTcyOTk4YWRlMDYwNDNkYjk4ZTllYmJjOTBlOWM1NmM=',
@@ -301,15 +301,39 @@ class helper extends Controller
                 break;
         }
     }
-    public static function validateArray(array $array, array $rules)
+    public static function validateArray(array $array, array $rules, string $msg = "")
     {
         foreach ($rules as $key => $value) {
+            $type = "any";
+
+            if (str_contains($value, ":")) {
+                $explode = explode(":", $value);
+
+                if (count($explode) > 2) {
+                    throw new Error("{$msg} Error ~> {$value} is not a valid JSON key!!");
+                }
+
+                $value = $explode[0];
+                $type = $explode[1];
+            }
             $isExist = array_key_exists($value, $array);
             if (!$isExist) {
-                throw new Error("{$value} is Required !!");
+                throw new Error("{$msg} {$value} is Required !!");
+            }
+            if ($type !== "any" && $type !== "string" && $type !== "integer" && $type !== "array" && $type !== "object" && $type !== "null") {
+                throw new Error("type {$type} is not valid!!");
+            }
+            if ($type !== "any" && strtolower(gettype($array[$value])) !== $type) {
+                throw new Error("{$msg} {$value} must be {$type}");
             }
         }
     }
+
+    public static function typeLower($data)
+    {
+        return strtolower(gettype($data));
+    }
+
     public static function juberSyncInsert($data)
     {
         try {
