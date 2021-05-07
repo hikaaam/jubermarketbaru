@@ -6,6 +6,8 @@ use App\Models\alamat;
 use App\Models\item;
 use App\Models\profile;
 use App\Models\store;
+use App\Models\trans;
+use App\Models\trans_head;
 use App\Models\Variant;
 use Error;
 use Illuminate\Http\Request;
@@ -168,7 +170,6 @@ class paymentController extends Controller
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
-            return $paid;
             $transactionPayload = [
                 "device_id" => $req["uuid"],
                 "user_id" => $profile->id,
@@ -189,7 +190,10 @@ class paymentController extends Controller
             if (!$transaction["success"]) {
                 throw new Error($transaction["msg"]);
             }
-            return "ALL TEST CASE PASS";
+
+            return helper::resp(true, "store", "pembayaran berhasil", $transaction["data"]);
+            //TO DO DECREASE THE STOCK
+
         } catch (\Throwable $th) {
             return helper::resp(false, "store", $th->getMessage(), [
                 "payload" => $req
@@ -251,8 +255,10 @@ class paymentController extends Controller
                 "courier_id:integer",
                 "products:array"
             ], "Transaction");
-
-            foreach ($data["products"] as $key => $value) {
+            $products = $data["products"];
+            unset($data["products"]);
+            $head = trans_head::create($data);
+            foreach ($products as $key => $value) {
                 helper::validateArray($value, [
                     "item_id:integer",
                     "note:string",
@@ -262,8 +268,9 @@ class paymentController extends Controller
                     "sub_weight",
                     "sub_total"
                 ], "Transaction:barangs[$key]");
+                trans::create($value);
             }
-            return ["success" => true];
+            return ["success" => true, "data" => $head];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }

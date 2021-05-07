@@ -257,4 +257,4 @@ Route::post('pin/delete/head/{id}', [PinDriverController::class, 'destroyHead'])
 Route::post('pin/delete/detail/{id}', [PinDriverController::class, 'destroyDetail']);
 
 //PAYMENT
-Route::post('payment/checkout', [paymentController::class, 'checkoutPayment']);
+Route::post('payment/juberpay', [paymentController::class, 'checkoutPayment']);
