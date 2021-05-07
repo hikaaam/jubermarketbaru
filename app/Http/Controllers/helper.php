@@ -54,7 +54,7 @@ class helper extends Controller
             $updated_at = Carbon::now()->toDateTimeString();
             tokopedia_token::find(1)->update(
                 [
-                    "access_token" => $token,
+                    "token" => $token,
                     "expires_in" => $expired_at,
                     "updated_at" => $updated_at,
                     "last_login_type" => $last_login_type
