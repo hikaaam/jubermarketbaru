@@ -12,6 +12,7 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
 use App\Http\Controllers\helper;
+use App\Jobs\insertTokopedia;
 use App\Models\trans;
 use Error;
 use Exception;
@@ -100,7 +101,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $shopid = helper::shopid();
+        // $shopid = helper::shopid();
         $request = json_decode($request->payload, true);
         $dataTable = [];
         function checkifexistStore($column, $request_name, $request, $dataTable)
@@ -155,6 +156,7 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
+
             $namaExist = false;
             $success = false;
             $withVariant = false;
@@ -239,7 +241,13 @@ class ProductController extends Controller
         } finally {
             if (!$namaExist && $success) {
                 try {
-                    helper::tokopediaUpload($dataTable, $id, $withVariant, $variant_);
+                    $tokopediaData = array(
+                        "data" => $dataTable,
+                        "id" => $id,
+                        "withVariant" => $withVariant,
+                        "variant" => $variant_
+                    );
+                    insertTokopedia::dispatch($tokopediaData);
                 } catch (\Throwable $th) {
                     // return $data;
                 }
