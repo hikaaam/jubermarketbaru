@@ -46,7 +46,6 @@ class helper extends Controller
                 'User-Agent' => 'PostmanRuntime/7.17.1'
             ])->post('https://accounts.tokopedia.com/token?grant_type=client_credentials');
             $res_data = $response->json();
-            return $res_data;
             $token = $res_data["access_token"];
             $expired_at = $res_data["expires_in"];
             $last_login_type = $res_data["last_login_type"];
