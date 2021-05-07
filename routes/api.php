@@ -22,6 +22,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CourierController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\globalController;
 use App\Http\Controllers\RefCourierController;
 use App\Http\Controllers\ReturnProblemController;
 use App\Http\Controllers\TokopediaController;
@@ -242,6 +243,8 @@ Route::get('courier/idrs/{id}', [CourierController::class, 'show']);
 Route::post('courier', [CourierController::class, 'store']);
 Route::delete('courier/{id}', [CourierController::class, 'destroy']);
 
+//global controller
+Route::get('updateToken', [globalController::class, 'index']);
 
 
 //API pin driver
