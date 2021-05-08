@@ -170,6 +170,8 @@ class paymentController extends Controller
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
+            $uniqueId = time() . mt_rand(1000, 9000);
+            $transaction_number = $uniqueId;
             $transactionPayload = [
                 "device_id" => $req["uuid"],
                 "user_id" => $profile->id,
@@ -184,7 +186,8 @@ class paymentController extends Controller
                 "courier_name" => $req["courier_name"],
                 "courier_package" => $req["courier_package"],
                 "products" => $validatedProducts,
-                "status" => 1
+                "status" => 1,
+                "transaction_number" => $transaction_number
             ];
             $transaction = self::makeTransaction($transactionPayload);
             if (!$transaction["success"]) {
@@ -253,6 +256,7 @@ class paymentController extends Controller
                 "courier_package:string",
                 "address_id:integer",
                 "courier_id:integer",
+                "transaction_number:string",
                 "products:array"
             ], "Transaction");
             $products = $data["products"];
