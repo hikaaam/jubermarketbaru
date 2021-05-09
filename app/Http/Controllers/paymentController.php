@@ -171,15 +171,20 @@ class paymentController extends Controller
 
             $paid = self::juberPay($juberPayload);
 
-            // return helper::resp(false, "store", "cek respoonse", $paid);
+            // return helper::resp(false, "store", "cek respoonse", $paid); //for trial purpose
+
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
-            // $uniqueId = time() . mt_rand(1000, 9000);
+
+            // $uniqueId = time() . mt_rand(1000, 9000); //for trial purpose
+
             $transaction_number = $paid["data"]["trxid"];
             $nomorResi = $paid["data"]["noresi"];
-            // $transaction_number = "testasdsad";
-            // $nomorResi = "asdasdas";
+
+            // $transaction_number = "testasdsad"; //for trial purpose
+            // $nomorResi = "asdasdas"; //for trial purpose
+
             $transactionPayload = [
                 "device_id" => $req["uuid"],
                 "user_id" => $profile->id,
@@ -290,7 +295,8 @@ class paymentController extends Controller
                     "variant_id" => $value["variant_id"],
                     "variant_name" => $value["variant_name"],
                     "sub_weight" => $value["sub_weight"],
-                    "sub_total" => $value["sub_total"]
+                    "sub_total" => $value["sub_total"],
+                    "transaction_id" => $head->id
                 ];
                 trans::create($dataBarang);
             }
