@@ -231,7 +231,7 @@ class paymentController extends Controller
             }
             $url = "http://192.168.2.45:9888/createtrxjbmarket";
             $response =  http::post($url, $data);
-            return $response;
+            return $response->json();
             if ($response["code"] != 200) {
                 throw new Error($response->msg);
             }
