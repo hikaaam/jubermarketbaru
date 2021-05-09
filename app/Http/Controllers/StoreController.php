@@ -222,8 +222,8 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("picture", "picture", $request, $dataTable);
             $dataTable = helper::checkifexist("cover_picture", "cover_picture", $request, $dataTable);
             $dataTable = helper::checkifexist("fax", "fax", $request, $dataTable);
-            $dataTable = helper::checkifexist("latitude", "latitude", $request, $dataTable);
-            $dataTable = helper::checkifexist("longitude", "longitude", $request, $dataTable);
+            $dataTable = helper::addData("latitude", "latitude", $request, $dataTable);
+            $dataTable = helper::addData("longitude", "longitude", $request, $dataTable);
             $dataTable = helper::checkifexist("outlet_type", "outlet_type", $request, $dataTable);
             $dataTable = helper::checkifexist("phone", "phone", $request, $dataTable);
             $dataTable = helper::checkifexist("state_code", "state_code", $request, $dataTable);
