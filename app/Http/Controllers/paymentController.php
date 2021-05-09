@@ -169,7 +169,7 @@ class paymentController extends Controller
             ];
 
             $paid = self::juberPay($juberPayload);
-            // return helper::resp(true, "store", "pembayaran test", $paid);
+            return helper::resp(false, "store", "cek data", $paid);
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
@@ -224,6 +224,7 @@ class paymentController extends Controller
                 "berat", //KG only
                 "barangs:array"
             ], "Juberpay");
+            return $data;
 
             foreach ($data["barangs"] as $key => $value) {
                 helper::validateArray($value, [
