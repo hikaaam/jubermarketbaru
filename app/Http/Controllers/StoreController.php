@@ -81,6 +81,10 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
             $dataTable = helper::addData("picture", "picture", $request, $dataTable);
             $dataTable = helper::addData("cover_picture", "cover_picture", $request, $dataTable);
+            $isEmailValid = helper::validateEmail($dataTable["email"]);
+            if (!$isEmailValid) {
+                throw new Error("ermail tidak valid");
+            }
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
                 if (!$location["success"]) {

@@ -24,7 +24,7 @@ class helper extends Controller
             'Content-Type' => 'application/json'
         ];
     }
-    public function validateEmail($email)
+    public static function validateEmail($email)
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
