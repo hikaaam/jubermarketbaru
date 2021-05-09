@@ -175,8 +175,8 @@ class paymentController extends Controller
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
-            $uniqueId = time() . mt_rand(1000, 9000);
-            $transaction_number = $uniqueId;
+            // $uniqueId = time() . mt_rand(1000, 9000);
+            $transaction_number = $paid["data"];
             $transactionPayload = [
                 "device_id" => $req["uuid"],
                 "user_id" => $profile->id,
@@ -244,7 +244,7 @@ class paymentController extends Controller
             if (intval($response["code"]) != 200) {
                 throw new Error($response["msg"]);
             }
-            return ["success" => true, "data" => $response];
+            return ["success" => true, "data" => $response["lobj"][0]];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }
