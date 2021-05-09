@@ -171,7 +171,7 @@ class paymentController extends Controller
 
             $paid = self::juberPay($juberPayload);
 
-            // return helper::resp(false, "store", "cek data", $paid);
+            return helper::resp(false, "store", "cek respoonse", $paid);
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
@@ -239,7 +239,7 @@ class paymentController extends Controller
             $response =  http::post($url, ["json" => $data]);
 
 
-            // return $response->json();
+            return $response->json();
             $response = $response->json();
             if (intval($response["code"]) != 200) {
                 throw new Error($response["msg"]);
