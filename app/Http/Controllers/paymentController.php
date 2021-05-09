@@ -151,7 +151,7 @@ class paymentController extends Controller
             }
 
             // validation end payment process here
-            $weight = array_sum($total_weight);
+            $weight = intval(round(array_sum($total_weight))); //Gram only
 
             $juberPayload = [
                 "uuid" => $req["uuid"],
@@ -231,7 +231,7 @@ class paymentController extends Controller
                 helper::validateArray($value, [
                     "idbarangjbcore",
                     "jumlah:integer",
-                    "berat" //KG only
+                    "berat:integer" //KG only
                 ], "Juberpay:barangs[$key]");
             }
             $url = "http://192.168.2.45:9888/createtrxjbmarket";
