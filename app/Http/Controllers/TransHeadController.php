@@ -300,7 +300,7 @@ class TransHeadController extends Controller
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
-            $dataTable = addData("nomor_resi", "nomor_resi", $request, $dataTable);
+            // $dataTable = addData("nomor_resi", "nomor_resi", $request, $dataTable);
             $dataTable = addData("courier_name", "courier_name", $request, $dataTable);
             $dataTable["status"] = "3";
             $trans_head = trans_head::findOrFail($id);

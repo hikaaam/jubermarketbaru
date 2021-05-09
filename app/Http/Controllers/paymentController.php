@@ -171,17 +171,19 @@ class paymentController extends Controller
 
             $paid = self::juberPay($juberPayload);
 
-            return helper::resp(false, "store", "cek respoonse", $paid);
+            // return helper::resp(false, "store", "cek respoonse", $paid);
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
             // $uniqueId = time() . mt_rand(1000, 9000);
-            $transaction_number = $paid["data"];
+            $transaction_number = $paid["data"]["trxid"];
+            $nomorResi = $paid["data"]["noresi"];
+            // $transaction_number = "testasdsad";
+            // $nomorResi = "asdasdas";
             $transactionPayload = [
                 "device_id" => $req["uuid"],
                 "user_id" => $profile->id,
                 "store_id" => $store->id,
-                "courier_id" => $courier->id,
                 "address_id" => $address->id,
                 "user_idrs" => $profile->idrs,
                 "note" => $req["note"],
@@ -192,7 +194,8 @@ class paymentController extends Controller
                 "courier_package" => $req["courier_package"],
                 "products" => $validatedProducts,
                 "status" => 1,
-                "transaction_number" => $transaction_number
+                "transaction_number" => $transaction_number,
+                "nomor_resi" => $nomorResi
             ];
             $transaction = self::makeTransaction($transactionPayload);
             if (!$transaction["success"]) {
@@ -266,8 +269,8 @@ class paymentController extends Controller
                 "courier_name:string",
                 "courier_package:string",
                 "address_id:integer",
-                "courier_id:integer",
                 "transaction_number:string",
+                "nomor_resi:string",
                 "products:array"
             ], "Transaction");
             $products = $data["products"];
@@ -283,7 +286,16 @@ class paymentController extends Controller
                     "sub_weight",
                     "sub_total"
                 ], "Transaction:barangs[$key]");
-                trans::create($value);
+                $dataBarang = [
+                    "item_id" => $value["id"],
+                    "note" => $value["note"],
+                    "qty" => $value["qty"],
+                    "variant_id" => $value["variant_id"],
+                    "variant_name" => $value["variant_name"],
+                    "sub_weight" => $value["sub_weight"],
+                    "sub_total" => $value["sub_total"]
+                ];
+                trans::create($dataBarang);
             }
             return ["success" => true, "data" => $head];
         } catch (\Throwable $th) {
