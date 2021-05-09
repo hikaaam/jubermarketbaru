@@ -152,6 +152,7 @@ class paymentController extends Controller
 
             // validation end payment process here
             $weight = array_sum($total_weight);
+
             $juberPayload = [
                 "uuid" => $req["uuid"],
                 "pembeli" => $req["user_idrs"],
@@ -169,7 +170,8 @@ class paymentController extends Controller
             ];
 
             $paid = self::juberPay($juberPayload);
-            // return helper::resp(true, "store", "pembayaran test", $paid);
+
+            // return helper::resp(false, "store", "cek data", $paid);
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
@@ -224,7 +226,7 @@ class paymentController extends Controller
                 "berat", //KG only
                 "barangs:array"
             ], "Juberpay");
-
+            // return $data;
             foreach ($data["barangs"] as $key => $value) {
                 helper::validateArray($value, [
                     "idbarangjbcore",
@@ -233,7 +235,10 @@ class paymentController extends Controller
                 ], "Juberpay:barangs[$key]");
             }
             $url = "http://192.168.2.45:9888/createtrxjbmarket";
-            $response =  http::post($url, $data);
+
+            $response =  http::post($url, ["json" => $data]);
+
+
             // return $response->json();
             $response = $response->json();
             if (intval($response["code"]) != 200) {
