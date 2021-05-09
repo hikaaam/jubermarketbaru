@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\alamat;
+use App\Models\cart_ref;
 use App\Models\item;
 use App\Models\profile;
 use App\Models\store;
@@ -67,7 +68,7 @@ class paymentController extends Controller
             }
 
             if ($req["cart_id"] !== null) {
-                $cart = store::find($req["cart_id"]); //cart and validate
+                $cart = cart_ref::find($req["cart_id"]); //cart and validate
                 if (!$cart) {
                     throw new Error("Cart tidak ditemukan");
                 }
