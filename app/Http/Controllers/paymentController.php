@@ -235,8 +235,8 @@ class paymentController extends Controller
                 ], "Juberpay:barangs[$key]");
             }
             $url = "http://192.168.2.45:9888/createtrxjbmarket";
-
-            $response =  http::post($url, ["json" => $data]);
+            $stringifyJson = json_encode($data);
+            $response =  http::post($url, ["json" => $stringifyJson]);
 
 
             return $response->json();
