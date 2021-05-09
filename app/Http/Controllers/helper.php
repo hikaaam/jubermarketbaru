@@ -305,7 +305,7 @@ class helper extends Controller
     {
         foreach ($rules as $key => $value) {
             $type = "any";
-
+            $msg = $msg ?? "";
             if (str_contains($value, ":")) {
                 $explode = explode(":", $value);
 

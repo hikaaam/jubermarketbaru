@@ -149,7 +149,7 @@ class paymentController extends Controller
                 array_push($total_weight, $sub_weight);
             }
 
-            //validation end payment process here
+            // validation end payment process here
             $weight = array_sum($total_weight);
             $juberPayload = [
                 "uuid" => $req["uuid"],
@@ -167,6 +167,7 @@ class paymentController extends Controller
             ];
 
             $paid = self::juberPay($juberPayload);
+            return helper::resp(true, "store", "pembayaran test", $paid);
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
@@ -230,6 +231,7 @@ class paymentController extends Controller
             }
             $url = "http://192.168.2.45:9888/createtrxjbmarket";
             $response =  http::post($url, $data);
+            return $response;
             if ($response["code"] != 200) {
                 throw new Error($response->msg);
             }
