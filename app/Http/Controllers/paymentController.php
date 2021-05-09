@@ -167,7 +167,7 @@ class paymentController extends Controller
             ];
 
             $paid = self::juberPay($juberPayload);
-            return helper::resp(true, "store", "pembayaran test", $paid);
+            // return helper::resp(true, "store", "pembayaran test", $paid);
             if (!$paid["success"]) {
                 throw new Error($paid["msg"]);
             }
