@@ -103,7 +103,7 @@ class paymentController extends Controller
                 $price = intval($product->selling_price);
                 $weigth = intval($product->weight);
                 $weight_unit = $product->weight_unit;
-                $weigth = $weight_unit == "KG" ? $weigth : round($weigth / 1000, 2);
+                $weigth = $weight_unit == "KG" ? intval(round($weigth * 1000)) : intval(round($weigth));
                 $variant_name = "";
 
                 if ($haveVariant) {
@@ -223,7 +223,7 @@ class paymentController extends Controller
                 "kodeWilayahTujuan:string",
                 "kurir:string",
                 "kurir_package:string",
-                "berat", //KG only
+                "berat:integer", //KG only
                 "barangs:array"
             ], "Juberpay");
             // return $data;
@@ -262,7 +262,7 @@ class paymentController extends Controller
                 "store_id:integer",
                 "user_id:integer",
                 "promo",
-                "weight", //KG only
+                "weight", //Gram
                 "courier_name:string",
                 "courier_package:string",
                 "address_id:integer",
