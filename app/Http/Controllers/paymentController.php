@@ -212,7 +212,7 @@ class paymentController extends Controller
             helper::validateArray($data, [
                 "uuid:string",
                 "pembeli:string",
-                "merhcant:string",
+                "merchant:string",
                 "promo",
                 "alamatAntar:string",
                 "latAntar",
