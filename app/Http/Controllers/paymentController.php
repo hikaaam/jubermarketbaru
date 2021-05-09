@@ -234,7 +234,7 @@ class paymentController extends Controller
             // return $response->json();
             $response = $response->json();
             if (intval($response["code"]) != 200) {
-                throw new Error($response->msg);
+                throw new Error($response["msg"]);
             }
             return ["success" => true, "data" => $response];
         } catch (\Throwable $th) {
