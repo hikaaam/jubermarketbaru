@@ -24,7 +24,10 @@ class helper extends Controller
             'Content-Type' => 'application/json'
         ];
     }
-
+    public function validateEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
     public static function getToken()
     {
         $app_id = 14523;
