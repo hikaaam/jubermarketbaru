@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\store;
 use Error;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller
@@ -83,19 +84,32 @@ class StoreController extends Controller
             $dataTable = helper::addData("cover_picture", "cover_picture", $request, $dataTable);
             $isEmailValid = helper::validateEmail($dataTable["email"]);
             if (!$isEmailValid) {
-                throw new Error("ermail tidak valid");
+                throw new Error("email tidak valid");
             }
-            if (array_key_exists("district", $dataTable)) {
-                $location = helper::getLocationCode($dataTable["district"]);
-                if (!$location["success"]) {
-                    throw new Error($location["msg"]);
-                }
-                $dataTable["juber_place_code"] = $location["data"];
-            }
+            // if (array_key_exists("district", $dataTable)) {
+            //     $location = helper::getLocationCode($dataTable["district"]);
+            //     if (!$location["success"]) {
+            //         throw new Error($location["msg"]);
+            //     }
+            //     $dataTable["juber_place_code"] = $location["data"];
+            // }
             $items = store::create($dataTable);
             return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
-            return helper::resp(false, 'store', $th->getMessage(), [], 400);
+            $msg = $th->getMessage();
+            if (str_contains($msg, "duplicate")) {
+                if (str_contains($msg, "(idrs)")) {
+                    $str = "IDRS sudah ada";
+                } else if (str_contains($msg, "(email")) {
+                    $str = "Email sudah ada";
+                } else if (str_contains($msg, "(phone")) {
+                    $str = "Nomor hp sudah ada";
+                } else {
+                    $str = "Duplicate entry";
+                }
+                $msg = $str;
+            }
+            return helper::resp(false, 'store', $msg, [], 400);
         }
     }
 
