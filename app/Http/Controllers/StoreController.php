@@ -86,13 +86,13 @@ class StoreController extends Controller
             if (!$isEmailValid) {
                 throw new Error("email tidak valid");
             }
-            // if (array_key_exists("district", $dataTable)) {
-            //     $location = helper::getLocationCode($dataTable["district"]);
-            //     if (!$location["success"]) {
-            //         throw new Error($location["msg"]);
-            //     }
-            //     $dataTable["juber_place_code"] = $location["data"];
-            // }
+            if (array_key_exists("district", $dataTable)) {
+                $location = helper::getLocationCode($dataTable["district"]);
+                if (!$location["success"]) {
+                    throw new Error($location["msg"]);
+                }
+                $dataTable["juber_place_code"] = $location["data"];
+            }
             $items = store::create($dataTable);
             return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
