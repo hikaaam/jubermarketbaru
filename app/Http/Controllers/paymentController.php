@@ -155,6 +155,7 @@ class paymentController extends Controller
             $juberPayload = [
                 "uuid" => $req["uuid"],
                 "pembeli" => $req["user_idrs"],
+                "merchant" => $store->idrs,
                 "promo" => $req["promo"],
                 "alamatAntar" => $address->name,
                 "latAntar" => $address->lat,
@@ -211,6 +212,7 @@ class paymentController extends Controller
             helper::validateArray($data, [
                 "uuid:string",
                 "pembeli:string",
+                "merhcant:string",
                 "promo",
                 "alamatAntar:string",
                 "latAntar",
