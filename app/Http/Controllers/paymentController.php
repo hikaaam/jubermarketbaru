@@ -252,6 +252,7 @@ class paymentController extends Controller
             $stringifyJson = json_encode($data);
             $response =  http::post($url, ["json" => $stringifyJson]);
             $response = $response->json();
+            return ["success" => false, "data" => $response, "msg" => "untracked Error"];
             if (intval($response["code"]) != 200) {
                 throw new Error($response["msg"]);
             }
