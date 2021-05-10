@@ -177,7 +177,7 @@ class paymentController extends Controller
             // return helper::resp(false, "store", "cek respoonse", $paid); //for trial purpose
 
             if (!$paid["success"]) {
-                $req = $paid["data"];
+                // $req = $paid["data"];
                 throw new Error($paid["msg"]);
             }
 
@@ -253,7 +253,7 @@ class paymentController extends Controller
             $stringifyJson = json_encode($data);
             $response =  http::post($url, ["json" => $stringifyJson]);
             $response = $response->json();
-            return ["success" => false, "data" => $response, "msg" => "untracked Error"];
+            // return ["success" => false, "data" => $response, "msg" => "untracked Error"];
             if (intval($response["code"]) != 200) {
                 throw new Error($response["msg"]);
             }
