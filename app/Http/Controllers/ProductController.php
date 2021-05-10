@@ -12,7 +12,10 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
 use App\Http\Controllers\helper;
+use App\Jobs\deleteTokopedia;
 use App\Jobs\insertTokopedia;
+use App\Jobs\tokopediaChangeVisible;
+use App\Jobs\updateTokopedia;
 use App\Models\trans;
 use Error;
 use Exception;
@@ -247,6 +250,7 @@ class ProductController extends Controller
                         "withVariant" => $withVariant,
                         "variant" => $variant_
                     );
+                    //TODO: VARIANT TOKOPEDIA
                     insertTokopedia::dispatch($tokopediaData);
                 } catch (\Throwable $th) {
                     // return $data;
@@ -480,19 +484,28 @@ class ProductController extends Controller
             $data["code"] = 202;
             $data["message"] = "berhasil";
             $data["data"] = ["request_data" => $request];
-            return $data;
+
+            $success = true;
+            return helper::resp($success, "update", "Berhasil update product", $data["data"]);
         } catch (\Throwable $th) {
+            $success = false;
             $data["data"] = [];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
-            return $data;
+            return helper::resp($success, "update", $th->getMessage(), []);
         } finally {
             if (!$dontHaveTokopediaId) {
                 try {
-                    helper::tokopediaUpdate($dataTable, $table["tokopedia_id"], $table);
+                    //TODO: VARIANT TOKOPEDIA
+                    $tokopediaData = array(
+                        "data" => $dataTable,
+                        "id" => $id,
+                        "table" => $table
+                    );
+                    updateTokopedia::dispatch($tokopediaData);
+                    // helper::tokopediaUpdate($dataTable, $table["tokopedia_id"], $table);
                 } catch (\Throwable $th) {
-                    return $data;
                 }
             }
         }
@@ -546,7 +559,7 @@ class ProductController extends Controller
         } finally {
             if (!$dontHaveTokopediaId) {
                 try {
-                    helper::tokopediaChangeVisibility($table->tokopedia_id, $isActive);
+                    tokopediaChangeVisible::dispatch($table->tokopedia_id, $isActive);
                 } catch (\Throwable $th) {
                     // return $data;
                 }
@@ -589,13 +602,15 @@ class ProductController extends Controller
             if (!$dontHaveTokopediaId) {
                 if ($haveTrans) {
                     try {
-                        helper::tokopediaChangeVisibility($item->tokopedia_id, false);
+                        // helper::tokopediaChangeVisibility($item->tokopedia_id, false);
+                        tokopediaChangeVisible::dispatch($item->tokopedia_id, false);
                     } catch (\Throwable $th) {
                         // return $data;
                     }
                 } else {
                     try {
-                        helper::deleteTokopedia($item["tokopedia_id"]);
+                        // helper::deleteTokopedia($item["tokopedia_id"]);
+                        deleteTokopedia::dispatch($item["tokopedia_id"]);
                     } catch (\Throwable $th) {
                         // return $data;
                     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\decreaseStock;
+use App\Jobs\paymentNotification;
 use App\Models\alamat;
 use App\Models\cart_ref;
 use App\Models\item;
@@ -169,21 +171,21 @@ class paymentController extends Controller
                 "barangs" => $validatedProducts
             ];
 
-            $paid = self::juberPay($juberPayload);
+
+            // $paid = self::juberPay($juberPayload);
 
             // return helper::resp(false, "store", "cek respoonse", $paid); //for trial purpose
 
-            if (!$paid["success"]) {
-                throw new Error($paid["msg"]);
-            }
+            // if (!$paid["success"]) {
+            //     throw new Error($paid["msg"]);
+            // }
 
             // $uniqueId = time() . mt_rand(1000, 9000); //for trial purpose
+            // $transaction_number = $paid["data"]["trxid"];
+            // $nomorResi = $paid["data"]["noresi"];
 
-            $transaction_number = $paid["data"]["trxid"];
-            $nomorResi = $paid["data"]["noresi"];
-
-            // $transaction_number = "testasdsad"; //for trial purpose
-            // $nomorResi = "asdasdas"; //for trial purpose
+            $transaction_number = "testasdsad"; //for trial purpose
+            $nomorResi = "asdasdas"; //for trial purpose
 
             $transactionPayload = [
                 "device_id" => $req["uuid"],
@@ -206,14 +208,19 @@ class paymentController extends Controller
             if (!$transaction["success"]) {
                 throw new Error($transaction["msg"]);
             }
-
+            $scs = true;
             return helper::resp(true, "store", "pembayaran berhasil", $transaction["data"]);
-            //TO DO DECREASE THE STOCK
-
         } catch (\Throwable $th) {
+            $scs = false;
             return helper::resp(false, "store", $th->getMessage(), [
                 "payload" => $req
             ]);
+        } finally {
+            if ($scs) {
+                //TO DO DECREASE THE STOCK ON VARIANT
+                paymentNotification::dispatch($profile, $store);
+                decreaseStock::dispatch($validatedProducts);
+            }
         }
     }
     private function juberPay(array $data)
@@ -252,6 +259,55 @@ class paymentController extends Controller
             return ["success" => true, "data" => $response["lobj"][0]];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
+        }
+    }
+
+    public static function decreaseProductStock(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if ($value["variant_id"]) {
+                $variant = Variant::find($value["variant_id"]);
+                $current_stock = intval($variant->stock) - $value["qty"];
+                $current_stock = $current_stock <= 0 ? 0 : $current_stock;
+                $variant->update(["stock" => $current_stock]);
+                //TODO TOKOPEDIA REDUCE STOCK
+            } else {
+                $product = item::find($value["id"]);
+                $current_stock = intval($product->minimal_stock) - $value["qty"];
+                $current_stock = $current_stock <= 0 ? 0 : $current_stock;
+                $tokopedia_id = $product->tokopedia_id;
+                $product->update(["minimal_stock" => $current_stock]);
+                if ($tokopedia_id) {
+                    $getToken = helper::getToken();
+                    $token = $getToken["token"];
+                    $fs_id = $getToken["fs_id"];
+                    $shop_id = helper::shopid();
+                    $headers = helper::getAuth($token);
+                    $url = "https://fs.tokopedia.net/inventory/v1/fs/{$fs_id}/stock/update?shop_id={$shop_id}";
+                    http::withHeaders($headers)->post($url, [[
+                        "product_id" => $tokopedia_id,
+                        "new_stock" => $current_stock
+                    ]]);
+                }
+            }
+        }
+    }
+
+    public static function paymentNotification(object $profile, object $store)
+    {
+        $tokenPembeli = $profile->token;
+        if ($tokenPembeli) {
+            helper::sendNotification($tokenPembeli, "Pesanan anda berhasil diproses.", "user", "JuberPay");
+        }
+        $idrs = $store->idrs;
+        if ($idrs) {
+            $seller = profile::where("idrs", $idrs)->first();
+            if ($seller) {
+                $tokenPenjual = $seller["token"];
+                if ($tokenPenjual) {
+                    helper::sendNotification($tokenPenjual, "Anda memiliki pesanan baru.", "seller", "Juber Marketplace");
+                }
+            }
         }
     }
 
