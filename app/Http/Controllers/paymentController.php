@@ -177,6 +177,7 @@ class paymentController extends Controller
             // return helper::resp(false, "store", "cek respoonse", $paid); //for trial purpose
 
             if (!$paid["success"]) {
+                $req = $paid["data"];
                 throw new Error($paid["msg"]);
             }
 
