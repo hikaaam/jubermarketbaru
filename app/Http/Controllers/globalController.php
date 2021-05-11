@@ -20,6 +20,15 @@ class globalController extends Controller
         }
     }
 
+    public function apiLocalTest()
+    {
+        try {
+            return helper::juberCoreSyncStatusTrx("JBM0500005", 5);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *

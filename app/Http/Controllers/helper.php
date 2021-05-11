@@ -551,12 +551,26 @@ class helper extends Controller
                 "msg" => $msg,
                 "data" => [
                     "service" => "jbmarket",
-                    "type" => $type
+                    "type" => $type //user or seller or admin
                 ]
             ];
             http::post($url, $data);
         } catch (\Throwable $th) {
             //throw $th;
+        }
+    }
+    public static function juberCoreSyncStatusTrx(string $id, int $status)
+    {
+        try {
+            $url = "http://192.168.2.45:9888/updatejbmarket";
+            $headers = ["Content-Type" => "application/json"];
+            $payload = ["trxid" => $id, "stsjbcore" => $status];
+            $stringifyPayload = json_encode($payload, true);
+            $body = ["json" => $stringifyPayload];
+            $response = http::withHeaders($headers)->post($url, $body);
+            return $response;
+        } catch (\Throwable $th) {
+            return $th;
         }
     }
 }

@@ -296,16 +296,11 @@ class TransHeadController extends Controller
     }
     public function updateSending(Request $request, $id)
     {
-
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
-            // $dataTable = addData("nomor_resi", "nomor_resi", $request, $dataTable);
-            // $dataTable = helper::addData("courier_name", "courier_name", $request, $dataTable);
             $dataTable["status"] = "3";
             $trans_head = trans_head::findOrFail($id);
-            // return $trans_head;
-            // return $trans_head->status;
             if ($trans_head->status == 2) {
                 $data = $trans_head->update($dataTable);
                 return getRespond(true, "Berhasil update status order", ["updatedField" => 1]);

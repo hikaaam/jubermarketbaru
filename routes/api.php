@@ -32,6 +32,7 @@ use App\Http\Controllers\searchController;
 use App\Http\Controllers\TransHeadController;
 use App\Http\Controllers\TransReturnController;
 use Intervention\Image\ImageManagerStatic as Image;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -246,10 +247,6 @@ Route::get('courier/idrs/{id}', [CourierController::class, 'show']);
 Route::post('courier', [CourierController::class, 'store']);
 Route::delete('courier/{id}', [CourierController::class, 'destroy']);
 
-//global controller
-Route::get('updateToken', [globalController::class, 'index']);
-
-
 //API pin driver
 Route::post('pin/generate', [PinDriverController::class, 'generatePin']);
 Route::post('pin/check', [PinDriverController::class, 'check']);
@@ -258,3 +255,7 @@ Route::post('pin/delete/detail/{id}', [PinDriverController::class, 'destroyDetai
 
 //PAYMENT
 Route::post('payment/juberpay', [paymentController::class, 'checkoutPayment']);
+
+//global controller
+Route::get('updateToken', [globalController::class, 'index']);
+Route::get("apiLocalTest" . [globalController::class, 'apiLocalTest']);
