@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\juberCoreSyncStatus;
 use App\Jobs\notification;
 use App\Models\trans_head;
 use App\Models\trans_return;
@@ -111,6 +112,7 @@ class TransReturnController extends Controller
             if ($trans_return->status == 3) {
                 $trans_return->update(["status" => "4"]);
                 self::sendReturnNotif($trans_return->order_id, "packing");
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 4]);
                 return getRespond(true, "Berhasil update status pengembalian", ["updatedField" => 1]);
             } else if ($trans_return->status >= 4) {
                 return getRespond(false, "Barang sudah pernah dipacking sebelumnya", ["updatedField" => 0]);
@@ -135,6 +137,7 @@ class TransReturnController extends Controller
                 addData("courier_name", "courier_name", $request, $dataTable);
                 $trans_return->update($dataTable);
                 self::sendReturnNotif($trans_return->order_id, "sending");
+
                 return getRespond(true, "Berhasil update status pengembalian", ["updatedField" => 1]);
             } else if ($trans_return->status >= 5) {
                 return getRespond(false, "Barang sudah pernah dikirim", ["updatedField" => 0]);
@@ -155,6 +158,7 @@ class TransReturnController extends Controller
             if ($trans_return->status == 1 || $trans_return->status == 2) {
                 $trans_return->update(["status" => "0"]);
                 self::sendReturnNotif($trans_return->order_id, "cancel");
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 1]);
                 return getRespond(true, "Berhasil update status pengembalian", ["updatedField" => 1]);
             } else if ($trans_return->status >= 3) {
                 return getRespond(false, "Barang yang sudah diproses tidak dapat dibatalkan", ["updatedField" => 0]);
@@ -178,6 +182,7 @@ class TransReturnController extends Controller
                 $trans_head = (["status" => 6, "reviewed" => "2"]);
                 trans_head::findoRFail($trans_return->order_id)->update($trans_head);
                 self::sendReturnNotif($trans_return->order_id, "done");
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 2]);
                 return getRespond(true, "Pengembalian Berhasil", ["updatedField" => 2]);
             } else if ($trans_return->status == 6) {
                 return getRespond(false, "barang sudah selesai dikembalikan", ["updatedField" => 0]);

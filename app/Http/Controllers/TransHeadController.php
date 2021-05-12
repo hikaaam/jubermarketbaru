@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\juberCoreSyncStatus;
 use App\Jobs\notification;
 use App\Models\item;
 use App\Models\trans_head;
@@ -297,6 +298,7 @@ class TransHeadController extends Controller
                 $userMsg = "Pesanan {$trans_head->transaction_number} telah diproses penjual.";
 
                 $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 8]);
                 notification::dispatch($notifUser);
 
                 return getRespond(true, "Berhasil update status order", ["updatedField" => 1]);
@@ -327,6 +329,7 @@ class TransHeadController extends Controller
                 $userMsg = "Pesanan {$trans_head->transaction_number} sedang dalam pengiriman.";
 
                 $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 3]);
                 notification::dispatch($notifUser);
 
                 return getRespond(true, "Berhasil update status order", ["updatedField" => 1]);
@@ -364,6 +367,7 @@ class TransHeadController extends Controller
                  Mohon tidak proses pesanan ini.";
                 $userMsg = "Pesanan {$trans_head->transaction_number} telah dibatalkan.";
 
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 2]);
                 $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
                 notification::dispatch($notifUser);
                 $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
@@ -399,6 +403,8 @@ class TransHeadController extends Controller
                 $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
                 $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);
                 $image = self::getImageFromIdTrx($id);
+
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 1]);
 
                 $sellerTitle = "Pesanan telah diterima pembeli";
                 $sellerMsg = "Pesanan {$trans_head->transaction_number} telah diterima oleh {$user['name']}";
@@ -453,6 +459,8 @@ class TransHeadController extends Controller
                  Mohon tidak proses pesanan ini.";
                 $userMsg = "Pesanan {$trans_head->transaction_number} dalam proses pengajuan pengembalian";
 
+
+                juberCoreSyncStatus::dispatch(["id" => $id, "status" => 8]);
                 $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
                 notification::dispatch($notifUser);
                 $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
