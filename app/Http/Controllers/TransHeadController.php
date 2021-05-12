@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\notification;
 use App\Models\item;
 use App\Models\trans_head;
 use App\Models\trans;
 use App\Models\store;
 use App\Models\profile;
 use App\Models\trans_return;
+use App\Models\Variant;
+use Error;
 use Illuminate\Http\Request;
 
 
@@ -285,6 +288,17 @@ class TransHeadController extends Controller
             // return $trans_head;
             if ($trans_head->status == 1) {
                 $data = $trans_head->update(["status" => "2"]);
+
+                $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
+                $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);
+                $image = self::getImageFromIdTrx($id);
+
+                $userTitle = "Pesanan diproses penjual";
+                $userMsg = "Pesanan {$trans_head->transaction_number} telah diproses penjual.";
+
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                notification::dispatch($notifUser);
+
                 return getRespond(true, "Berhasil update status order", ["updatedField" => 1]);
             } else {
                 return getRespond(false, "Barang sudah pernah dipacking sebelumnya", ["updatedField" => 0]);
@@ -303,6 +317,18 @@ class TransHeadController extends Controller
             $trans_head = trans_head::findOrFail($id);
             if ($trans_head->status == 2) {
                 $data = $trans_head->update($dataTable);
+
+                $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
+                $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);
+                $image = self::getImageFromIdTrx($id);
+
+
+                $userTitle = "Pesanan dibatalkan";
+                $userMsg = "Pesanan {$trans_head->transaction_number} sedang dalam pengiriman.";
+
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                notification::dispatch($notifUser);
+
                 return getRespond(true, "Berhasil update status order", ["updatedField" => 1]);
             } else if ($trans_head->status > 2) {
                 return getRespond(false, "Barang sudah dikirim sebelumnya", ["updatedField" => 0]);
@@ -316,7 +342,6 @@ class TransHeadController extends Controller
     }
     public function updateCancel(Request $request, $id)
     {
-
         $request = json_decode($request->payload, true);
         // return $request;
         try {
@@ -328,6 +353,22 @@ class TransHeadController extends Controller
             // return $trans_head;
             if ($trans_head->status == 1) {
                 $data = $trans_head->update($dataTable);
+
+                $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
+                $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);
+                $image = self::getImageFromIdTrx($id);
+
+                $sellerTitle = "Pesanan dibatalkan pembeli";
+                $userTitle = "Pesanan dibatalkan";
+                $sellerMsg = "Pesanan {$trans_head->transaction_number} dibatalkan {$user['name']}.
+                 Mohon tidak proses pesanan ini.";
+                $userMsg = "Pesanan {$trans_head->transaction_number} telah dibatalkan.";
+
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                notification::dispatch($notifUser);
+                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
+                notification::dispatch($notifSeller);
+
                 return getRespond(true, "Berhasil Membatalkan order", ["updatedField" => 1]);
             } else if ($trans_head->status > 1) {
                 return getRespond(false, "Barang  yang sudah diproses oleh seller tidak dapat dicancel", ["updatedField" => 0]);
@@ -355,6 +396,16 @@ class TransHeadController extends Controller
                     $newSold =  intval($sold) + 1;
                     $item->update(["sold" => $newSold]);
                 }
+                $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
+                $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);
+                $image = self::getImageFromIdTrx($id);
+
+                $sellerTitle = "Pesanan telah diterima pembeli";
+                $sellerMsg = "Pesanan {$trans_head->transaction_number} telah diterima oleh {$user['name']}";
+
+                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
+                notification::dispatch($notifSeller);
+
                 return getRespond(true, "Barang berhasil diterima", ["updatedField" => 1]);
             } else if ($trans_head->status == 4) {
                 return getRespond(false, "Barang sudah pernah diterima", ["updatedField" => 0]);
@@ -391,6 +442,22 @@ class TransHeadController extends Controller
                 $return_table = checkifexist("picture_three", "picture_three", $request, $return_table);
                 $return_table = checkifexist("picture_four", "picture_four", $request, $return_table);
                 $return_table = checkifexist("picture_five", "picture_dive", $request, $return_table);
+
+                $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
+                $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);
+                $image = self::getImageFromIdTrx($id);
+
+                $sellerTitle = "Pengajuan pengembalian";
+                $userTitle = "Pengajuan pengembalian";
+                $sellerMsg = "{$user['name']} telah mengajukan pengembalian terhadap pesanan {$trans_head->transaction_number}.
+                 Mohon tidak proses pesanan ini.";
+                $userMsg = "Pesanan {$trans_head->transaction_number} dalam proses pengajuan pengembalian";
+
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                notification::dispatch($notifUser);
+                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
+                notification::dispatch($notifSeller);
+
                 $trans_return = trans_return::create($return_table);
                 return getRespond(true, "Berhasil mengembalikan barang", ["updatedField" => 1, "return_order_id" => $trans_return->id]);
             } else if ($trans_head->status == 4) {
@@ -437,6 +504,69 @@ class TransHeadController extends Controller
     public function destroy(trans_head $trans_head)
     {
         //
+    }
+    public static function getImageFromIdTrx($id)
+    {
+        try {
+            $trans_body = trans::where("transaction_id", $id)->first();
+            if ($trans_body) {
+                $haveVariant = $trans_body->variant_id != null;
+                if ($haveVariant) {
+                    $var = $trans_body->variant_id;
+                    $variant = Variant::findOrFail($var);
+                    $image = $variant->picture;
+                    return $image;
+                }
+                $pid = $trans_body->item_id;
+                $product = item::findOrFail($pid);
+                $image = $product->picture;
+                return $image;
+            }
+            throw new Error("transaction not found!");
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
+
+    public static function getUserNameAndTokenFromUserId($id)
+    {
+        try {
+            $profile = profile::find($id);
+            $token = $profile->token;
+            if ($profile) {
+                $name = $profile->name;
+                $name = $name ?? "pembeli";
+                return ["token" => $token, "name" => $name];
+            }
+            return ["token" => $token, "name" => "pembeli"];
+        } catch (\Throwable $th) {
+            return ["token" => null, "name" => "pembeli"];
+        }
+    }
+
+    public static function getStoreNameAndTokenFromStoreId($id)
+    {
+        try {
+            $store = store::find($id);
+            $idrs = $store->idrs;
+            if ($store) {
+                $profile = profile::where("idrs", $idrs)->first();
+                return ["token" => $profile->token, "name" => $store->name];
+            }
+            throw new Error("store not found!");
+        } catch (\Throwable $th) {
+            return ["token" => null, "name" => "penjual"];
+        }
+    }
+    public static function notificationFormat($title, $msg, $token, $image, $type)
+    {
+        return [
+            "type" => $type,
+            "msg" => $msg,
+            "image" => $image,
+            "token" => $token,
+            "title" => $title
+        ];
     }
 }
 

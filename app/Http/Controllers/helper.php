@@ -541,7 +541,7 @@ class helper extends Controller
                 return 'Unknown error';
         }
     }
-    public static function sendNotification(string $token, string $msg, string $type, string $title)
+    public static function sendNotification(string $token, string $msg, string $type, string $title, string $image = null)
     {
         try {
             $url = "https://delivery.juber.co.id:8002/notif";
@@ -551,7 +551,8 @@ class helper extends Controller
                 "msg" => $msg,
                 "data" => [
                     "service" => "jbmarket",
-                    "type" => $type //user or seller or admin
+                    "type" => $type, //user or seller or admin
+                    "image" => $image
                 ]
             ];
             http::post($url, $data);
