@@ -259,3 +259,4 @@ Route::post('payment/juberpay', [paymentController::class, 'checkoutPayment']);
 //global controller
 Route::get('updateToken', [globalController::class, 'index']);
 Route::get("apiLocalTest", [globalController::class, 'apiLocalTest']);
+Route::get("syncJuberFood", [globalController::class, 'syncJuberFood']);
