@@ -60,13 +60,13 @@ class globalController extends Controller
                     $lobj = $response["lobj"][0];
                     $id = $lobj['idproduk'];
                     item::findOrFail($data["id"])->update(["juber_id" => $id]);
-                    return Response(["success" => true, "message" => "sync success"], 200);
+                    return ["success" => true, "message" => "sync success"];
                 } else {
                     throw new Error($response->msg);
                 }
             }
         } catch (\Throwable $th) {
-            return Response(["success" => false, "message" => $th->getMessage()], 500);
+            return ["success" => false, "message" => $th->getMessage()];
         }
     }
 
