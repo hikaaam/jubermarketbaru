@@ -42,7 +42,6 @@ class globalController extends Controller
     {
         try {
             $items = item::where("service", "jbfood")->get();
-            return $items;
             foreach ($items as $key => $data) {
                 if ($data["weight_unit"] == "GR") {
                     $data["weight"] = intval($data["weight"]) / 1000;
