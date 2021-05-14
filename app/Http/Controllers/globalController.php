@@ -41,7 +41,7 @@ class globalController extends Controller
     public static function syncJuberFood()
     {
         try {
-            $items = item::where("service", "jbfood")->get();
+            $items = item::where("service", "jbfood")->where('sync_status', '!=', 1)->get();
             foreach ($items as $key => $data) {
                 if ($data["weight_unit"] == "GR") {
                     $data["weight"] = intval($data["weight"]) / 1000;
@@ -61,7 +61,7 @@ class globalController extends Controller
                 if ($response["code"] == 200) {
                     $lobj = $response["lobj"][0];
                     $id = $lobj['idproduk'];
-                    item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                    item::findOrFail($data["id"])->update(["juber_id" => $id, "sync_status" => 1]);
                     // return ["success" => true, "message" => "sync success"];
                 } else {
                     // throw new Error($response->msg);
