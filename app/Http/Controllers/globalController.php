@@ -62,12 +62,10 @@ class globalController extends Controller
                 if ($response["code"] == 200) {
                     $lobj = $response["lobj"][0];
                     if ($data["sync_status"] === null) {
-                        return [$data["sync_status"], "if"];
-                        // $id = $lobj['idproduk'];
-                        // item::findOrFail($data["id"])->update(["juber_id" => $id, "sync_status" => 1]);
+                        $id = $lobj['idproduk'];
+                        item::findOrFail($data["id"])->update(["juber_id" => $id, "sync_status" => 1]);
                     } else {
-                        return [$data["sync_status"], "else"];
-                        // item::findOrFail($data["id"])->update(["sync_status" => 1]);
+                        item::findOrFail($data["id"])->update(["sync_status" => 1]);
                     }
                     // return ["success" => true, "message" => "sync success"];
                 } else {
