@@ -56,7 +56,6 @@ class globalController extends Controller
                 $url = "http://192.168.2.45:9888/jbmiddleware";
                 $key = "createproduk";
                 $body = ["key" => $key, "payload" => $payload];
-                return $body;
                 $response =  http::withHeaders(helper::getJuberHeaders())->post($url, $body);
                 return $response;
                 if ($response["code"] == 200) {
