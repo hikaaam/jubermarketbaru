@@ -46,6 +46,7 @@ class globalController extends Controller
                 if ($data["weight_unit"] == "GR") {
                     $data["weight"] = intval($data["weight"]) / 1000;
                 }
+                $data["weight"] = $data["weight"] ?? 1;
                 $harga = intval($data["selling_price"]);
                 $image = $data["picture"];
                 $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
