@@ -61,7 +61,7 @@ class globalController extends Controller
                 $response =  http::withHeaders(helper::getJuberHeaders())->post($url, $body);
                 if ($response["code"] == 200) {
                     $lobj = $response["lobj"][0];
-                    if ($data["sync_status"] == null) {
+                    if ($data["sync_status"] === null) {
                         return [$data["sync_status"], "if"];
                         // $id = $lobj['idproduk'];
                         // item::findOrFail($data["id"])->update(["juber_id" => $id, "sync_status" => 1]);
