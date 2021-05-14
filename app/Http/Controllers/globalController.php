@@ -59,12 +59,14 @@ class globalController extends Controller
                 $key = "createproduk";
                 $body = ["key" => $key, "payload" => $payload];
                 $response =  http::withHeaders(helper::getJuberHeaders())->post($url, $body);
-                return $response;
-                helper::Logger(json_encode($response->json), "jbr");
                 if ($response["code"] == 200) {
                     $lobj = $response["lobj"][0];
                     $id = $lobj['idproduk'];
-                    item::findOrFail($data["id"])->update(["juber_id" => $id, "sync_status" => 1]);
+                    if (!$data["sync_status"]) {
+                        item::findOrFail($data["id"])->update(["juber_id" => $id, "sync_status" => 1]);
+                    } else {
+                        item::findOrFail($data["id"])->update(["sync_status" => 1]);
+                    }
                     // return ["success" => true, "message" => "sync success"];
                 } else {
                     // throw new Error($response->msg);
