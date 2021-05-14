@@ -42,6 +42,7 @@ class globalController extends Controller
     {
         try {
             $items = item::where("service", "jbfood")->where('sync_status', '!=', 1)->get();
+            // return $items;
             foreach ($items as $key => $data) {
                 if ($data["weight_unit"] == "GR") {
                     $data["weight"] = intval($data["weight"]) / 1000;
@@ -58,6 +59,7 @@ class globalController extends Controller
                 $key = "createproduk";
                 $body = ["key" => $key, "payload" => $payload];
                 $response =  http::withHeaders(helper::getJuberHeaders())->post($url, $body);
+                return $response;
                 helper::Logger(json_encode($response->json), "jbr");
                 if ($response["code"] == 200) {
                     $lobj = $response["lobj"][0];
