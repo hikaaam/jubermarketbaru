@@ -39,7 +39,7 @@ class jbfoodCron extends Command
      */
     public function handle()
     {
-        // globalController::apiLocalTest();
-        helper::Logger("test cron", 'jbr');
+        globalController::syncJuberFood();
+        // helper::Logger("test cron", 'jbr');
     }
 }

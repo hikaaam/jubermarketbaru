@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command("jbfood:cron")->everyMinute();
+        $schedule->command("jbfood:cron")->hourly();
     }
 
     /**
