@@ -40,6 +40,6 @@ class jbfoodCron extends Command
     public function handle()
     {
         globalController::syncJuberFood();
-        helper::Logger("Running cron ~> syncing juber food", 'jbr');
+        // helper::Logger("Running cron ~> syncing juber food", 'jbr');
     }
 }
