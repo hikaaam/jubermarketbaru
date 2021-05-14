@@ -49,6 +49,7 @@ class globalController extends Controller
                 $data["weight"] = $data["weight"] ?? 1;
                 $harga = intval($data["selling_price"]);
                 $image = $data["picture"];
+                $data['sku'] = $data['sku'] ?? self::getSKU($data["name"], $data["store_id"], $data["id"]);
                 $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                     "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                     "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":{$harga}," .
@@ -57,14 +58,13 @@ class globalController extends Controller
                 $key = "createproduk";
                 $body = ["key" => $key, "payload" => $payload];
                 $response =  http::withHeaders(helper::getJuberHeaders())->post($url, $body);
-                return $response;
                 if ($response["code"] == 200) {
                     $lobj = $response["lobj"][0];
                     $id = $lobj['idproduk'];
                     item::findOrFail($data["id"])->update(["juber_id" => $id]);
-                    return ["success" => true, "message" => "sync success"];
+                    // return ["success" => true, "message" => "sync success"];
                 } else {
-                    throw new Error($response->msg);
+                    // throw new Error($response->msg);
                 }
             }
         } catch (\Throwable $th) {
@@ -80,6 +80,16 @@ class globalController extends Controller
     public function create()
     {
         //
+    }
+
+    private static function getSKU(string $name, $store_id, $id)
+    {
+        $words = explode(" ", $name);
+        $acronym = "";
+        foreach ($words as $w) {
+            $acronym .= $w[0];
+        }
+        return "{$store_id}F{$id}_{$acronym}";
     }
 
     /**
