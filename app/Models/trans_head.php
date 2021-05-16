@@ -19,4 +19,8 @@ class trans_head extends Model
     {
         return $this->belongsTo(profile::class, 'user_id');
     }
+    public function Body()
+    {
+        return $this->hasMany(trans::class, 'transaction_id');
+    }
 }

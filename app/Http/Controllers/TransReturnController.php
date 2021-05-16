@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Jobs\juberCoreSyncStatus;
 use App\Jobs\notification;
+use App\Models\chat_admin;
+use App\Models\profile;
+use App\Models\store;
 use App\Models\trans_head;
 use App\Models\trans_return;
 use Illuminate\Http\Request;
@@ -203,7 +206,23 @@ class TransReturnController extends Controller
             if ($trans_return->status == 1) {
                 $trans_return->update(["status" => "2"]);
                 $trans_head = (["status" => 4, "reviewed" => "0"]);
-                trans_head::findoRFail($trans_return->order_id)->update($trans_head);
+                $head = trans_head::findoRFail($trans_return->order_id);
+                $store = store::find($head->store_id);
+                $store_user = profile::where("idrs", $store->idrs)->first();
+                if ($store_user) {
+                    $store_user_id = $store_user->id;
+                } else {
+                    $store_user_id = null;
+                }
+                $head->update($trans_head);
+                chat_admin::create([
+                    "user_id" => $head->user_id,
+                    "store_id" => $head->store_id,
+                    "store_user_id" => $store_user_id,
+                    "return_id" => $id,
+                    "problem_id" => $trans_return->problem_id,
+                    "trans_head_id" => $head
+                ]);
                 self::sendReturnNotif($trans_return->order_id, "admin");
                 return getRespond(true, "Pengembalian dilaporkan kejuber", ["updatedField" => 1]);
             } else if ($trans_return->status == 2) {

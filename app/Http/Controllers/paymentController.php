@@ -197,6 +197,7 @@ class paymentController extends Controller
                 "currency" => "IDR",
                 "promo" => $req["promo"],
                 "weight" => $weight,
+                "total_payment" => array_sum($total),
                 "courier_name" => $req["courier_name"],
                 "courier_package" => $req["courier_package"],
                 "products" => $validatedProducts,
