@@ -14,6 +14,7 @@ use Config;
 use App\Http\Controllers\helper;
 use App\Jobs\deleteTokopedia;
 use App\Jobs\insertTokopedia;
+use App\Jobs\jbmarketsyncDelete;
 use App\Jobs\tokopediaChangeVisible;
 use App\Jobs\updateTokopedia;
 use App\Models\trans;
@@ -586,6 +587,7 @@ class ProductController extends Controller
             }
             $variant = Variant::where('item_id', $id)->get();
             $item->delete();
+            jbmarketsyncDelete::dispatch($item);
             Variant::where('item_id', $id)->delete();
             $data["success"] = true;
             $data["code"] = 200;
@@ -616,6 +618,25 @@ class ProductController extends Controller
                     }
                 }
             }
+        }
+    }
+    public function newDetailProduct($id)
+    {
+        //frontend says
+        //need detail store
+        //need product variation
+        //related product
+        //in one fkn API because he can't do a fucking asynchronous
+        try {
+            $product = item::where("id", $id)->with("Variant", "Store")->first();
+            if (!$product) {
+                return helper::resp(false, "get", "Produk tidak ditemukan!", [], 400);
+            }
+            $related = item::where("category_id", $product->category_id)->where("is_shown", 1)->where('id', '!=', $id)->limit(6)->get();
+            $product["related"] = $related;
+            return helper::resp(true, "get", "berhasil mendapatkan detail produk", $product);
+        } catch (\Throwable $th) {
+            return helper::resp(false, "get", $th->getMessage(), ["id" => $id], 500);
         }
     }
 }

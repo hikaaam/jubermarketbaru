@@ -69,6 +69,7 @@ Route::post('ref_cat', [RefCatController::class, 'store']);
 Route::put('ref_cat/{id}', [RefCatController::class, 'update']);
 Route::delete('ref_cat/{id}', [RefCatController::class, 'destroy']);
 
+//product API
 Route::get('product', [ProductController::class, 'index']);
 Route::get('product/hidden', [ProductController::class, 'isNotShown']);
 Route::get('product/visible', [ProductController::class, 'visible']);
@@ -84,6 +85,8 @@ Route::put('product/{id}', [ProductController::class, 'update']);
 Route::put('product/is_shown/{id}', [ProductController::class, 'updateIsShown']);
 Route::delete('product/{id}', [ProductController::class, 'destroy']);
 Route::put('product/related/{id}', [ProductController::class, 'getRelatedProduct']);
+Route::get('product/detail/{id}', [ProductController::class, 'newDetailProduct']);
+
 
 Route::get('category', [CategoryController::class, 'index']);
 // Route::get('product/all',[CategoryController::class, 'all']);

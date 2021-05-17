@@ -302,7 +302,14 @@ class helper extends Controller
     {
         return strtolower(gettype($data));
     }
-
+    public static function juberSyncDelete($data)
+    {
+        $url = "http://192.168.2.45:9888/delprodjbcore";
+        $headers = array("Content-Type" => "application/json");
+        $data = ["idbarang" => $data["id"], "idbarangjbcore" => $data["juber_id"]];
+        $formatedData = ["json" => json_encode($data)];
+        http::withHeaders($headers)->post($url, $formatedData);
+    }
     public static function juberSyncInsert($data)
     {
         try {

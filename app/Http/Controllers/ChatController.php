@@ -164,7 +164,7 @@ class ChatController extends Controller
                 ->join("profile", 'profile.id', '=', 'chat_admin.user_id')
                 ->join("profile as user", 'user.id', '=', 'chat_admin.store_user_id')
                 ->join('market_transaction_head as order', 'order.id', '=', 'chat_admin.trans_head_id')
-                ->join('market_return_problem as problem', 'problem.id', '=', 'chat_admin.problem_id')->paginate("10");
+                ->join('market_return_problem as problem', 'problem.id', '=', 'chat_admin.problem_id')->orderBy('id', 'desc')->paginate("10");
             return helper::resp(true, "get", "berhasil mendapatkan chat", $chat);
         } catch (\Throwable $th) {
             return helper::resp(false, "get", $th->getMessage(), []);
