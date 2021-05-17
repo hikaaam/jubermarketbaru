@@ -272,46 +272,51 @@ class TransReturnController extends Controller
 
             switch ($case) {
                 case 'accept':
-                    $msg = "Penjual menerima pengajuan pengembalian";
-                    $title = "Pengembalian pesanan {$order->transaction_number} diterima oleh penjual, silahkan kirim pesanan anda ke alamat penjual";
-                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user");
+                    $title = "Penjual menerima pengajuan pengembalian";
+                    $msg = "Pengembalian pesanan {$order->transaction_number} diterima oleh penjual, silahkan kirim pesanan anda ke alamat penjual";
+                    $msgmark = "Pengembalian pesanan %i{$order->transaction_number}%i diterima oleh penjual, silahkan kirim pesanan anda ke alamat penjual";
+                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user", $msgmark);
                     notification::dispatch($data);
                     break;
                 case 'admin':
-                    $msg = "Pengajuan pengembalian sedang ditangani admin juber";
-                    $title = "Penjual menolak pengajuan pengembalian, dam meminta admin juber untuk membantu";
-                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user");
+                    $title = "Pengajuan pengembalian sedang ditangani admin juber";
+                    $msg = "Penjual menolak pengajuan pengembalian, dam meminta admin juber untuk membantu";
+                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user", null);
                     notification::dispatch($data);
-                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller");
+                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller", null);
                     notification::dispatch($data);
                     //TODO: SEND NOTIF TO ADMIN JUBER
                     break;
                 case 'cancel':
-                    $msg = "Pengajuan pengembalian dibatalkan";
-                    $title = "Pengembalian pesanan {$order->transaction_number} telah dibatalkan, pesanan telah selesai.";
-                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user");
+                    $title = "Pengajuan pengembalian dibatalkan";
+                    $msg = "Pengembalian pesanan {$order->transaction_number} telah dibatalkan, pesanan telah selesai.";
+                    $msgmark = "Pengembalian pesanan %i{$order->transaction_number}%i telah dibatalkan, pesanan telah selesai.";
+                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user", $msgmark);
                     notification::dispatch($data);
-                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller");
+                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller", $msgmark);
                     notification::dispatch($data);
                     break;
                 case 'packing':
-                    $msg = "Pengembalian pesanan diproses oleh pembeli";
-                    $title = "Pengembalian pesanan {$order->transaction_number} sedang diproses oleh {$user['name']} untuk dikirimkan ke alamat anda";
-                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller");
+                    $title = "Pengembalian pesanan diproses oleh pembeli";
+                    $msg = "Pengembalian pesanan {$order->transaction_number} sedang diproses oleh {$user['name']} untuk dikirimkan ke alamat anda";
+                    $msgmark = "Pengembalian pesanan %i{$order->transaction_number}%i sedang diproses oleh %i{$user['name']}%i untuk dikirimkan ke alamat anda";
+                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller", $msgmark);
                     notification::dispatch($data);
                     break;
                 case 'sending':
-                    $msg = "Pengembalian pesanan sedang dalam pengiriman";
-                    $title = "Pengembalian pesanan {$order->transaction_number} sedang dalam pengiriman ke alamat anda";
-                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller");
+                    $title = "Pengembalian pesanan sedang dalam pengiriman";
+                    $msg = "Pengembalian pesanan {$order->transaction_number} sedang dalam pengiriman ke alamat anda";
+                    $msgmark = "Pengembalian pesanan %i{$order->transaction_number}%i sedang dalam pengiriman ke alamat anda";
+                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller", $msgmark);
                     notification::dispatch($data);
                     break;
                 case 'done':
-                    $msg = "Pengembalian pesanan sudah selesai";
-                    $title = "Pengembalian pesanan {$order->transaction_number} sudah selesai.";
-                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user");
+                    $title = "Pengembalian pesanan sudah selesai";
+                    $msg = "Pengembalian pesanan {$order->transaction_number} sudah selesai.";
+                    $msgmark = "Pengembalian pesanan %i{$order->transaction_number}%i sudah selesai.";
+                    $data = TransHeadController::notificationFormat($title, $msg, $user['token'], $image, "user", $msgmark);
                     notification::dispatch($data);
-                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller");
+                    $data = TransHeadController::notificationFormat($title, $msg, $store['token'], $image, "seller", $msgmark);
                     notification::dispatch($data);
                     break;
                 default:

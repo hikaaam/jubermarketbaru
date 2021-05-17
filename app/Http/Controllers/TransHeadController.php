@@ -296,8 +296,9 @@ class TransHeadController extends Controller
 
                 $userTitle = "Pesanan diproses penjual";
                 $userMsg = "Pesanan {$trans_head->transaction_number} telah diproses penjual.";
+                $userMsgMark = "Pesanan %i{$trans_head->transaction_number}%i telah diproses penjual.";
 
-                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user", $userMsgMark);
                 juberCoreSyncStatus::dispatch(["id" => $id, "status" => 8]);
                 notification::dispatch($notifUser);
 
@@ -327,8 +328,8 @@ class TransHeadController extends Controller
 
                 $userTitle = "Pesanan dibatalkan";
                 $userMsg = "Pesanan {$trans_head->transaction_number} sedang dalam pengiriman.";
-
-                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                $userMsgMark = "Pesanan %i{$trans_head->transaction_number}%i sedang dalam pengiriman.";
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user", $userMsgMark);
                 juberCoreSyncStatus::dispatch(["id" => $id, "status" => 3]);
                 notification::dispatch($notifUser);
 
@@ -365,12 +366,15 @@ class TransHeadController extends Controller
                 $userTitle = "Pesanan dibatalkan";
                 $sellerMsg = "Pesanan {$trans_head->transaction_number} dibatalkan {$user['name']}.
                  Mohon tidak proses pesanan ini.";
+                $sellerMsgMark = "Pesanan %i{$trans_head->transaction_number}%i dibatalkan %i{$user['name']}%i.
+                 Mohon tidak proses pesanan ini.";
                 $userMsg = "Pesanan {$trans_head->transaction_number} telah dibatalkan.";
+                $userMsgMark = "Pesanan %i{$trans_head->transaction_number}%i telah dibatalkan.";
 
                 juberCoreSyncStatus::dispatch(["id" => $id, "status" => 2]);
-                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user", $userMsgMark);
                 notification::dispatch($notifUser);
-                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
+                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller", $sellerMsgMark);
                 notification::dispatch($notifSeller);
 
                 return getRespond(true, "Berhasil Membatalkan order", ["updatedField" => 1]);
@@ -408,8 +412,8 @@ class TransHeadController extends Controller
 
                 $sellerTitle = "Pesanan telah diterima pembeli";
                 $sellerMsg = "Pesanan {$trans_head->transaction_number} telah diterima oleh {$user['name']}";
-
-                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
+                $sellerMsgMark = "Pesanan %i{$trans_head->transaction_number}%i telah diterima oleh %i{$user['name']}%i";
+                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller", $sellerMsgMark);
                 notification::dispatch($notifSeller);
 
                 return getRespond(true, "Barang berhasil diterima", ["updatedField" => 1]);
@@ -457,13 +461,15 @@ class TransHeadController extends Controller
                 $userTitle = "Pengajuan pengembalian";
                 $sellerMsg = "{$user['name']} telah mengajukan pengembalian terhadap pesanan {$trans_head->transaction_number}.
                  Mohon tidak proses pesanan ini.";
+                $sellerMsgMark = "%i{$user['name']}%i telah mengajukan pengembalian terhadap pesanan %i{$trans_head->transaction_number}%i.
+                 Mohon tidak proses pesanan ini.";
                 $userMsg = "Pesanan {$trans_head->transaction_number} dalam proses pengajuan pengembalian";
-
+                $userMsgMark = "Pesanan %i{$trans_head->transaction_number}%i dalam proses pengajuan pengembalian";
 
                 juberCoreSyncStatus::dispatch(["id" => $id, "status" => 8]);
-                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user");
+                $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user", $userMsgMark);
                 notification::dispatch($notifUser);
-                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller");
+                $notifSeller = self::notificationFormat($sellerTitle, $sellerMsg, $store["token"], $image, "seller", $sellerMsgMark);
                 notification::dispatch($notifSeller);
 
                 $trans_return = trans_return::create($return_table);
@@ -566,14 +572,15 @@ class TransHeadController extends Controller
             return ["token" => null, "name" => "penjual"];
         }
     }
-    public static function notificationFormat($title, $msg, $token, $image, $type)
+    public static function notificationFormat($title, $msg, $token, $image, $type, $markup)
     {
         return [
             "type" => $type,
             "msg" => $msg,
             "image" => $image,
             "token" => $token,
-            "title" => $title
+            "title" => $title,
+            "markup" => $markup
         ];
     }
 }

@@ -36,6 +36,7 @@ class notification implements ShouldQueue
         $image = $this->data["image"] ?? null;
         $token = $this->data["token"];
         $type = $this->data["type"];
-        helper::sendNotification($token, $msg, $type, $title, $image);
+        $markup = $this->data["markup"];
+        helper::sendNotification($token, $msg, $type, $title, $image, $markup);
     }
 }
