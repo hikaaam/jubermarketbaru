@@ -17,6 +17,7 @@ use App\Jobs\insertTokopedia;
 use App\Jobs\jbmarketsyncDelete;
 use App\Jobs\tokopediaChangeVisible;
 use App\Jobs\updateTokopedia;
+use App\Models\review;
 use App\Models\trans;
 use Error;
 use Exception;
@@ -633,6 +634,8 @@ class ProductController extends Controller
                 return helper::resp(false, "get", "Produk tidak ditemukan!", [], 400);
             }
             $related = item::where("category_id", $product->category_id)->where("is_shown", 1)->where('id', '!=', $id)->limit(6)->get();
+            $review = review::where('item_id', $id)->with("profile")->orderBy('id', 'desc')->limit(5)->get();
+            $product["review_new"] = $review;
             $product["related"] = $related;
             return helper::resp(true, "get", "berhasil mendapatkan detail produk", $product);
         } catch (\Throwable $th) {
