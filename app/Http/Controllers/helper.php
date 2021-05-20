@@ -575,17 +575,12 @@ class helper extends Controller
     }
     public static function juberCoreSyncStatusTrx(string $id, int $status)
     {
-        try {
-            $url = "http://192.168.2.45:9888/updatejbmarket";
-            $headers = ["Content-Type" => "application/json"];
-            $payload = ["trxid" => $id, "stsjbcore" => $status];
-            $stringifyPayload = json_encode($payload, true);
-            $body = ["json" => $stringifyPayload];
-            $response = http::withHeaders($headers)->post($url, $body);
-            return $response;
-        } catch (\Throwable $th) {
-            return $th;
-        }
+        $url = "http://192.168.2.45:9888/updatejbmarket";
+        $headers = ["Content-Type" => "application/json"];
+        $payload = ["trxid" => $id, "stsjbcore" => $status];
+        $stringifyPayload = json_encode($payload, true);
+        $body = ["json" => $stringifyPayload];
+        $response = http::withHeaders($headers)->post($url, $body);
     }
     public static function juberCoreGetCourrier(string $device_id, string $transaction_id)
     {
