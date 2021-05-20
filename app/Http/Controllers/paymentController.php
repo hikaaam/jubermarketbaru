@@ -106,7 +106,7 @@ class paymentController extends Controller
                 $price = intval($product->selling_price);
                 $weigth = intval($product->weight);
                 $weight_unit = $product->weight_unit;
-                $weigth = $weight_unit == "KG" ? intval(ceil($weigth)) : intval(ceil($weigth / 1000));
+                $weigth = $weight_unit == "KG" ? intval(ceil($weigth * 1000)) :  intval($product->weight);
                 $variant_name = "";
 
                 if ($haveVariant) {
@@ -154,7 +154,7 @@ class paymentController extends Controller
             }
 
             // validation end payment process here
-            $weight = intval(ceil(array_sum($total_weight))); //KG only
+            $weight = intval(ceil(array_sum($total_weight) / 1000)); //KG only
 
             $juberPayload = [
                 "uuid" => $req["uuid"],

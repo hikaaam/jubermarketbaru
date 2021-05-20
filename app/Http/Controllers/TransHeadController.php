@@ -331,7 +331,7 @@ class TransHeadController extends Controller
                 $image = self::getImageFromIdTrx($id);
 
 
-                $userTitle = "Pesanan dibatalkan";
+                $userTitle = "Pesanan anda sedang dalam pengiriman";
                 $userMsg = "Pesanan {$trans_head->transaction_number} sedang dalam pengiriman.";
                 $userMsgMark = "Pesanan %i{$trans_head->transaction_number}%i sedang dalam pengiriman.";
                 $notifUser = self::notificationFormat($userTitle, $userMsg, $user["token"], $image, "user", $userMsgMark);
