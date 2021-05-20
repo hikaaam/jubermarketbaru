@@ -182,7 +182,7 @@ class paymentController extends Controller
             }
 
             $transaction_number = $paid["data"]["trxid"];
-            $nomorResi = $paid["data"]["noresi"];
+            $nomorResi = "";
 
             // $transaction_number = "testasdsad"; //for trial purpose
             // $nomorResi = "asdasdas"; //for trial purpose
@@ -262,12 +262,20 @@ class paymentController extends Controller
             } else {
                 throw new Error($response["message"]);
             }
-            return ["success" => true, "data" => $response["lobj"][0]];
+            return ["success" => true, "data" => self::stupidArrayToObject($response["lobj"])];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }
     }
-
+    private static function stupidArrayToObject(array $arr)
+    {
+        $obj = [];
+        foreach ($arr as $key => $value) {
+            $explode = explode($value, ": ");
+            $obj[$explode[0]] = $explode[1];
+        }
+        return $obj;
+    }
     public static function decreaseProductStock(array $data)
     {
         foreach ($data as $key => $value) {
