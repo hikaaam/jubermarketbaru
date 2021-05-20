@@ -68,6 +68,9 @@ class ReviewController extends Controller
                 $dataTable = addData("order_id", "id_order", $request, $dataTable);
                 $dataTable = addData("star", "star", $request, $dataTable);
                 $dataTable = addData("item_id", "id_barang", $request, $dataTable);
+                $dataTable = checkifexist("picture", "picture", $request, $dataTable);
+                $dataTable = checkifexist("picture_two", "picture_two", $request, $dataTable);
+                $dataTable = checkifexist("video", "video", $request, $dataTable);
                 $dataTable = checkifexist("review", "review", $request, $dataTable);
                 $dataTable = checkifexist("is_user", "is_user", $request, $dataTable);
                 $trans_head = trans_head::findOrFail($request["id_order"]);
