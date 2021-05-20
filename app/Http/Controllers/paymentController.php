@@ -21,6 +21,7 @@ class paymentController extends Controller
     public function checkoutPayment(Request $request)
     {
         try {
+            $scs = false;
             $req = json_decode($request->payload, true);
             //validate request
             helper::validateArray($req, [

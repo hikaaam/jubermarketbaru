@@ -594,7 +594,7 @@ class helper extends Controller
             $headers = self::getJsonHeader();
             $payload = ["uuid" => $device_id, "trxid" => $transaction_id];
             $data = ["json" => json_encode($payload)];
-            $response = http::withHeaders($headers)->post($url, $headers);
+            $response = http::withHeaders($headers)->post($url, $data);
             $resJson = $response->json();
             if ($resJson["code"] == "200") {
                 return ["success" => true, "data" => $resJson["lobj"][0]];
