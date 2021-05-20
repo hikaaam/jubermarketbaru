@@ -288,7 +288,12 @@ class TransHeadController extends Controller
             $trans_head = trans_head::findOrFail($id);
             // return $trans_head;
             if ($trans_head->status == 1) {
-                $data = $trans_head->update(["status" => "2"]);
+                $courier = helper::juberCoreGetCourrier($trans_head["device_id"], $trans_head["transaction_number"]);
+                if (!$courier["success"]) {
+                    throw new Error($courier["data"]);
+                }
+                $courier_id = $courier["data"];
+                $data = $trans_head->update(["status" => "2", "nomor_resi" => $courier_id]);
 
                 $store = self::getStoreNameAndTokenFromStoreId($trans_head->store_id);
                 $user = self::getUserNameAndTokenFromUserId($trans_head->user_id);

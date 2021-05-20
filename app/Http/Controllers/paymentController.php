@@ -181,7 +181,7 @@ class paymentController extends Controller
                 throw new Error($paid["msg"]);
             }
 
-            $transaction_number = $paid["data"]["trxid"];
+            $transaction_number = $paid["data"];
             $nomorResi = "";
 
             // $transaction_number = "testasdsad"; //for trial purpose
@@ -262,7 +262,7 @@ class paymentController extends Controller
             } else {
                 throw new Error($response["message"]);
             }
-            return ["success" => true, "data" => self::stupidArrayToObject($response["lobj"])];
+            return ["success" => true, "data" => $response["lobj"][0]];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }

@@ -350,6 +350,10 @@ class helper extends Controller
     {
         return ["Cookie" => "JSESSIONID=FDCDF7969FB1F9F89EB1E0AA4B3C4359; PHPSESSID=dacd3c46c86606a8d51bec99bcf858b9; XSRF-TOKEN=N587398437849043239", "Content-Type" => "application/json"];
     }
+    public static function getJsonHeader()
+    {
+        return ["Content-type" => "application/json"];
+    }
     public static function checkifexist($column, $request_name, $request, $dataTable)
     {
         if (array_key_exists($request_name, $request)) {
@@ -581,6 +585,23 @@ class helper extends Controller
             return $response;
         } catch (\Throwable $th) {
             return $th;
+        }
+    }
+    public static function juberCoreGetCourrier(string $device_id, string $transaction_id)
+    {
+        try {
+            $url = "http://192.168.2.45:9888/orderkurir";
+            $headers = self::getJsonHeader();
+            $payload = ["uuid" => $device_id, "trxid" => $transaction_id];
+            $data = ["json" => json_encode($payload)];
+            $response = http::withHeaders($headers)->post($url, $headers);
+            $resJson = $response->json();
+            if ($resJson["code"] == "200") {
+                return ["success" => true, "data" => $resJson["lobj"][0]];
+            }
+            throw new Error($resJson["msg"]);
+        } catch (\Throwable $th) {
+            return ["success" => false, "data" => $th->getMessage()];
         }
     }
 }
