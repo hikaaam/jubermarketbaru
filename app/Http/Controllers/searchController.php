@@ -50,29 +50,30 @@ class searchController extends Controller
                 );
                 return helper::resp(true, "get", "pastikan search minimal 3 karakter", $data);
             }
-            $jsonFile = Storage::get('public/features.json');
-            $jsonFeature = json_decode($jsonFile, true);
-            // return $jsonFeature;
-            $filteredJson = [];
-            foreach ($jsonFeature as $key => $value) {
 
-                if (str_contains(strtolower($value["nama"]), strtolower($src))) {
-                    $newArray = array(
-                        "nama" => $value["nama"],
-                        "nexpage" => $value["nextpage"],
-                        "submenu" => $value["submenu"],
-                        "json" => $value["json"]
-                    );
-                    array_push($filteredJson, $newArray);
-                }
-            }
+
+            // $jsonFile = Storage::get('public/features.json');
+            // $jsonFeature = json_decode($jsonFile, true);
+            // // return $jsonFeature;
+            // $filteredJson = [];
+            // foreach ($jsonFeature as $key => $value) {
+            //     if (str_contains(strtolower($value["nama"]), strtolower($src))) {
+            //         $newArray = array(
+            //             "nama" => $value["nama"],
+            //             "nexpage" => $value["nextpage"],
+            //             "submenu" => $value["submenu"],
+            //             "json" => $value["json"]
+            //         );
+            //         array_push($filteredJson, $newArray);
+            //     }
+            // }
+
+
             $product = item::select("id", "name", "service", "picture")->where('service', '!=', 'etc')->where("name", 'ilike', "%{$src}%")->where("is_shown", 1)->get();
             $store = store::select("id", "store_name", "idrs", "service", "picture", "city")->where("store_name", 'ilike', "%{$src}%")->whereNotNull('idrs')->get();
             $data = array(
-                "features" => $filteredJson,
                 "products" => $product,
                 "stores" => $store,
-
             );
             return helper::resp(true, "get", "search result", $data);
         } catch (\Throwable $th) {
