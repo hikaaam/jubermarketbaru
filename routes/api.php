@@ -23,6 +23,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\globalController;
+use App\Http\Controllers\MailController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\RefCourierController;
 use App\Http\Controllers\ReturnProblemController;
@@ -265,3 +266,6 @@ Route::post('payment/juberpay', [paymentController::class, 'checkoutPayment']);
 Route::get('updateToken', [globalController::class, 'index']);
 Route::get("apiLocalTest", [globalController::class, 'apiLocalTest']);
 Route::get("syncJuberFood", [globalController::class, 'syncJuberFood']);
+
+//Email Router
+Route::post("sendEmail", [MailController::class, 'sendMailAdmin']);
