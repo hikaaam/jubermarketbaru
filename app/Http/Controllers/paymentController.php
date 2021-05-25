@@ -31,6 +31,7 @@ class paymentController extends Controller
                 "address_id:string",
                 "store_id:integer",
                 "courier_id:integer",
+                'shipment_fee:integer',
                 "courier_name:string",
                 "courier_package:string",
                 "products:array",
@@ -198,13 +199,14 @@ class paymentController extends Controller
                 "currency" => "IDR",
                 "promo" => $req["promo"],
                 "weight" => $weight,
-                "total_payment" => array_sum($total),
+                "total_payment" => array_sum($total) + $req["shipment_fee"],
                 "courier_name" => $req["courier_name"],
                 "courier_package" => $req["courier_package"],
                 "products" => $validatedProducts,
                 "status" => 1,
                 "transaction_number" => $transaction_number,
-                "nomor_resi" => $nomorResi
+                "nomor_resi" => $nomorResi,
+                "shipment_fee" => $req["shipment_fee"]
             ];
             $transaction = self::makeTransaction($transactionPayload);
             if (!$transaction["success"]) {
