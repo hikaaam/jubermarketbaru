@@ -30,7 +30,8 @@ class AdminController extends Controller
             if ($item->tokopedia_id) {
                 tokopediaChangeVisible::dispatch($item->tokopedia_id, $req["blocked"]);
             }
-            return helper::resp(true, "update", "sukses memblokir product", $item, 200);
+            $msg = $req["blocked"] ? "memblokir" : "unblock";
+            return helper::resp(true, "update", "sukses {$msg} product", $item, 200);
         } catch (\Throwable $th) {
             return helper::resp(false, "update", $th->getMessage(), ["payload" => $req], 400);
         }
@@ -53,10 +54,11 @@ class AdminController extends Controller
             $items = item::where("store_id", $id)->get();
             $totalProduct = count($items);
             blockProduct::dispatch($req, $items);
+            $msg = $req["blocked"] ? "diblockir" : "diunblock";
             return helper::resp(
                 true,
                 "update",
-                "toko diblokir",
+                "toko {$msg}",
                 [
                     "payload" => $req,
                     "msg" => "memproses blok/unblock {$totalProduct} produk dari juber dan tokopedia",
