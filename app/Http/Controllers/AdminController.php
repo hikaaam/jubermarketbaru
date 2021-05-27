@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\blockProduct;
+use App\Jobs\notification;
 use App\Jobs\tokopediaChangeVisible;
 use App\Models\item;
+use App\Models\profile;
 use App\Models\store;
 use Error;
 use Illuminate\Http\Request;
@@ -24,6 +26,7 @@ class AdminController extends Controller
                 throw new Error("Product tidak ditemukan");
             }
             $item->update(["bloked" => $req["blocked"], "block_reason" => $req["block_reason"]]);
+            $this->sendBlockNotification($id, "item", $req["blocked"]);
             if ($item->tokopedia_id) {
                 tokopediaChangeVisible::dispatch($item->tokopedia_id, $req["blocked"]);
             }
@@ -45,6 +48,7 @@ class AdminController extends Controller
             if (!$store) {
                 throw new Error("Toko tidak ditemukan");
             }
+            $this->sendBlockNotification($id, "store", $req["blocked"]);
             $store->update(["bloked" => $req["blocked"], "block_reason" => $req["block_reason"]]);
             $items = item::where("store_id", $id)->get();
             $totalProduct = count($items);
@@ -83,6 +87,52 @@ class AdminController extends Controller
                 }
             }
         } catch (\Throwable $th) {
+        }
+    }
+
+    public static function sendBlockNotification(int $id, string $type, bool $bool)
+    {
+        try {
+            switch ($type) {
+                case 'store':
+                    $store = store::findOrFail($id);
+                    $picture = $store->picture;
+                    $idrs = $store->idrs;
+                    if (!$idrs) {
+                        throw new Error("Don't Have Profile");
+                    }
+                    $profile = profile::where("idrs", $idrs)->first();
+                    $token = $profile->token;
+                    if (!$token) {
+                        throw new Error("Don't Have Token");
+                    }
+                    $title = $bool ? "Toko diblokir" : "Toko diunblock";
+                    $msg = $bool ? "Toko kamu telah diblokir oleh admin!" : "Toko kamu telah di unblock oleh admin!";
+                    notification::dispatch(["title" => $title, "msg" => $msg, "image" => $picture, "token" => $token, "markup" => $msg]);
+                    break;
+                default:
+                    $product = item::findOrFail($id);
+                    $picture = $product->picture;
+                    $store_id = $product->store_id;
+                    $store = store::findOrFail($store_id);
+                    $idrs = $store->idrs;
+                    if (!$idrs) {
+                        throw new Error("Don't Have Profile");
+                    }
+                    $profile = profile::where("idrs", $idrs)->first();
+                    $token = $profile->token;
+                    if (!$token) {
+                        throw new Error("Don't Have Token");
+                    }
+                    $title = $bool ? "Product diblokir" : "Product diunblock";
+                    $msg = $bool ? "Product {$product->name} telah diblokir oleh admin!" : "Product {$product->name} telah unblock oleh admin!";
+                    $markup = $bool ? "Product %i{$product->name}%i telah diblokir oleh admin!" : "Product %i{$product->name}%i telah unblock oleh admin!";
+                    notification::dispatch(["title" => $title, "msg" => $msg, "image" => $picture, "token" => $token, "markup" => $markup]);
+                    break;
+                    break;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
         }
     }
 }
