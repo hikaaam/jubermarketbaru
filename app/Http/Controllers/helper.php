@@ -289,7 +289,7 @@ class helper extends Controller
             if (!$isExist) {
                 throw new Error("{$msg} {$value} is Required !!");
             }
-            if ($type !== "any" && $type !== "string" && $type !== "integer" && $type !== "array" && $type !== "object" && $type !== "null") {
+            if ($type !== "any" && $type !== "string" && $type !== "integer" && $type !== "array" && $type !== "boolean" && $type !== "object" && $type !== "null") {
                 throw new Error("type {$type} is not valid!!");
             }
             if ($type !== "any" && strtolower(gettype($array[$value])) !== $type) {

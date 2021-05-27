@@ -31,8 +31,9 @@ class globalController extends Controller
         try {
             // return helper::juberCoreSyncStatusTrx("JBM0500005", 5);
             // juberFoodSync::dispatch(["id" => "test"]);
-            Artisan::call("inspire");
-            return Artisan::output();
+            // Artisan::call("inspire");
+            // return Artisan::output();
+            return gettype(true);
         } catch (\Throwable $th) {
             //throw $th;
         }

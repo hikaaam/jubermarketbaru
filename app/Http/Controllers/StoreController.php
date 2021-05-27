@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\item;
 use App\Models\store;
 use Error;
 use Illuminate\Database\QueryException;
@@ -256,18 +257,19 @@ class StoreController extends Controller
     public function destroy($id)
     {
         try {
-            $result = store::findOrFail($id)->delete();
-            $data["success"] = true;
-            $data["code"] = 200;
-            $data["message"] = "berhasil dihapus";
-            $data["data"] = [];
+            $product = item::where("store_id", $id)->first();
+            if ($product) {
+                throw new Error("Toko yang memiliki relasi hanya bisa diblokir");
+            }
+            $result = store::find($id);
+            if (!$result) {
+                throw new Error("Toko tidak ditemukan");
+            }
+            $result->delete();
+            return helper::resp(true, "destroy", "sukses", $result);
         } catch (\Throwable $th) {
-            $data["data"] = [];
-            $data["success"] = false;
-            $data["code"] = 500;
-            $data["message"] = $th->getMessage();
+            return helper::resp(false, "delete", $th->getMessage(), 400);
         }
-        return $data;
     }
 }
 
