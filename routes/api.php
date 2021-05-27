@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
@@ -269,3 +270,7 @@ Route::get("syncJuberFood", [globalController::class, 'syncJuberFood']);
 
 //Email Router
 Route::post("sendEmail", [MailController::class, 'sendMailAdmin']);
+
+//Admin 
+Route::put('admin/block/product/{id}', [AdminController::class, 'blockProduct']);
+Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
