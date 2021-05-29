@@ -642,6 +642,15 @@ class ProductController extends Controller
             return helper::resp(false, "get", $th->getMessage(), ["id" => $id], 500);
         }
     }
+
+    public function getBestSellingItems(){
+        try {
+            $item = item::where("is_shown",1)->where('blocked',false)->where("service","jbmarket")->limit(6)->orderBy("desc","sold")->get();
+            return helper::resp(true,"get","success",$item);
+        } catch (\Throwable $th) {
+            return helper::resp(false,"get",$th->getMessage(),[],500);
+        }
+    }
 }
 
 function getRespond($success, $msg, $datas)

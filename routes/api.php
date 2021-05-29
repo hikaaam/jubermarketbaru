@@ -88,7 +88,7 @@ Route::put('product/is_shown/{id}', [ProductController::class, 'updateIsShown'])
 Route::delete('product/{id}', [ProductController::class, 'destroy']);
 Route::put('product/related/{id}', [ProductController::class, 'getRelatedProduct']);
 Route::get('product/detail/{id}', [ProductController::class, 'newDetailProduct']);
-
+Route::get('product/best_selling',[ProductController::class,'getBestSellingItems']);
 
 Route::get('category', [CategoryController::class, 'index']);
 // Route::get('product/all',[CategoryController::class, 'all']);
