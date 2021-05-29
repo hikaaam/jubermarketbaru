@@ -645,7 +645,7 @@ class ProductController extends Controller
 
     public function getBestSellingItems(){
         try {
-            $item = item::where("is_shown",1)->where('blocked',false)->where("service","jbmarket")->limit(6)->orderBy("desc","sold")->get();
+            $item = item::where("is_shown",1)->where('blocked',false)->where("service","jbmarket")->limit(6)->orderBy("sold","desc")->get();
             return helper::resp(true,"get","success",$item);
         } catch (\Throwable $th) {
             return helper::resp(false,"get",$th->getMessage(),[],500);
