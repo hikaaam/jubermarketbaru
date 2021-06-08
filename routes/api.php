@@ -119,7 +119,7 @@ Route::get('store/idrs/{id}', [StoreController::class, 'getByIdrs']);
 Route::post('store', [StoreController::class, 'store']);
 Route::put('store/{id}', [StoreController::class, 'update']);
 Route::delete('store/{id}', [StoreController::class, 'destroy']);
-Route::get('store/last_active/{id}', [StoreController::class, 'lastActive']);
+Route::get('store/last_active/idrs/{id}', [StoreController::class, 'lastActive']);
 
 //area
 Route::get('area', [AreaController::class, 'index']);

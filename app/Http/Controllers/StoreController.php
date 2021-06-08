@@ -139,7 +139,8 @@ class StoreController extends Controller
     public function lastActive($id)
     {
         try {
-            $data = store::findOrFail($id);
+            $data = store::where("idrs",$id)->first();
+            if(!$data) throw new Error("Tidak ada toko dengan idrs ini");
             $data->update(["last_active" => time()]);
             return helper::resp(true, "get", "berhasil update data", ["updatedField" => "1", "timestamp" => time()]);
         } catch (\Throwable $th) {
