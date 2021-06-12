@@ -167,9 +167,11 @@ Route::post('review', [ReviewController::class, 'store']);
 Route::put('review/{id}', [ReviewController::class, 'update']);
 Route::delete('review/{id}', [ReviewController::class, 'destroy']);
 
+//Cart 
 Route::get('cart', [CartController::class, 'index']);
 Route::get('cart/{id}', [CartController::class, 'show']);
 Route::get('cart/detail/{id}', [CartController::class, 'detailCart']);
+Route::put('cart/body/{id}', [CartController::class, 'changeNumberOfCartBodies']);
 Route::post('cart', [CartController::class, 'storeme']);
 Route::put('cart/{id}', [CartController::class, 'update']);
 Route::delete('cart/{id}', [CartController::class, 'destroy']);
