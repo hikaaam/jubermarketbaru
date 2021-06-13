@@ -163,7 +163,7 @@ class AlamatController extends Controller
             $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
             $dataTable = helper::addData("is_default", "is_default", $request, $dataTable);
             if ($dataTable["is_default"]) {
-                alamat::where("idrs",$dataTable["idrs"])->where("is_default",true)->update("is_default",false);
+                alamat::where("idrs",$dataTable["idrs"])->where("is_default",true)->update(["is_default",false)];
             }
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $location = helper::getLocationCode($dataTable["district"]);
