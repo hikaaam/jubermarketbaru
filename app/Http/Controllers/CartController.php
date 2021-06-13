@@ -128,6 +128,18 @@ class CartController extends Controller
      * @param  \App\Models\alamat  $alamat
      * @return \Illuminate\Http\Response
      */
+
+    public function countCart($id)
+    {
+        try {
+            $cart = cart_ref::where("idrs", $id)->count();
+            return helper::resp(true, "get", "berhasil fetching data", ["count" => $cart]);
+        } catch (\Throwable $th) {
+            return helper::resp(false, "get", $th->getMessage(), []);
+        }
+    }
+
+
     public function update(Request $request, $id)
     {
         $request = json_decode($request->payload, true);
