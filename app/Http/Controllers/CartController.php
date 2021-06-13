@@ -488,12 +488,12 @@ class CartController extends Controller
                 "qty:integer"
             ]);
             if ($request["qty"] < 1) {
-                throw new Error("qty tidak boleh kurang dari 1");                
+                throw new Error("qty tidak boleh kurang dari 1");
             }
             cart::where("id", $id)->update(["qty" => $request["qty"]]);
             return helper::resp(true, "update", "berhasil mengubah jumlah barang", ["payload" => $request]);
         } catch (\Throwable $th) {
-            return helper::resp(false, "update", "gagal mengubah jumlah barang", ["nerd_error" =>$th->getMessage()]);
+            return helper::resp(false, "update", "gagal mengubah jumlah barang", ["nerd_error" => $th->getMessage()]);
         }
     }
 }

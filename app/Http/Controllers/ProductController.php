@@ -230,7 +230,8 @@ class ProductController extends Controller
             // $items = []; //for trial purpose
             // $namaExist = false; // for trial purpose
             $dataTable["id"] = $id;
-            if (count($request["variant"]) > 0) {
+
+            if (count($request["variant"] ?? 0) > 0) {
                 $withVariant = true;
                 $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
@@ -575,48 +576,31 @@ class ProductController extends Controller
         try {
             $item = item::findOrFail($id);
             $dontHaveTokopediaId = $item["tokopedia_id"] == null;
-            $countTrans = trans::where('item_id', $id)->count();
-            $haveTrans = $countTrans >= 1;
+
             // return [$item, $haveTrans];
-            if ($haveTrans) {
-                $item->update(["is_shown" => 0]);
-                $data["success"] = true;
-                $data["code"] = 200;
-                $data["message"] = "Barang di non aktifkan karena memiliki transaksi";
-                $data["data"] = ["updatedRow" => 1, "product_id" => $id];
-                return $data;
-            }
-            $variant = Variant::where('item_id', $id)->get();
+            // $variant = Variant::where('item_id', $id)->get();
             $item->delete();
             jbmarketsyncDelete::dispatch($item);
-            Variant::where('item_id', $id)->delete();
+            // Variant::where('item_id', $id)->delete();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil di hapus";
-            $data["data"] =  ["deletedRow" => 0, "product_id" => $id];
+            $data["data"] =  ["deletedRow" => 1, "product_id" => $id];
             return $data;
         } catch (\Throwable $th) {
-            $data["data"] = ["successfulRow" => 0, "product_id" => $id];
+            $data["data"] = ["deletedRow" => 0, "product_id" => $id];
             $data["success"] = false;
             $data["code"] = 500;
             $data["message"] = $th->getMessage();
             return $data;
         } finally {
             if (!$dontHaveTokopediaId) {
-                if ($haveTrans) {
-                    try {
-                        // helper::tokopediaChangeVisibility($item->tokopedia_id, false);
-                        tokopediaChangeVisible::dispatch($item->tokopedia_id, false);
-                    } catch (\Throwable $th) {
-                        // return $data;
-                    }
-                } else {
-                    try {
-                        // helper::deleteTokopedia($item["tokopedia_id"]);
-                        deleteTokopedia::dispatch($item["tokopedia_id"]);
-                    } catch (\Throwable $th) {
-                        // return $data;
-                    }
+
+                try {
+                    // helper::deleteTokopedia($item["tokopedia_id"]);
+                    deleteTokopedia::dispatch($item["tokopedia_id"]);
+                } catch (\Throwable $th) {
+                    // return $data;
                 }
             }
         }
@@ -643,12 +627,13 @@ class ProductController extends Controller
         }
     }
 
-    public function getBestSellingItems(){
+    public function getBestSellingItems()
+    {
         try {
-            $item = item::where("is_shown",1)->where('blocked',false)->where("service","jbmarket")->limit(6)->orderBy("sold","desc")->get();
-            return helper::resp(true,"get","success",$item);
+            $item = item::where("is_shown", 1)->where('blocked', false)->where("service", "jbmarket")->limit(6)->orderBy("sold", "desc")->get();
+            return helper::resp(true, "get", "success", $item);
         } catch (\Throwable $th) {
-            return helper::resp(false,"get",$th->getMessage(),[],500);
+            return helper::resp(false, "get", $th->getMessage(), [], 500);
         }
     }
 }

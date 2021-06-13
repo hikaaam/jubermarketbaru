@@ -65,6 +65,10 @@ class AlamatController extends Controller
             $dataTable = helper::addData("long", "long", $request, $dataTable);
             $dataTable = helper::addData("lat", "lat", $request, $dataTable);
             $dataTable = helper::addData("idrs", "idrs", $request, $dataTable);
+            $haveDefault = alamat::where("idrs", $dataTable["idrs"])->where("is_default", true)->first();
+            if (!$haveDefault) {
+                $dataTable["is_default"] = true;
+            }
             $dataTable = helper::addData("state", "state", $request, $dataTable);
             $dataTable = helper::addData("state_code", "state_code", $request, $dataTable);
             $dataTable = helper::addData("district", "district", $request, $dataTable);
@@ -143,6 +147,7 @@ class AlamatController extends Controller
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
+            helper::validateArray($request,["is_default:boolean"]);
             $dataTable = helper::addData("name", "name", $request, $dataTable);
             $dataTable = helper::addData("address_title", "address_title", $request, $dataTable);
             $dataTable = helper::addData("long", "long", $request, $dataTable);
@@ -156,6 +161,10 @@ class AlamatController extends Controller
             $dataTable = helper::addData("city_code", "city_code", $request, $dataTable);
             $dataTable = helper::addData("receiver_name", "receiver_name", $request, $dataTable);
             $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
+            $dataTable = helper::addData("is_default", "is_default", $request, $dataTable);
+            if ($dataTable["is_default"]) {
+                alamat::where("idrs",$dataTable["idrs"])->where("is_default",true)->update("is_default",false);
+            }
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $location = helper::getLocationCode($dataTable["district"]);
             if (!$location["success"]) {
@@ -179,11 +188,6 @@ class AlamatController extends Controller
     public function destroy($id)
     {
         try {
-            $count = trans_head::where("address_id", $id)->count();
-            if ($count >= 1) {
-                $result = alamat::findOrFail($id)->update(["soft_delete" => 1]);
-                return helper::resp(true, 'destroy', 'berhasil menghapus alamat', $result);
-            }
             $result = alamat::findOrFail($id)->delete();
             return helper::resp(true, 'destroy', 'berhasil menghapus alamat', $result);
         } catch (\Throwable $th) {

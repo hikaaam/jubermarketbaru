@@ -13,7 +13,7 @@ class trans extends Model
 
     public function Item()
     {
-        return $this->belongsTo(item::class, 'item_id');
+        return $this->belongsTo(item::class, 'item_id')->withTrashed();
     }
 
     public function Trans_head()
