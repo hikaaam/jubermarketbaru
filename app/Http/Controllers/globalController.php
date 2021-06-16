@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\juberFoodSync;
+use App\Models\cart;
+use App\Models\cart_ref;
 use App\Models\item;
 use Error;
 use Illuminate\Http\Request;
@@ -29,13 +31,20 @@ class globalController extends Controller
     public static function apiLocalTest()
     {
         try {
+            $cart_head = cart_ref::with('Body')->get();
+            foreach ($cart_head as $key => $value) {
+                $idrs = $value["idrs"];
+                foreach ($value["body"] as $key => $value) {
+                    cart::find($value["id"])->update(["idrs"=>$idrs]);
+                }
+            }
+            return "adding idrs";
             // return helper::juberCoreSyncStatusTrx("JBM0500005", 5);
             // juberFoodSync::dispatch(["id" => "test"]);
             // Artisan::call("inspire");
             // return Artisan::output();
-            return gettype(true);
         } catch (\Throwable $th) {
-            //throw $th;
+            return $th->getMessage();
         }
     }
 

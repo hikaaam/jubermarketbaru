@@ -173,6 +173,7 @@ Route::get('cart/{id}', [CartController::class, 'show']);
 Route::get('cart/count/idrs/{id}', [CartController::class, 'countCart']);
 Route::get('cart/detail/{id}', [CartController::class, 'detailCart']);
 Route::put('cart/body/{id}', [CartController::class, 'changeNumberOfCartBodies']);
+Route::delete('cart/body/{id}', [CartController::class, 'deleteCartItem']);
 Route::post('cart', [CartController::class, 'storeme']);
 Route::put('cart/{id}', [CartController::class, 'update']);
 Route::delete('cart/{id}', [CartController::class, 'destroy']);

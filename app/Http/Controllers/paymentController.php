@@ -36,7 +36,8 @@ class paymentController extends Controller
                 "courier_package:string",
                 "products:array",
                 "cart_id",
-                "note:string"
+                "note:string",
+                "is_courier_sap:boolean"
             ]);
             $typevar = strtolower(gettype($req["cart_id"]));
             if ($typevar !== "null" && $typevar !== "integer") {
@@ -46,6 +47,30 @@ class paymentController extends Controller
             $prods = $req["products"];
             if (count($prods) < 1) {
                 throw new Error("Products tidak boleh kosong");
+            }
+
+            $isSap = $req["is_courier_sap"];
+
+            if ($isSap) {
+                helper::validateArray(
+                    $req,
+                    [
+                        "sap_pickup_name:string",
+                        "sap_pickup_address:string",
+                        "sap_pickup_district_code:string",
+                        "sap_service_type_code:string",
+                        "sap_volumetric:string",
+                        "sap_shipment_type_code:string",
+                        "description:string",
+                        "sap_insurance_flag:integer",
+                        "sap_cod_flag:integer",
+                        "sap_shipper_name:string",
+                        "sap_shipper_phone:string",
+                        "sap_destination_district_code:string",
+                        "sap_receiver_name:string",
+                        "sap_receiver_address:string"
+                    ]
+                );
             }
 
             $profile = profile::where("idrs", $req["user_idrs"])->first(); //get user and validate
@@ -102,6 +127,18 @@ class paymentController extends Controller
 
                 if (!$product) {
                     throw new Error("Products[$key] tidak ditemukan");
+                }
+
+                if ($product->is_shown === 0) {
+                    throw new Error("Product {$product->name} sudah di nonaktifkan oleh penjual");
+                }
+
+                if ($product->blocked) {
+                    throw new Error("Product {$product->name} diblokir karena {$product->block_reason}");
+                }
+
+                if ($product->deleted_at) {
+                    throw new Error("Product {$product->name} suddah dihapus oleh penjual");
                 }
 
                 $price = intval($product->selling_price);
@@ -206,7 +243,22 @@ class paymentController extends Controller
                 "status" => 1,
                 "transaction_number" => $transaction_number,
                 "nomor_resi" => $nomorResi,
-                "shipment_fee" => $req["shipment_fee"]
+                "shipment_fee" => $req["shipment_fee"],
+                "is_courier_sap"=>$req["is_courier_sap"],
+                "sap_pickup_name"=>$req["sap_pickup_name"] ?? null,
+                "sap_pickup_address"=>$req["sap_pickup_address"] ?? null,
+                "sap_pickup_district_code"=>$req["sap_pickup_district_code"] ?? null,
+                "sap_service_type_code"=>$req["sap_service_type_code"] ?? null,
+                "sap_volumetric"=>$req["sap_volumetric"] ?? null,
+                "sap_shipment_type_code"=>$req["sap_shipment_type_code"] ?? null,
+                "description"=>$req["description"] ?? null,
+                "sap_insurance_flag"=>$req["sap_insurance_flag"] ?? null,
+                "sap_cod_flag"=>$req["sap_cod_flag"] ?? null,
+                "sap_shipper_name"=>$req["sap_shipper_name"] ?? null,
+                "sap_shipper_phone"=>$req["sap_shipper_phone"] ?? null,
+                "sap_destination_district_code"=>$req["sap_destination_district_code"] ?? null,
+                "sap_receiver_name"=>$req["sap_receiver_name"] ?? null,
+                "sap_receiver_address"=>$req["sap_receiver_address"] ?? null
             ];
             $transaction = self::makeTransaction($transactionPayload);
             if (!$transaction["success"]) {

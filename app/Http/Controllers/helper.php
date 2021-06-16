@@ -528,7 +528,8 @@ class helper extends Controller
                 throw new Error("Lokasi {$district} tidak ditemukan");
             }
             $juber_place_code = $location["lobj"][0]["kode"];
-            return  ["success" => true, "data" => $juber_place_code];
+            $sapkode  = $location["lobj"][0]["kodeSAP"];
+            return  ["success" => true, "data" => $juber_place_code,"sap"=>$sapkode];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }

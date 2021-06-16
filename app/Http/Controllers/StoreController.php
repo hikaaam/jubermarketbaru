@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\courier;
 use App\Models\item;
+use App\Models\profile;
 use App\Models\store;
 use Error;
 use Illuminate\Database\QueryException;
@@ -87,14 +89,20 @@ class StoreController extends Controller
             if (!$isEmailValid) {
                 throw new Error("email tidak valid");
             }
+            $profile =  profile::where("idrs", $dataTable["idrs"])->first();
+            if (!$profile) {
+                throw new Error("user tidak ditemukan");
+            }
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
                 if (!$location["success"]) {
                     throw new Error($location["msg"]);
                 }
                 $dataTable["juber_place_code"] = $location["data"];
+                $dataTable["sap_place_code"] = $location["sap"];
             }
             $items = store::create($dataTable);
+            courier::create(["courier_name" => "SAP", "courier_id" => 11, "user_id" => $profile->id, "idrs" => $dataTable["idrs"]]);
             return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
             $msg = $th->getMessage();
@@ -139,8 +147,8 @@ class StoreController extends Controller
     public function lastActive($id)
     {
         try {
-            $data = store::where("idrs",$id)->first();
-            if(!$data) throw new Error("Tidak ada toko dengan idrs ini");
+            $data = store::where("idrs", $id)->first();
+            if (!$data) throw new Error("Tidak ada toko dengan idrs ini");
             $data->update(["last_active" => time()]);
             return helper::resp(true, "get", "berhasil update data", ["updatedField" => "1", "timestamp" => time()]);
         } catch (\Throwable $th) {
@@ -240,6 +248,7 @@ class StoreController extends Controller
                     throw new Error($location["msg"]);
                 }
                 $dataTable["juber_place_code"] = $location["data"];
+                $dataTable["sap_place_code"] = $location["sap"];
             }
             $items = store::findOrFail($id)->update($dataTable);
             $dataTable["id"] = $id;

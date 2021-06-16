@@ -12,6 +12,7 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Http;
 use Config;
 use App\Http\Controllers\helper;
+use App\Jobs\deleteCartItem;
 use App\Jobs\deleteTokopedia;
 use App\Jobs\insertTokopedia;
 use App\Jobs\jbmarketsyncDelete;
@@ -576,11 +577,12 @@ class ProductController extends Controller
         try {
             $item = item::findOrFail($id);
             $dontHaveTokopediaId = $item["tokopedia_id"] == null;
-
+            $product = $item;
             // return [$item, $haveTrans];
             // $variant = Variant::where('item_id', $id)->get();
             $item->delete();
-            jbmarketsyncDelete::dispatch($item);
+            deleteCartItem::dispatch($product->id);
+            jbmarketsyncDelete::dispatch($product);
             // Variant::where('item_id', $id)->delete();
             $data["success"] = true;
             $data["code"] = 200;

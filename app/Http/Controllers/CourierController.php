@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\courier;
 use App\Models\profile;
 use App\Models\ref_courier;
+use Error;
 use Illuminate\Http\Request;
 
 class CourierController extends Controller
@@ -119,7 +120,11 @@ class CourierController extends Controller
     public function destroy($id)
     {
         try {
-            courier::findOrFail($id)->delete();
+            $courier = courier::findOrFail($id);
+            if ($courier->courier_id == 11) {
+                throw new Error("Mohon maaf, Kurir SAP tidak bisa dinonaktifkan");                
+            }
+            $courier->delete();
             return getRespond(true, "berhasil menghapus data", ["deletedField" => "1"]);
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), ["deletedField" => "0"]);
