@@ -74,9 +74,17 @@ class FavoriteController extends Controller
     public function show($id)
     {
         try {
-            $data = favorite::where("idrs", $id)->with('item');
+            $data = favorite::where("idrs", $id)->with('item')->get();
+            $newdata = [];
+            foreach ($data as $key => $value) {
+                if (!$value["item"]) {
+                    favorite::findOrFail($value["id"])->delete();
+                } else {
+                    array_push($newdata, $value);
+                }
+            }
             // $data = favorite::where("favorite.idrs", $id)->join("item", "item.id", "favorite.item_id");
-            return getRespond(true, "Berhasil fetch data", $data->get());
+            return getRespond(true, "Berhasil fetch data", $newdata);
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), []);
         }
