@@ -19,11 +19,11 @@ class MerchantController extends Controller
     {
         try {
             $merchant = Merchant::all();
-            // return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
+            return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
             return helper::resp(true, 'GET', 'OKEE', $merchant);
         } catch (\Throwable $th) {
-            // return ResponseFormatter::error([], $th->getMessage(), 500);
-            return helper::resp(false, 'GET', $th->getMessage(), [], 500);
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+            // return helper::resp(false, 'GET', $th->getMessage(), [], 500);
         }
     }
 
