@@ -24,6 +24,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\globalController;
+use App\Http\Controllers\jbfood\MerchantController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\RefCourierController;
@@ -73,7 +74,7 @@ Route::delete('ref_cat/{id}', [RefCatController::class, 'destroy']);
 
 //product API
 Route::get('product', [ProductController::class, 'index']);
-Route::get('product/best_selling',[ProductController::class,'getBestSellingItems']);
+Route::get('product/best_selling', [ProductController::class, 'getBestSellingItems']);
 Route::get('product/hidden', [ProductController::class, 'isNotShown']);
 Route::get('product/visible', [ProductController::class, 'visible']);
 Route::get('product/all', [ProductController::class, 'all']);
@@ -279,3 +280,5 @@ Route::post("sendEmail", [MailController::class, 'sendMailAdmin']);
 //Admin 
 Route::put('admin/block/product/{id}', [AdminController::class, 'blockProduct']);
 Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
+
+Route::get('merchant', [MerchantController::class, 'index']);
