@@ -5,6 +5,7 @@ namespace App\Http\Controllers\jbfood;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\helper;
 use App\Models\jbfood\Merchant;
 
 class MerchantController extends Controller
@@ -17,11 +18,12 @@ class MerchantController extends Controller
     public function index()
     {
         try {
-
             $merchant = Merchant::all();
-            return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
+            // return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
+            return helper::resp(true, 'GET', 'OKEE', $merchant)
         } catch (\Throwable $th) {
-            return ResponseFormatter::error([], $th->getMessage(), 500);
+            // return ResponseFormatter::error([], $th->getMessage(), 500);
+            return helper::resp(false, 'GET', $th->getMessage(),[],500);
         }
     }
 

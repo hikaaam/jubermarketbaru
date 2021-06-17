@@ -27,7 +27,7 @@ class ResponseFormatter
      */
     public static function success($data = [], $message = null)
     {
-        self::$response['data']['message'] = 'Berhasil mengambil data' . $message;
+        self::$response['data']['message'] = $message;
         self::$response['data']['lobj'] = $data;
 
         return response()->json(self::$response, self::$response['data']['code']);

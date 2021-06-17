@@ -281,4 +281,4 @@ Route::post("sendEmail", [MailController::class, 'sendMailAdmin']);
 Route::put('admin/block/product/{id}', [AdminController::class, 'blockProduct']);
 Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 
-Route::post('merchant', [MerchantController::class, 'index']);
+Route::get('merchant', [MerchantController::class, 'index']);
