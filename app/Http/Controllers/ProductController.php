@@ -146,8 +146,11 @@ class ProductController extends Controller
                     $words = explode(" ", $store_name);
                     $acronym = "";
                     foreach ($words as $w) {
-                        $acronym .= $w[0];
-                    }
+                        if ($w !== "") {
+                            $acronym .= $w[0];
+                        }                    
+                        
+                    }                   
                     $acronym = $acronym . $str_id . "P" . $item_last_id;
                     $request[$request_name] = strtoupper($acronym);
                     $databaru = addDataStore($column, $request_name, $request, $dataTable);
