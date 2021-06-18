@@ -244,12 +244,12 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
-                return $location;
                 if (!$location["success"]) {
                     throw new Error($location["msg"]);
                 }
                 $dataTable["juber_place_code"] = $location["data"];
-                $dataTable["sap_place_code"] = $location["sap"];                
+                $dataTable["sap_place_code"] = $location["sap"];
+                
             }
             $items = store::findOrFail($id)->update($dataTable);
             $dataTable["id"] = $id;
