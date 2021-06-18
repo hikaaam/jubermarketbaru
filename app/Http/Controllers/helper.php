@@ -527,6 +527,7 @@ class helper extends Controller
             if (count($location["lobj"]) <= 0) {
                 throw new Error("Lokasi {$district} tidak ditemukan");
             }
+            return $location;
             $juber_place_code = $location["lobj"][0]["kode"];
             $sapkode  = $location["lobj"][0]["kodeSAP"];
             return  ["success" => true, "data" => $juber_place_code,"sap"=>$sapkode];
