@@ -153,7 +153,7 @@ Route::put('ref_rekening/{id}', [RefRekeningController::class, 'update']);
 Route::delete('ref_rekening/{id}', [RefRekeningController::class, 'destroy']);
 
 Route::get('profile', [ProfileController::class, 'index']);
-Route::get('profile/{id}', [ProfileController::class, 'show']);
+Route::get('profile/idrs/{id}', [ProfileController::class, 'show']);
 Route::post('profile', [ProfileController::class, 'store']);
 Route::put('profile/{id}', [ProfileController::class, 'update']);
 Route::put('profile/update_token/idrs/{id}', [ProfileController::class, 'updateToken']);
