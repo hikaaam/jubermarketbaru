@@ -283,3 +283,4 @@ Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 
 Route::get('merchant', [MerchantController::class, 'index']);
 Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
+Route::post('merchant/status', [MerchantController::class, 'updatestatus']);

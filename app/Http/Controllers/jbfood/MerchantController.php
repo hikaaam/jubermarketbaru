@@ -35,6 +35,28 @@ class MerchantController extends Controller
         }
     }
 
+    public function updatestatus(Request $request)
+    {
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 500);
+            }
+            $idrs = $payload['merchantid'];
+            $status = $payload['status'];
+            $merchant = Merchant::where('id', $idrs)->update(['status' => $status]);
+            if ($status == '1') {
+                $status = 'BUKA';
+            } else {
+                $status = 'TUTUP';
+            }
+            return ResponseFormatter::success($merchant, 'Status toko (' . $idrs . ') berhasil diubah : ' . $status);
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *
