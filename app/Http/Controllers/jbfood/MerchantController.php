@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\jbfood;
 
 use Illuminate\Http\Request;
+use App\Models\jbfood\Dokumen;
+use App\Models\jbfood\Merchant;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\helper;
-use App\Models\jbfood\Merchant;
 
 class MerchantController extends Controller
 {
@@ -69,6 +69,16 @@ class MerchantController extends Controller
             $pajak = $payload['pajak'];
             $merchant = Merchant::where('id', $mcid)->update(['pajak' => $pajak]);
             return ResponseFormatter::success($merchant, 'Pajak toko (' . $mcid . ') diubah : ' . $pajak . '%');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function npwpbykodeagen($id)
+    {
+        try {
+            $merchant = Dokumen::where('jenisdok', '08')->where('kodeagen', $id)->get();
+            return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
