@@ -219,6 +219,8 @@ class StoreController extends Controller
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
+            $data = store::find($id);
+
             $dataTable = helper::checkifexist("store_name", "store_name", $request, $dataTable);
             $dataTable = helper::checkifexist("membership_type", "membership_type", $request, $dataTable);
             $dataTable = helper::checkifexist("owner", "owner", $request, $dataTable);
@@ -242,6 +244,11 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
+            if ($data) {
+                if ($dataTable["phone"] == $data->phone) {
+                    throw new Error("Nomor hp sudah terdaftar");
+                }
+            }
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
                 if (!$location["success"]) {
@@ -249,7 +256,6 @@ class StoreController extends Controller
                 }
                 $dataTable["juber_place_code"] = $location["data"];
                 $dataTable["sap_place_code"] = $location["sap"];
-                
             }
             $items = store::findOrFail($id)->update($dataTable);
             $dataTable["id"] = $id;
