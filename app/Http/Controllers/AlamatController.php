@@ -56,7 +56,14 @@ class AlamatController extends Controller
             if (!$data) {
                 throw new Error("Belum ada default alamat");
             }
-            return helper::resp(true, 'store', "berhasil mendapatkan default alamt", $data);
+            if (!$data["sap_place_code"]) {
+                $location = helper::getLocationCode($data["district"]);
+                if ($location["success"]) {
+                    $data->update(["sap_place_code" => $location["sap"]]);
+                    $data["sap_place_code"] = $location["sap"];
+                }
+            }
+            return helper::resp(true, 'store', "berhasil mendapatkan default alamat", $data);
         } catch (\Throwable $th) {
             return helper::resp(false, 'store', $th->getMessage(), [], 400);
         }
@@ -96,6 +103,7 @@ class AlamatController extends Controller
                 throw new Error($location["msg"]);
             }
             $dataTable["juber_place_code"] = $location["data"];
+            $dataTable["sap_place_code"] = $location["sap"];
             $items = alamat::create($dataTable);
             $data = helper::resp(true, 'store', "berhasil membuat alamat", $items);
             return $data;
@@ -184,6 +192,7 @@ class AlamatController extends Controller
                 throw new Error($location["msg"]);
             }
             $dataTable["juber_place_code"] = $location["data"];
+            $dataTable["sap_place_code"] = $location["sap"];
             $items = alamat::findOrFail($id)->update($dataTable);
             $dataTable["id"] = $id;
             return helper::resp(true, 'update', "success", $dataTable);
