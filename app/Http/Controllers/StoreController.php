@@ -247,7 +247,7 @@ class StoreController extends Controller
             $data = store::where("phone",$dataTable["phone"])->where("id","!=",$id)->first();
             if ($data) {
                 if ($dataTable["phone"] == $data->phone) {
-                    throw new Error("Nomor hp sudah terdaftar");
+                    throw new Error("Nomor hp sudah terdaftar pada akun lain.");
                 }
             }
             if (array_key_exists("district", $dataTable)) {
