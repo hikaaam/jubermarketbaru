@@ -136,7 +136,7 @@ Route::post('dummy_payment', [DummyController::class, 'store']);
 Route::get('alamat', [AlamatController::class, 'index']);
 Route::get('alamat/{id}', [AlamatController::class, 'show']);
 Route::get('alamat/idrs/{id}', [AlamatController::class, 'getByIdrs']);
-Route::get('alamat/default/idrs/{id}', [AlamatController::class, 'getByIdrs']);
+Route::get('alamat/default/idrs/{id}', [AlamatController::class, 'getDefaultAlamat']);
 Route::post('alamat', [AlamatController::class, 'store']);
 Route::put('alamat/{id}', [AlamatController::class, 'update']);
 Route::delete('alamat/{id}', [AlamatController::class, 'destroy']);
