@@ -21,6 +21,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CourierController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\globalController;
@@ -282,5 +283,9 @@ Route::post("sendEmail", [MailController::class, 'sendMailAdmin']);
 Route::put('admin/block/product/{id}', [AdminController::class, 'blockProduct']);
 Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 
+// Merchant Foodish
+Route::get('merchant/npwp/{id}', [MerchantController::class, 'npwpbykodeagen']);
 Route::get('merchant', [MerchantController::class, 'index']);
 Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
+Route::post('merchant/status', [MerchantController::class, 'updatestatus']);
+Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);

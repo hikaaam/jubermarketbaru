@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\jbfood;
 
 use Illuminate\Http\Request;
+use App\Models\jbfood\Dokumen;
+use App\Models\jbfood\Merchant;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\helper;
-use App\Models\jbfood\Merchant;
 
 class MerchantController extends Controller
 {
@@ -29,6 +29,55 @@ class MerchantController extends Controller
     {
         try {
             $merchant = Merchant::where('kode_agen', $idrs)->get();
+            return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function updatestatus(Request $request)
+    {
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 500);
+            }
+            $idrs = $payload['merchantid'];
+            $status = $payload['status'];
+            $merchant = Merchant::where('id', $idrs)->update(['status' => $status]);
+            if ($status == '1') {
+                $status = 'BUKA';
+            } else {
+                $status = 'TUTUP';
+            }
+            return ResponseFormatter::success($merchant, 'Status toko (' . $idrs . ') berhasil diubah : ' . $status);
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function updatepajak(Request $request)
+    {
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 500);
+            }
+            $mcid = $payload['merchantid'];
+            $pajak = $payload['pajak'];
+            $merchant = Merchant::where('id', $mcid)->update(['pajak' => $pajak]);
+            return ResponseFormatter::success($merchant, 'Pajak toko (' . $mcid . ') diubah : ' . $pajak . '%');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function npwpbykodeagen($id)
+    {
+        try {
+            $merchant = Dokumen::where('jenisdok', '08')->where('kodeagen', $id)->get();
             return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
