@@ -53,7 +53,7 @@ class AlamatController extends Controller
     {
         try {
             $data = alamat::where("idrs", $id)->where("is_default", true)->first();
-            if (!$data) {
+            if ($data === null) {
                 throw new Error("Belum ada default alamat");
             }
             $data["trying_to_get_sap_code"] = false;
