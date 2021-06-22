@@ -64,6 +64,7 @@ class AlamatController extends Controller
                     $data["sap_place_code"] = $location["sap"];
                     $data["trying_to_get_sap_code"] = true;
                 }
+                $data["trying_to_get_sap_code"] = true;
             }
             return helper::resp(true, 'store', "berhasil mendapatkan default alamat", $data);
         } catch (\Throwable $th) {
