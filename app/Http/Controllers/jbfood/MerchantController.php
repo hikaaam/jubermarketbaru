@@ -57,6 +57,23 @@ class MerchantController extends Controller
         }
     }
 
+    public function updatepajak(Request $request)
+    {
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 500);
+            }
+            $mcid = $payload['merchantid'];
+            $pajak = $payload['pajak'];
+            $merchant = Merchant::where('id', $mcid)->update(['pajak' => $pajak]);
+            return ResponseFormatter::success($merchant, 'Pajak toko (' . $mcid . ') diubah : ' . $pajak . '%');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *
