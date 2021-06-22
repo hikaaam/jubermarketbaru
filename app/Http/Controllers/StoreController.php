@@ -219,8 +219,8 @@ class StoreController extends Controller
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
-            $data = store::find($id);
-
+           
+           
             $dataTable = helper::checkifexist("store_name", "store_name", $request, $dataTable);
             $dataTable = helper::checkifexist("membership_type", "membership_type", $request, $dataTable);
             $dataTable = helper::checkifexist("owner", "owner", $request, $dataTable);
@@ -237,13 +237,14 @@ class StoreController extends Controller
             $dataTable = helper::addData("latitude", "latitude", $request, $dataTable);
             $dataTable = helper::addData("longitude", "longitude", $request, $dataTable);
             $dataTable = helper::checkifexist("outlet_type", "outlet_type", $request, $dataTable);
-            $dataTable = helper::checkifexist("phone", "phone", $request, $dataTable);
+            $dataTable = helper::addData("phone", "phone", $request, $dataTable);
             $dataTable = helper::checkifexist("state_code", "state_code", $request, $dataTable);
             $dataTable = helper::checkifexist("state", "state", $request, $dataTable);
             $dataTable = helper::checkifexist("store_type", "store_type", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
+            $data = store::where("phone",$dataTable["phone"])->where("id","!=",$id)->first();
             if ($data) {
                 if ($dataTable["phone"] == $data->phone) {
                     throw new Error("Nomor hp sudah terdaftar");
@@ -256,6 +257,7 @@ class StoreController extends Controller
                 }
                 $dataTable["juber_place_code"] = $location["data"];
                 $dataTable["sap_place_code"] = $location["sap"];
+                
             }
             $items = store::findOrFail($id)->update($dataTable);
             $dataTable["id"] = $id;
