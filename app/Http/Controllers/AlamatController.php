@@ -49,6 +49,19 @@ class AlamatController extends Controller
         //
     }
 
+    public function getDefaultAlamat($id)
+    {
+        try {
+            $data = alamat::where("idrs", $id)->where("is_default", true)->first();
+            if (!$data) {
+                throw new Error("Belum ada default alamat");
+            }
+            return helper::resp(true, 'store', "berhasil mendapatkan default alamt", $data);
+        } catch (\Throwable $th) {
+            return helper::resp(false, 'store', $th->getMessage(), [], 400);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -147,7 +160,7 @@ class AlamatController extends Controller
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
-            helper::validateArray($request,["is_default:boolean"]);
+            helper::validateArray($request, ["is_default:boolean"]);
             $dataTable = helper::addData("name", "name", $request, $dataTable);
             $dataTable = helper::addData("address_title", "address_title", $request, $dataTable);
             $dataTable = helper::addData("long", "long", $request, $dataTable);
@@ -163,7 +176,7 @@ class AlamatController extends Controller
             $dataTable = helper::addData("phone_number", "phone_number", $request, $dataTable);
             $dataTable = helper::addData("is_default", "is_default", $request, $dataTable);
             if ($dataTable["is_default"]) {
-                alamat::where("idrs",$dataTable["idrs"])->where("is_default",true)->update(["is_default"=>false]);
+                alamat::where("idrs", $dataTable["idrs"])->where("is_default", true)->update(["is_default" => false]);
             }
             $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $location = helper::getLocationCode($dataTable["district"]);
