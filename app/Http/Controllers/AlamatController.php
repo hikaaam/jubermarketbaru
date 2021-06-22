@@ -69,7 +69,7 @@ class AlamatController extends Controller
             }
             return helper::resp(true, 'get', "berhasil mendapatkan default alamat", $data);
         } catch (\Throwable $th) {
-            return helper::resp(false, 'get', $th->getMessage(), [], 400);
+            return helper::resp(false, 'get', $th->getMessage(), ["payload"=>$id], 400);
         }
     }
 
