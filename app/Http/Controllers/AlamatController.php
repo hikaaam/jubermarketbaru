@@ -58,7 +58,7 @@ class AlamatController extends Controller
                 throw new Error("Belum ada default alamat");
             }
             $data["trying_to_get_sap_code"] = false;
-            if (!$data["sap_place_code"]) {
+            if ($data["sap_place_code"] === null) {
                 $location = helper::getLocationCode($data["district"]);
                 if ($location["success"]) {
                     $data->update(["sap_place_code" => $location["sap"]]);
