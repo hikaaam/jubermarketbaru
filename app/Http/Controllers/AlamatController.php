@@ -53,6 +53,7 @@ class AlamatController extends Controller
     {
         try {
             $data = alamat::where("idrs", $id)->where("is_default", true)->first();
+            //adding comment so i can push ??? wtf not updating
             if ($data === null) {
                 throw new Error("Belum ada default alamat");
             }
