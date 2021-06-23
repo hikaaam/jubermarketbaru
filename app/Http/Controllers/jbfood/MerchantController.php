@@ -46,11 +46,6 @@ class MerchantController extends Controller
             $idrs = $payload['merchantid'];
             $status = $payload['status'];
             $merchant = Merchant::where('id', $idrs)->update(['status' => $status]);
-            if ($status == '1') {
-                $status = 'BUKA';
-            } else {
-                $status = 'TUTUP';
-            }
             return ResponseFormatter::success($merchant, 'Status toko (' . $idrs . ') berhasil diubah : ' . $status);
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
