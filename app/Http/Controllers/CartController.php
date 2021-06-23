@@ -364,6 +364,7 @@ class CartController extends Controller
                 if (helper::isEmpty($value['qty'])) { //check if quantity is empty
                     throw new Error("Jumlah produk tidak boleh kosong!");
                 }
+                
                 $dontHaveVariant = helper::isEmpty($value["variant_id"]);
                 //mean will use the product price instead of variant price
                 if (!$dontHaveVariant) {
