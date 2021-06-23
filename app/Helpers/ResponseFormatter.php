@@ -33,10 +33,10 @@ class ResponseFormatter
     /**
      * Give error response.
      */
-    public static function error($data = [], $message = null, $code = 400)
+    public static function error($data = [], $message = null, $code = 200)
     {
+        // self::$response['code'] = $code;
         self::$response['success'] = false;
-        self::$response['code'] = $code;
         self::$response['message'] = $message;
         self::$response['lobj'] = $data;
 

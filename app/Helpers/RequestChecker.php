@@ -7,7 +7,7 @@ class RequestChecker
     public static function checkifexist($column, $request_name, $request, $dataTable)
     {
         if ($request->has($request_name)) {
-            $databaru = RequestChecker::add($column, $request_name, $request, $dataTable);
+            $databaru = self::add($column, $request_name, $request, $dataTable);
             return $databaru;
         } else {
             return $dataTable;
