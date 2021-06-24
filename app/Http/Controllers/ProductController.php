@@ -224,6 +224,7 @@ class ProductController extends Controller
                 return helper::resp(false, 'store', $msg, [], 400);
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
+            throw new Exception("the code before this work");
             $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
             if (!$syncJuber["success"]) {
@@ -249,20 +250,20 @@ class ProductController extends Controller
             $success = false;
             return helper::resp(false, 'store', $th->getMessage(), []);
         } finally {
-            // if (!$namaExist && $success) {
-            //     try {
-            //         $tokopediaData = array(
-            //             "data" => $dataTable,
-            //             "id" => $id,
-            //             "withVariant" => $withVariant,
-            //             "variant" => $variant_
-            //         );
-            //         //TODO: VARIANT TOKOPEDIA
-            //         insertTokopedia::dispatch($tokopediaData);
-            //     } catch (\Throwable $th) {
-            //         // return $data;
-            //     }
-            // }
+            if (!$namaExist && $success) {
+                try {
+                    $tokopediaData = array(
+                        "data" => $dataTable,
+                        "id" => $id,
+                        "withVariant" => $withVariant,
+                        "variant" => $variant_
+                    );
+                    //TODO: VARIANT TOKOPEDIA
+                    insertTokopedia::dispatch($tokopediaData);
+                } catch (\Throwable $th) {
+                    // return $data;
+                }
+            }
         }
     }
 
