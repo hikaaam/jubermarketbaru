@@ -185,6 +185,7 @@ class ProductController extends Controller
             $dataTable = addDataStore("created_by", "created_by", $request, $dataTable);
             $dataTable = addDataStore("last_updated_by_id", "created_by_id", $request, $dataTable);
             $dataTable = checkifexistStore("sku", "sku", $request, $dataTable);
+            throw new Exception($dataTable["sku"]);
             $dataTable = checkifexistStore("description", "description", $request, $dataTable);
             $dataTable = checkifexistStore("item_code", "item_code", $request, $dataTable);
             $dataTable = checkifexistStore("stockable", "stockable", $request, $dataTable);
