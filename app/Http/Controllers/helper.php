@@ -333,7 +333,7 @@ class helper extends Controller
                 self::Logger("sync upload produk with id {$data['id']} on juber {$id}", "jbr");
                 return ["success" => true];
             } else {
-                self::Logger(json_decode($response,true), "jbrerr");
+                self::Logger(strval($response), "jbrerr");
                 throw new Error($response->msg ?? "server juber error");
             }
         } catch (\Throwable $th) {
