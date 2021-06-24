@@ -170,7 +170,6 @@ class ProductController extends Controller
             $success = false;
             $withVariant = false;
             $variant_ = null;
-            throw new Error("Error Processing Request");
             if (!helper::isPicture($request["picture"])) {
                 return  helper::resp(false, 'store', "Masukan minimal 1 foto untuk upload produk", [], 400);
             }
