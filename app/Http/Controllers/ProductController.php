@@ -227,7 +227,6 @@ class ProductController extends Controller
             
             $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
-            throw new Exception("the code before this work");
             if (!$syncJuber["success"]) {
                 throw new Error($syncJuber["msg"]);
             }
@@ -249,7 +248,7 @@ class ProductController extends Controller
             return helper::resp(true, 'store', "berhasil menambahkan product", $items);
         } catch (\Throwable $th) {
             $success = false;
-            return helper::resp(false, 'store', $th->getMessage(), []);
+            return helper::resp(false, 'store', str_contains($th->getMessage(),"duplicate") ? "Produk ini sudah pernah dibuat":$th->getMessage(), []);
         } finally {
             if (!$namaExist && $success) {
                 try {
