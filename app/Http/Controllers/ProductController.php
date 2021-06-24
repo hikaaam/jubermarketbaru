@@ -165,7 +165,7 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
-            throw new Exception("Error Processing Request");
+            throw new Error("Error Processing Request");
             $namaExist = false;
             $success = false;
             $withVariant = false;
