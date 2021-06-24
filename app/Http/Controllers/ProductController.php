@@ -164,7 +164,7 @@ class ProductController extends Controller
             return $dataTable;
         }
         try {
-           
+
             $namaExist = false;
             $success = false;
             $withVariant = false;
@@ -219,11 +219,10 @@ class ProductController extends Controller
             $dataTable["service"] = "jbmarket";
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
             if ($namaExist) {
-                $msg =  "Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain";
-                return helper::resp(false, 'store', $msg, [], 400);
+                throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            
+
             $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
             if (!$syncJuber["success"]) {
@@ -247,7 +246,7 @@ class ProductController extends Controller
             return helper::resp(true, 'store', "berhasil menambahkan product", $items);
         } catch (\Throwable $th) {
             $success = false;
-            return helper::resp(false, 'store', str_contains($th->getMessage(),"duplicate") ? "Produk ini sudah pernah dibuat":$th->getMessage(), ["nerd_error"=>$th->getMessage()]);
+            return helper::resp(false, 'store', str_contains($th->getMessage(), "duplicate") ? "Produk ini sudah pernah dibuat" : $th->getMessage(), ["nerd_error" => $th->getMessage()]);
         } finally {
             if (!$namaExist && $success) {
                 try {
