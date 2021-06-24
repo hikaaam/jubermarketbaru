@@ -224,9 +224,10 @@ class ProductController extends Controller
                 return helper::resp(false, 'store', $msg, [], 400);
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            throw new Exception("the code before this work");
+            
             $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
+            throw new Exception("the code before this work");
             if (!$syncJuber["success"]) {
                 throw new Error($syncJuber["msg"]);
             }
