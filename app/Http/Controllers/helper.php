@@ -334,7 +334,9 @@ class helper extends Controller
                 return ["success" => true];
             } else {
                 self::Logger(strval($response), "jbrerr");
-                throw new Error($response->msg ?? "server juber error");
+                $msg = $response->msg ?? "server juber error";
+                $msg = $response["msg"] ?? "server juber error";
+                throw new Error($msg ?? "server juber error");
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
@@ -529,7 +531,7 @@ class helper extends Controller
             }
             $juber_place_code = $location["lobj"][0]["kode"];
             $sapkode  = $location["lobj"][0]["kodeSAP"];
-            return  ["success" => true, "data" => $juber_place_code,"sap"=>$sapkode];
+            return  ["success" => true, "data" => $juber_place_code, "sap" => $sapkode];
         } catch (\Throwable $th) {
             return ["success" => false, "msg" => $th->getMessage()];
         }
