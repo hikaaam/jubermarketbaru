@@ -222,8 +222,8 @@ class ProductController extends Controller
                 throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-
-            $items = item::create($dataTable);
+            throw new Error("stop here");
+            $items = item::create($dataTable);            
             $syncJuber = helper::juberSyncInsert($items);
             if (!$syncJuber["success"]) {
                 throw new Error($syncJuber["msg"]);
