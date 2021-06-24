@@ -140,7 +140,7 @@ class ProductController extends Controller
                 if ($column == "sku") {
                     $str_id = $request["store_id"];
                     $store = store::find($str_id);
-                    $item_last = item::orderBy('id', 'desc')->first();
+                    $item_last = item::orderBy('id', 'desc')->limit(1)->first();
                     $item_last_id = $item_last->id + 1;
                     $store_name = $store->store_name;
                     $words = explode(" ", $store_name);
@@ -148,10 +148,9 @@ class ProductController extends Controller
                     foreach ($words as $w) {
                         if ($w !== "") {
                             $acronym .= $w[0];
-                        }                    
-                        
-                    }                   
-                    $acronym = $acronym . $str_id . "P" . $item_last_id;
+                        }
+                    }
+                    $acronym = $acronym . $str_id . "P" . $item_last_id + chr(rand(65, 90));
                     $request[$request_name] = strtoupper($acronym);
                     $databaru = addDataStore($column, $request_name, $request, $dataTable);
                     return $databaru;
