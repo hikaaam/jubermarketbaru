@@ -336,7 +336,7 @@ class helper extends Controller
                 self::Logger(strval($response), "jbrerr");
                 $msg = $response->msg ?? "server juber error";
                 $msg = $response["msg"] ?? "server juber error";
-                throw new Error($msg ?? "server juber error");
+                throw new Error($msg);
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
