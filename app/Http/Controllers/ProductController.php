@@ -249,20 +249,20 @@ class ProductController extends Controller
             $success = false;
             return helper::resp(false, 'store', $th->getMessage(), []);
         } finally {
-            if (!$namaExist && $success) {
-                try {
-                    $tokopediaData = array(
-                        "data" => $dataTable,
-                        "id" => $id,
-                        "withVariant" => $withVariant,
-                        "variant" => $variant_
-                    );
-                    //TODO: VARIANT TOKOPEDIA
-                    insertTokopedia::dispatch($tokopediaData);
-                } catch (\Throwable $th) {
-                    // return $data;
-                }
-            }
+            // if (!$namaExist && $success) {
+            //     try {
+            //         $tokopediaData = array(
+            //             "data" => $dataTable,
+            //             "id" => $id,
+            //             "withVariant" => $withVariant,
+            //             "variant" => $variant_
+            //         );
+            //         //TODO: VARIANT TOKOPEDIA
+            //         insertTokopedia::dispatch($tokopediaData);
+            //     } catch (\Throwable $th) {
+            //         // return $data;
+            //     }
+            // }
         }
     }
 
