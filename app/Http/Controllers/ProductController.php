@@ -110,6 +110,7 @@ class ProductController extends Controller
         // $shopid = helper::shopid();
         $request = json_decode($request->payload, true);
         $dataTable = [];
+        $msg = "";
         function checkifexistStore($column, $request_name, $request, $dataTable)
         {
             if (array_key_exists($request_name, $request)) {
