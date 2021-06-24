@@ -150,7 +150,7 @@ class ProductController extends Controller
                             $acronym .= $w[0];
                         }
                     }
-                    $acronym = $acronym . $str_id . "P" . $item_last_id + chr(rand(65, 90));
+                    $acronym = $acronym . $str_id . "P" . $item_last_id . chr(rand(65, 90));
                     $request[$request_name] = strtoupper($acronym);
                     $databaru = addDataStore($column, $request_name, $request, $dataTable);
                     return $databaru;
