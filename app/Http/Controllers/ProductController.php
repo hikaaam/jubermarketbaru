@@ -247,7 +247,7 @@ class ProductController extends Controller
             return helper::resp(true, 'store', "berhasil menambahkan product", $items);
         } catch (\Throwable $th) {
             $success = false;
-            return helper::resp(false, 'store', str_contains($th->getMessage(),"duplicate") ? "Produk ini sudah pernah dibuat":$th->getMessage(), []);
+            return helper::resp(false, 'store', str_contains($th->getMessage(),"duplicate") ? "Produk ini sudah pernah dibuat":$th->getMessage(), ["nerd_error"=>$th->getMessage()]);
         } finally {
             if (!$namaExist && $success) {
                 try {
