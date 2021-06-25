@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\jbfood;
 
+use stdClass;
 use Illuminate\Http\Request;
 use App\Models\jbfood\Dokumen;
+use App\Helpers\RequestChecker;
 use App\Models\jbfood\Merchant;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
@@ -129,9 +131,38 @@ class MerchantController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 200);
+            }
+            $array = $payload;
+            $dataTable = [];
+            if (array_key_exists("koordinat", $array)) {
+                $koordinat = $array["koordinat"];
+                $koordinat = explode("#", $koordinat);
+                if (count($koordinat) == 2) {
+                    $dataTable["lat"] = $koordinat[0];
+                    $dataTable["lon"] = $koordinat[1];
+                }
+            }
+            $dataTable = RequestChecker::checkArrayifexist('id', 'id', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('telp', 'telp', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('nama', 'nama', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('alamat', 'alamat', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('jambuka', 'jambuka', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('jamtutup', 'jamtutup', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('gambar', 'img', $array, $dataTable);
+            $id = $dataTable["id"];
+            $merchant = Merchant::findOrFail($id);
+            $merchant->update($dataTable);
+            return ResponseFormatter::success($merchant, "Perubahan berhasil disimpan");
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 200);
+        }
     }
 
     /**

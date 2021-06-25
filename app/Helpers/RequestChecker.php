@@ -18,4 +18,13 @@ class RequestChecker
         $dataTable[$column] = $request[$request_name];
         return $dataTable;
     }
+    public static function checkArrayifexist($column, $key, $array, $dataTable)
+    {
+        if (array_key_exists($key, $array)) {
+            $databaru = self::add($column, $key, $array, $dataTable);
+            return $databaru;
+        } else {
+            return $dataTable;
+        }
+    }
 }
