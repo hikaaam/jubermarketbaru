@@ -513,7 +513,7 @@ class ProductController extends Controller
                         "name" => $dataTable["name"] . " " . $par["name"],
                         "sku" => $dataTable["sku"] . "V" . $par["id"],
                         "description" => $dataTable["description"],
-                        "weight" => $dataTable["weigth"],
+                        "weight" => $dataTable["weight"],
                         "selling_price" => $par["harga"],
                         "store_id" => $dataTable["store_id"],
                         "category_id" => $dataTable["category_id"],
