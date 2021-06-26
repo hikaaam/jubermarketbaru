@@ -507,7 +507,25 @@ class ProductController extends Controller
                     $variant = [
                         "name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"], "discount_price" => $value["discount_price"] ?? null
                     ];
-                    Variant::create($variant);
+                    $par =  Variant::create($variant);
+                    $parItems = array(
+                        "id" => $par["id"],
+                        "name" => $dataTable["name"] . " " . $par["name"],
+                        "sku" => $dataTable["sku"] . "V" . $par["id"],
+                        "description" => $dataTable["description"],
+                        "weight" => $dataTable["weigth"],
+                        "selling_price" => $par["harga"],
+                        "store_id" => $dataTable["store_id"],
+                        "category_id" => $dataTable["category_id"],
+                        "service" => "jbmarket",
+                        "is_variant" => true,
+                        "pid" => $par["item_id"],
+                        "discount_price" => $par["discount_price"]
+                    );
+                    $syncJuber = helper::juberSyncInsert($parItems);
+                    if (!$syncJuber["success"]) {
+                        throw new Error($syncJuber["msg"]);
+                    }
                 }
             }
 
