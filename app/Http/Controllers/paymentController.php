@@ -149,7 +149,7 @@ class paymentController extends Controller
 
                 if ($haveVariant) {
                     $variant = Variant::where("item_id", $product->id)->where("id", $var_id)->first();
-
+                    $jbid = $variant->juber_id;
                     if (!$variant) {
                         throw new Error("Products[$key] tidak punya variant ini");
                     }
@@ -166,6 +166,7 @@ class paymentController extends Controller
                     if ($product->minimal_stock < $value["qty"]) {
                         throw new Error("Stock {$product->name} kurang dari {$value['qty']}");
                     }
+                    $jbid = $variant->juber_id;
                     $var_id = null;
                 }
 
@@ -181,7 +182,7 @@ class paymentController extends Controller
                     "sub_weight" => $sub_weight,
                     "price" => $price,
                     "weight" => $weigth,
-                    "idbarangjbcore" => $product->juber_id,
+                    "idbarangjbcore" => $jbid,
                     "jumlah" => $value["qty"],
                     "berat" => $weigth,
                     "item_id" => $product->id,
