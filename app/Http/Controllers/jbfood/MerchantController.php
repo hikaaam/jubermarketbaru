@@ -85,13 +85,14 @@ class MerchantController extends Controller
     public function gettopfive()
     {
         try {
+            $limitTopFive = 5;
 
             $superPartner = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner')->toArray();
             $jmlSuperPartner = count($superPartner);
             $topFive = $superPartner;
 
-            if ($jmlSuperPartner < 5) {
-                $jmlKurang = 5 - $jmlSuperPartner;
+            if ($jmlSuperPartner < $limitTopFive) {
+                $jmlKurang = $limitTopFive - $jmlSuperPartner;
                 $regular = Merchant::where('merchant.star', '5')->whereNull('super_partner')->get();
                 $regularArray = $regular->toArray();
                 if (count($regularArray) > 0) {
