@@ -218,10 +218,10 @@ class ProductController extends Controller
             $dataTable = checkifexistStore("merk", "merk", $request, $dataTable);
             $dataTable = checkifexistStore("discount_price", "discount_price", $request, $dataTable);
             $dataTable["service"] = "jbmarket";
-            $namaExist = item::where("name", $dataTable["name"])->count() > 0;
-            if ($namaExist) {
-                throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
-            }
+            // $namaExist = item::where("name", $dataTable["name"])->count() > 0;
+            // if ($namaExist) {
+            //     throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
+            // }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
             $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
@@ -255,7 +255,7 @@ class ProductController extends Controller
                         "service" => "jbmarket",
                         "is_variant" => true,
                         "pid" => $par["item_id"],
-                        "discount_price"=> $par["discount_price"]
+                        "discount_price" => $par["discount_price"]
                     );
                     $syncJuber = helper::juberSyncInsert($parItems);
                     if (!$syncJuber["success"]) {
@@ -269,8 +269,9 @@ class ProductController extends Controller
             $success = false;
             return helper::resp(false, 'store', str_contains($th->getMessage(), "duplicate") ? "Produk ini sudah pernah dibuat" : $th->getMessage(), ["nerd_error" => $th->getMessage()]);
         } finally {
-            if (!$namaExist && $success) {
+            if ($success) {
                 try {
+                    $dataTable["name"] = $dataTable["name"] . " (" . $dataTable["sku"] . ")";
                     $tokopediaData = array(
                         "data" => $dataTable,
                         "id" => $id,
