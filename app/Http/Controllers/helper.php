@@ -311,6 +311,21 @@ class helper extends Controller
     }
     public static function juberSyncInsert($data)
     {
+        // {
+        //     id,
+        //     name,
+        //     sku,
+        //     description,
+        //     picture,
+        //     weight,
+        //     selling_price,
+        //     store_id,
+        //     category_id,
+        //     service,
+        //     is_variant,
+        //     pid,
+        // }
+
         try {
 
             if ($data["weight_unit"] == "GR") {
@@ -321,7 +336,7 @@ class helper extends Controller
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                 "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":{$harga}," .
-                "\"hargapromo\":{$harga},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"type\":\"{$data['service']}\"}";
+                "\"hargapromo\":{$harga},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"layanan\":\"{$data['service']}\"}";
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
@@ -340,6 +355,7 @@ class helper extends Controller
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
+            $id = $data["is_variant"] ? $data["pid"] ?? '' : $id;
             if ($id !== '') {
                 item::findOrFail($id)->delete();
             }

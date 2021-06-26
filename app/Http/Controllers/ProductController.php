@@ -222,7 +222,7 @@ class ProductController extends Controller
                 throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
             }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            $items = item::create($dataTable);            
+            $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
             if (!$syncJuber["success"]) {
                 throw new Error($syncJuber["msg"]);
@@ -238,7 +238,24 @@ class ProductController extends Controller
                 $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
                     $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
-                    Variant::create($variant);
+                    $par = Variant::create($variant);
+                    $parItems = array(
+                        "id" => $par["id"],
+                        "name" => $dataTable["name"] . " " . $par["name"],
+                        "sku" => $dataTable["sku"] . "V" . $par["id"],
+                        "description" => $dataTable["description"],
+                        "weight" => $dataTable["weigth"],
+                        "selling_price" => $par["harga"],
+                        "store_id" => $dataTable["store_id"],
+                        "category_id" => $dataTable["category_id"],
+                        "service" => "jbmarket",
+                        "is_variant" => true,
+                        "pid" => $par["item_id"]
+                    );
+                    $syncJuber = helper::juberSyncInsert($parItems);
+                    if (!$syncJuber["success"]) {
+                        throw new Error($syncJuber["msg"]);
+                    }
                 }
             }
             $success = true;
