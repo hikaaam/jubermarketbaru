@@ -337,7 +337,7 @@ class helper extends Controller
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                 "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":{$harga}," .
-                "\"hargapromo\":{$harga},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"layanan\":\"{$data['service']}\"}";
+                "\"hargapromo\":{$data['discount_price']},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"layanan\":\"{$data['service']}\"}";
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];

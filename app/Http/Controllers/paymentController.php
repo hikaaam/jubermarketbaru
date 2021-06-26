@@ -141,7 +141,11 @@ class paymentController extends Controller
                     throw new Error("Product {$product->name} suddah dihapus oleh penjual");
                 }
 
-                $price = intval($product->selling_price);
+                if ($product->discount_price) {
+                    $price = intval($product->discount_price);
+                } else {
+                    $price = intval($product->selling_price);
+                }
                 $weigth = intval($product->weight);
                 $weight_unit = $product->weight_unit;
                 $weigth = $weight_unit == "KG" ? intval(ceil($weigth * 1000)) :  intval($product->weight);
@@ -158,15 +162,19 @@ class paymentController extends Controller
                         throw new Error("Stock {$product->name} dengan variant {$variant->name} kurang dari {$value['qty']}");
                     }
 
-                    $price = intval($variant->harga);
                     $variant_name = $variant->name;
+                    if ($variant->discount_price) {
+                        $price = intval($variant->discount_price);
+                    } else {
+                        $price = intval($variant->harga);
+                    }
                 }
 
                 if (!$haveVariant) {
                     if ($product->minimal_stock < $value["qty"]) {
                         throw new Error("Stock {$product->name} kurang dari {$value['qty']}");
                     }
-                    $jbid = $variant->juber_id;
+                    $jbid = $product->juber_id;
                     $var_id = null;
                 }
 

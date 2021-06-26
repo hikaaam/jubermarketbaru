@@ -216,6 +216,7 @@ class ProductController extends Controller
             $dataTable = checkifexistStore("ownership", "ownership", $request, $dataTable);
             $dataTable = checkifexistStore("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexistStore("merk", "merk", $request, $dataTable);
+            $dataTable = checkifexistStore("discount_price", "discount_price", $request, $dataTable);
             $dataTable["service"] = "jbmarket";
             $namaExist = item::where("name", $dataTable["name"])->count() > 0;
             if ($namaExist) {
@@ -237,7 +238,10 @@ class ProductController extends Controller
                 $withVariant = true;
                 $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
-                    $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
+                    $variant = [
+                        "name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"],
+                        "discount_price" => $value["discount_price"] ?? null
+                    ];
                     $par = Variant::create($variant);
                     $parItems = array(
                         "id" => $par["id"],
@@ -250,7 +254,8 @@ class ProductController extends Controller
                         "category_id" => $dataTable["category_id"],
                         "service" => "jbmarket",
                         "is_variant" => true,
-                        "pid" => $par["item_id"]
+                        "pid" => $par["item_id"],
+                        "discount_price"=> $par["discount_price"]
                     );
                     $syncJuber = helper::juberSyncInsert($parItems);
                     if (!$syncJuber["success"]) {
@@ -492,12 +497,15 @@ class ProductController extends Controller
             $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
             $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexist("merk", "merk", $request, $dataTable);
+            $dataTable = checkifexistStore("discount_price", "discount_price", $request, $dataTable);
             $table->update($dataTable);
             $dontHaveTokopediaId = $table->tokopedia_id == null;
             Variant::where('item_id', $id)->delete();
             if (array_key_exists("variant", $request)) {
                 foreach ($request["variant"] as $key => $value) {
-                    $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
+                    $variant = [
+                        "name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"], "discount_price" => $value["discount_price"] ?? null
+                    ];
                     Variant::create($variant);
                 }
             }
