@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ScheduleController as schedule;
 use App\Models\item;
 use App\Models\tokopedia_token;
+use App\Models\Variant;
 use Carbon\Carbon;
 use Error;
 use GrahamCampbell\ResultType\Success;
@@ -344,7 +345,12 @@ class helper extends Controller
             if ($response["code"] == 200) {
                 $lobj = $response["lobj"][0];
                 $id = $lobj['idproduk'];
-                item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                $haveVariant = $data["is_variant"] ?? false;
+                if ($haveVariant) {
+                    Variant::findOrFail($data["id"])->update(["juber_id" => $id]);
+                } else {
+                    item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                }
                 self::Logger("sync upload produk with id {$data['id']} on juber {$id}", "jbr");
                 return ["success" => true];
             } else {
