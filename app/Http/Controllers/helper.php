@@ -344,15 +344,15 @@ class helper extends Controller
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
             if ($response["code"] == 200) {
-                $lobj = $response["lobj"][0];
-                $id = $lobj['idproduk'];
-                $haveVariant = $data["is_variant"] ?? false;
-                if ($haveVariant) {
-                    Variant::findOrFail($data["id"])->update(["juber_id" => $id]);
-                } else {
-                    item::findOrFail($data["id"])->update(["juber_id" => $id]);
-                }
-                self::Logger("sync upload produk with id {$data['id']} on juber {$id}", "jbr");
+                // $lobj = $response["lobj"][0];
+                // $id = $lobj['idproduk'];
+                // $haveVariant = $data["is_variant"] ?? false;
+                // if ($haveVariant) {
+                //     Variant::findOrFail($data["id"])->update(["juber_id" => $id]);
+                // } else {
+                //     item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                // }
+                // self::Logger("sync upload produk with id {$data['id']} on juber {$id}", "jbr");
                 return ["success" => true];
             } else {
                 self::Logger(strval($response), "jbrerr");
