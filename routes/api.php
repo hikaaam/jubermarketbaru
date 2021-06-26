@@ -290,3 +290,5 @@ Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
 Route::post('merchant/update', [MerchantController::class, 'update']);
 Route::post('merchant/status', [MerchantController::class, 'updatestatus']);
 Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);
+
+Route::get('topfivemerchant', [MerchantController::class, 'gettopfive']);

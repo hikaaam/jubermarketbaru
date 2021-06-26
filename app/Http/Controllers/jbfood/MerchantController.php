@@ -9,6 +9,7 @@ use App\Helpers\RequestChecker;
 use App\Models\jbfood\Merchant;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\jbfood\Transaksi;
 
 class MerchantController extends Controller
 {
@@ -76,6 +77,39 @@ class MerchantController extends Controller
         try {
             $merchant = Dokumen::where('jenisdok', '08')->where('kodeagen', $id)->get();
             return ResponseFormatter::success($merchant, 'Data Berhasil Diambil');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function gettopfive()
+    {
+        try {
+
+            $superPartner = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner')->toArray();
+            $jmlSuperPartner = count($superPartner);
+            $topFive = $superPartner;
+
+            if ($jmlSuperPartner < 5) {
+                $jmlKurang = 5 - $jmlSuperPartner;
+                $regular = Merchant::where('merchant.star', '5')->whereNull('super_partner')->get();
+                $regularArray = $regular->toArray();
+                if (count($regularArray) > 0) {
+                    for ($i = 0; $i < $jmlKurang - 1; $i++) {
+                        $id = $regular[$i]->id;
+                        $tmp = Transaksi::where('merchant', $id)->get();
+                        $jmlTrx = count($tmp);
+                        if ($jmlTrx >= 100) {
+                            array_push($topFive, $regularArray[$i]);
+                        }
+                    }
+                }
+            }
+            if (count($topFive) > 0) {
+                $dataTopFive = array_values($topFive);
+            }
+            $data = ["super_partner" => count($superPartner), "regular" => count($regularArray), "top_five" => count($topFive), "data_topfive" => $dataTopFive];
+            return ResponseFormatter::success($data, 'Data Berhasil Diambil');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
