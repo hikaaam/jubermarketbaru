@@ -343,7 +343,7 @@ class helper extends Controller
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
-            self::Logger(strval($response), "jbrerr");
+            // self::Logger(strval($response), "jbrerr");
             if ($response["code"] == 200) {
                 $lobj = $response["lobj"][0]; //ini error :<
                 $id = $lobj['idproduk'];
