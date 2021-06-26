@@ -453,12 +453,12 @@ class ProductController extends Controller
         try {
 
             $table = item::findOrFail($id);
-            if (array_key_exists("name", $request)) {
-                $check = item::where("name", $request["name"])->count();
-                if ($table->name != $request["name"] && $check >= 1) {
-                    return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
-                }
-            }
+            // if (array_key_exists("name", $request)) {
+            //     $check = item::where("name", $request["name"])->count();
+            //     if ($table->name != $request["name"] && $check >= 1) {
+            //         return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
+            //     }
+            // }
 
             $dataTable = checkifexist("item_type", "item_type", $request, $dataTable);
             $dataTable = checkifexist("minimal_stock", "minimal_stock", $request, $dataTable);
@@ -529,6 +529,7 @@ class ProductController extends Controller
             if (!$dontHaveTokopediaId) {
                 try {
                     //TODO: VARIANT TOKOPEDIA
+                    $dataTable["name"] = strval($dataTable["name"]) . " (" . $table["sku"] . ")";
                     $tokopediaData = array(
                         "data" => $dataTable,
                         "id" => $id,
