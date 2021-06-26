@@ -216,13 +216,14 @@ class ProductController extends Controller
             $dataTable = checkifexistStore("ownership", "ownership", $request, $dataTable);
             $dataTable = checkifexistStore("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexistStore("merk", "merk", $request, $dataTable);
+            $dataTable = checkifexistStore("discount_price", "discount_price", $request, $dataTable);
             $dataTable["service"] = "jbmarket";
-            $namaExist = item::where("name", $dataTable["name"])->count() > 0;
-            if ($namaExist) {
-                throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
-            }
+            // $namaExist = item::where("name", $dataTable["name"])->count() > 0;
+            // if ($namaExist) {
+            //     throw new Error("Barang dengan nama {$request['name']} sudah ada!! silahkan gunakan nama lain");
+            // }
             $dataTable = checkifexistStore("origin", "origin", $request, $dataTable);
-            $items = item::create($dataTable);            
+            $items = item::create($dataTable);
             $syncJuber = helper::juberSyncInsert($items);
             if (!$syncJuber["success"]) {
                 throw new Error($syncJuber["msg"]);
@@ -237,8 +238,31 @@ class ProductController extends Controller
                 $withVariant = true;
                 $variant_ = $request["variant"];
                 foreach ($request["variant"] as $key => $value) {
-                    $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
-                    Variant::create($variant);
+                    $variant = [
+                        "name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"],
+                        "discount_price" => $value["discount_price"] ?? null
+                    ];
+                    $par = Variant::create($variant);
+                    $parItems = array(
+                        "id" => $par["id"],
+                        "name" => $dataTable["name"] . " " . $par["name"],
+                        "sku" => $dataTable["sku"] . "V" . $par["id"],
+                        "description" => $dataTable["description"],
+                        "weight" => $dataTable["weight"],
+                        "weight_unit" => $dataTable["weight_unit"],
+                        "picture" => $par['picture'],
+                        "selling_price" => $par["harga"],
+                        "store_id" => $dataTable["store_id"],
+                        "category_id" => $dataTable["category_id"],
+                        "service" => "jbmarket",
+                        "is_variant" => true,
+                        "pid" => $par["item_id"],
+                        "discount_price" => $par["discount_price"]
+                    );
+                    $syncJuber = helper::juberSyncInsert($parItems);
+                    if (!$syncJuber["success"]) {
+                        throw new Error($syncJuber["msg"]);
+                    }
                 }
             }
             $success = true;
@@ -247,8 +271,9 @@ class ProductController extends Controller
             $success = false;
             return helper::resp(false, 'store', str_contains($th->getMessage(), "duplicate") ? "Produk ini sudah pernah dibuat" : $th->getMessage(), ["nerd_error" => $th->getMessage()]);
         } finally {
-            if (!$namaExist && $success) {
+            if ($success) {
                 try {
+                    $dataTable["name"] = $dataTable["name"] . " (" . $dataTable["sku"] . ")";
                     $tokopediaData = array(
                         "data" => $dataTable,
                         "id" => $id,
@@ -430,12 +455,12 @@ class ProductController extends Controller
         try {
 
             $table = item::findOrFail($id);
-            if (array_key_exists("name", $request)) {
-                $check = item::where("name", $request["name"])->count();
-                if ($table->name != $request["name"] && $check >= 1) {
-                    return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
-                }
-            }
+            // if (array_key_exists("name", $request)) {
+            //     $check = item::where("name", $request["name"])->count();
+            //     if ($table->name != $request["name"] && $check >= 1) {
+            //         return getRespond(false, "Nama itu sudah digunakan oleh produk lain", []);
+            //     }
+            // }
 
             $dataTable = checkifexist("item_type", "item_type", $request, $dataTable);
             $dataTable = checkifexist("minimal_stock", "minimal_stock", $request, $dataTable);
@@ -475,13 +500,36 @@ class ProductController extends Controller
             $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
             $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexist("merk", "merk", $request, $dataTable);
+            $dataTable = checkifexistStore("discount_price", "discount_price", $request, $dataTable);
             $table->update($dataTable);
             $dontHaveTokopediaId = $table->tokopedia_id == null;
             Variant::where('item_id', $id)->delete();
             if (array_key_exists("variant", $request)) {
                 foreach ($request["variant"] as $key => $value) {
-                    $variant = ["name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"]];
-                    Variant::create($variant);
+                    $variant = [
+                        "name" => $value['variant_name'], "harga" => $value['harga'], "item_id" => $id, "picture" => $value['picture'], "stock" => $value["stock"], "discount_price" => $value["discount_price"] ?? null
+                    ];
+                    $par =  Variant::create($variant);
+                    $parItems = array(
+                        "id" => $par["id"],
+                        "name" => $dataTable["name"] . " " . $par["name"],
+                        "sku" => $dataTable["sku"] . "V" . $par["id"],
+                        "description" => $dataTable["description"],
+                        "weight" => $dataTable["weight"],
+                        "weight_unit" => $dataTable["weight_unit"],
+                        "selling_price" => $par["harga"],
+                        "picture" => $par['picture'],
+                        "store_id" => $dataTable["store_id"],
+                        "category_id" => $dataTable["category_id"],
+                        "service" => "jbmarket",
+                        "is_variant" => true,
+                        "pid" => $par["item_id"],
+                        "discount_price" => $par["discount_price"]
+                    );
+                    $syncJuber = helper::juberSyncInsert($parItems);
+                    if (!$syncJuber["success"]) {
+                        throw new Error($syncJuber["msg"]);
+                    }
                 }
             }
 
@@ -503,6 +551,7 @@ class ProductController extends Controller
             if (!$dontHaveTokopediaId) {
                 try {
                     //TODO: VARIANT TOKOPEDIA
+                    $dataTable["name"] = strval($dataTable["name"]) . " (" . $table["sku"] . ")";
                     $tokopediaData = array(
                         "data" => $dataTable,
                         "id" => $id,

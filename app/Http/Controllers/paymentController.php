@@ -141,7 +141,11 @@ class paymentController extends Controller
                     throw new Error("Product {$product->name} suddah dihapus oleh penjual");
                 }
 
-                $price = intval($product->selling_price);
+                if ($product->discount_price) {
+                    $price = intval($product->discount_price);
+                } else {
+                    $price = intval($product->selling_price);
+                }
                 $weigth = intval($product->weight);
                 $weight_unit = $product->weight_unit;
                 $weigth = $weight_unit == "KG" ? intval(ceil($weigth * 1000)) :  intval($product->weight);
@@ -149,7 +153,7 @@ class paymentController extends Controller
 
                 if ($haveVariant) {
                     $variant = Variant::where("item_id", $product->id)->where("id", $var_id)->first();
-
+                    $jbid = $variant->juber_id;
                     if (!$variant) {
                         throw new Error("Products[$key] tidak punya variant ini");
                     }
@@ -158,14 +162,19 @@ class paymentController extends Controller
                         throw new Error("Stock {$product->name} dengan variant {$variant->name} kurang dari {$value['qty']}");
                     }
 
-                    $price = intval($variant->harga);
                     $variant_name = $variant->name;
+                    if ($variant->discount_price) {
+                        $price = intval($variant->discount_price);
+                    } else {
+                        $price = intval($variant->harga);
+                    }
                 }
 
                 if (!$haveVariant) {
                     if ($product->minimal_stock < $value["qty"]) {
                         throw new Error("Stock {$product->name} kurang dari {$value['qty']}");
                     }
+                    $jbid = $product->juber_id;
                     $var_id = null;
                 }
 
@@ -181,7 +190,7 @@ class paymentController extends Controller
                     "sub_weight" => $sub_weight,
                     "price" => $price,
                     "weight" => $weigth,
-                    "idbarangjbcore" => $product->juber_id,
+                    "idbarangjbcore" => $jbid,
                     "jumlah" => $value["qty"],
                     "berat" => $weigth,
                     "item_id" => $product->id,

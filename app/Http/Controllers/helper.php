@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ScheduleController as schedule;
 use App\Models\item;
 use App\Models\tokopedia_token;
+use App\Models\Variant;
 use Carbon\Carbon;
 use Error;
 use GrahamCampbell\ResultType\Success;
@@ -311,25 +312,47 @@ class helper extends Controller
     }
     public static function juberSyncInsert($data)
     {
+        // {
+        //     id,
+        //     name,
+        //     sku,
+        //     description,
+        //     picture,
+        //     weight,
+        //     selling_price,
+        //     store_id,
+        //     category_id,
+        //     service,
+        //     is_variant,
+        //     pid,
+        // }
+
         try {
 
             if ($data["weight_unit"] == "GR") {
                 $data["weight"] = intval($data["weight"]) / 1000;
             }
             $harga = intval($data["selling_price"]);
+            $hargaPromo = $data['discount_price'] ?? 0;
             $image = self::imageTokopediaFormat($data['picture']);
             $payload = "{\"kdprodukgoota\":\"{$data['id']}\",\"nmproduk\":\"{$data['name']}\",\"singkatan\":\"{$data['sku']}\",\"isstokkosong\":\"0\"," .
                 "\"jamstart\":\"09:00\",\"jamend\":\"16:30\",\"keterangan\":\"{$data['description']}\"," .
                 "\"imgurl\":\"{$image}\",\"berat\":\"{$data['weight']}\",\"harga\":{$harga}," .
-                "\"hargapromo\":{$harga},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"type\":\"{$data['service']}\"}";
+                "\"hargapromo\":{$hargaPromo},\"kdMercant\":\"{$data['store_id']}\",\"kategori\":\"{$data['category_id']}\",\"layanan\":\"{$data['service']}\"}";
             $url = "http://192.168.2.45:9888/jbmiddleware";
             $key = "createproduk";
             $body = ["key" => $key, "payload" => $payload];
             $response =  http::withHeaders(self::getJuberHeaders())->post($url, $body);
+            // self::Logger(strval($response), "jbrerr");
             if ($response["code"] == 200) {
-                $lobj = $response["lobj"][0];
+                $lobj = $response["lobj"][0]; //ini error :<
                 $id = $lobj['idproduk'];
-                item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                $haveVariant = $data["is_variant"] ?? false;
+                if ($haveVariant) {
+                    Variant::findOrFail($data["id"])->update(["juber_id" => $id]);
+                } else {
+                    item::findOrFail($data["id"])->update(["juber_id" => $id]);
+                }
                 self::Logger("sync upload produk with id {$data['id']} on juber {$id}", "jbr");
                 return ["success" => true];
             } else {
@@ -340,6 +363,7 @@ class helper extends Controller
             }
         } catch (\Throwable $th) {
             $id = $data['id'] ?? '';
+            $id = $data["is_variant"] ? $data["pid"] ?? '' : $id;
             if ($id !== '') {
                 item::findOrFail($id)->delete();
             }
