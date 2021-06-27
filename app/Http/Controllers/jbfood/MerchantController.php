@@ -125,7 +125,7 @@ class MerchantController extends Controller
                 }
 
                 if (count($featured) < $limitTopFive && count($sisaData) > 0) {
-                    for ($i = 0; $i < count($sisaData) - 1; $i++) {
+                    for ($i = 0; $i < count($sisaData); $i++) {
                         array_push($featured, $sisaData[$i]);
                     }
                 }
