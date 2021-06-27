@@ -289,7 +289,7 @@ Route::get('merchant', [MerchantController::class, 'index']);
 Route::get('merchant/superpartner', [MerchantController::class, 'superpartner']);
 Route::get('merchant/fivestar', [MerchantController::class, 'fivestar']);
 Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
-Route::post('merchant/search/name', [MerchantController::class, 'searchbyname']);
+Route::post('merchant/search', [MerchantController::class, 'searchbyname']);
 Route::post('merchant/update', [MerchantController::class, 'update']);
 Route::post('merchant/status', [MerchantController::class, 'updatestatus']);
 Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);

@@ -209,7 +209,8 @@ class MerchantController extends Controller
                 return ResponseFormatter::error([], 'Payload kosong!', 200);
             }
             $query = $payload["query"];
-            $data = Merchant::where('nama', 'like', '%' . $query . '%')->get()->sortBy('nama', SORT_NATURAL);
+            $data = Merchant::where('nama', 'like', '%' . $query . '%')->get()->sortBy('nama', SORT_NATURAL)->toArray();
+            $data = array_values($data);
             return ResponseFormatter::success(["found" => count($data), "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
