@@ -218,12 +218,22 @@ class MerchantController extends Controller
         }
     }
 
-    public function gettoptrxmc()
+    public function gettoptrxmc(Request $request)
     {
         try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 200);
+            }
+            $limit = $payload["limit"];
             $minTrx  = Appsjbfood::where('idapps', 'trxtopfive')->get()->first();
             $minTrx = $minTrx->value;
-            $query = 'select DISTINCT t1.merchant as id, t2.nama as nama, COUNT(t1.merchant) as jml_trx from transaksi as t1 inner join merchant as t2 on t1.merchant = t2.id group by nama, t1.merchant order by jml_trx desc';
+            $query =    'select DISTINCT t1.merchant as id, t2.nama as nama, COUNT(t1.merchant) as jml_trx from transaksi as 
+                        t1 inner join merchant as t2 on t1.merchant = t2.id group by nama, t1.merchant order by jml_trx desc';
+            if ($limit > 0) {
+                $query = $query . ' limit ' . $limit;
+            }
             $topTrx = DB::connection('mysql')->select($query);
             return ResponseFormatter::success($topTrx, 'Sukses');
         } catch (\Throwable $th) {
