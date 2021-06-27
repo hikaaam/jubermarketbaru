@@ -168,7 +168,7 @@ class MerchantController extends Controller
     public function counttrx($id)
     {
         try {
-            $datamc = Merchant::select('nama', 'star', 'super_partner')->where('id', $id)->orWhere('nama', 'like', '%' . $id . '%')->get()->first();
+            $datamc = Merchant::where('id', $id)->orWhere('nama', 'like', '%' . $id . '%')->get(['id', 'nama', 'star', 'super_partner'])->first();
             $jmlTrx = Transaksi::where('merchant', $datamc->id)->get();
             $jmlTrx = count($jmlTrx);
 
