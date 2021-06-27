@@ -6,10 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\jbfood\Dokumen;
 use App\Helpers\RequestChecker;
 use App\Models\jbfood\Merchant;
-use App\Helpers\ResponseFormatter;
-use App\Http\Controllers\Controller;
-use App\Models\jbfood\Appsjbfood;
 use App\Models\jbfood\Transaksi;
+use App\Models\jbfood\Appsjbfood;
+use App\Helpers\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class MerchantController extends Controller
 {
@@ -212,6 +213,19 @@ class MerchantController extends Controller
             $data = Merchant::where('nama', 'like', '%' . $query . '%')->get()->sortBy('nama', SORT_NATURAL)->toArray();
             $data = array_values($data);
             return ResponseFormatter::success(["found" => count($data), "data" => $data], 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function gettoptrxmc()
+    {
+        try {
+            $minTrx  = Appsjbfood::where('idapps', 'trxtopfive')->get()->first();
+            $minTrx = $minTrx->value;
+            $query = 'select DISTINCT t1.merchant as id, t2.nama as nama, COUNT(t1.merchant) as jml_trx from transaksi as t1 inner join merchant as t2 on t1.merchant = t2.id group by nama, t1.merchant order by jml_trx desc';
+            $topTrx = DB::connection('mysql')->select($query);
+            return ResponseFormatter::success($topTrx, 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
