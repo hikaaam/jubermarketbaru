@@ -48,8 +48,10 @@ class MerchantController extends Controller
             }
             $idrs = $payload['merchantid'];
             $status = $payload['status'];
-            $merchant = Merchant::where('id', $idrs)->update(['status' => $status]);
-            return ResponseFormatter::success($merchant, 'Status toko (' . $idrs . ') berhasil diubah : ' . $status);
+            $merchant = Merchant::where('id', $idrs);
+            $merchant->update(['status' => $status]);
+            $merchant = $merchant->get()->first();
+            return ResponseFormatter::success(["status" => $merchant->status], 'Status toko ' . $merchant->nama . ' berhasil diubah : ' . $merchant->status);
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
@@ -193,6 +195,22 @@ class MerchantController extends Controller
         try {
             $data = Merchant::where('star', '5')->get()->sortBy('star');
             return ResponseFormatter::success(["fivestar" => count($data), "data" => $data], 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function searchbyname(Request $request)
+    {
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 200);
+            }
+            $query = $payload["query"];
+            $data = Merchant::where('nama', 'like', '%' . $query . '%')->get()->sortBy('nama', SORT_NATURAL);
+            return ResponseFormatter::success(["found" => count($data), "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
