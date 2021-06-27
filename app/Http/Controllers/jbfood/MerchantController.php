@@ -163,10 +163,20 @@ class MerchantController extends Controller
     {
         try {
             $jmlTrx = Transaksi::where('merchant', $id)->get();
-            $datamc = Merchant::select('nama', 'star', 'super_partner')->where('id', $id)->get()->first();
+            $datamc = Merchant::select('nama', 'star', 'super_partner')->where('id', $id)->orWhere('nama', 'like', '%' . $id . '%')->get()->first();
             $jmlTrx = count($jmlTrx);
 
             return ResponseFormatter::success(["jmlTrx" => $jmlTrx, "merchant" => $datamc], 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function superpartner()
+    {
+        try {
+            $data = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner');
+            return ResponseFormatter::success($data, 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
