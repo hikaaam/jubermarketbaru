@@ -121,7 +121,7 @@ class MerchantController extends Controller
                         }
                     }
                     $data["regular_top_trx"] = $jmlTopTrx;
-                    $data["regular_five_star"] = $jmlTopTrx;
+                    $data["regular_five_star"] = $jmlFiveStar;
                 }
 
                 if (count($featured) < $limitTopFive && count($sisaData) > 0) {
