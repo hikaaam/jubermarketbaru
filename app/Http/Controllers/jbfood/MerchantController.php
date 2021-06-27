@@ -93,41 +93,65 @@ class MerchantController extends Controller
 
             $data = [];
             $data["super_partner"] = $jmlSuperPartner;
-            $topFive = $superPartner;
+            $featured = $superPartner;
 
             if ($jmlSuperPartner < $limitTopFive) {
                 $jmlKurang = $limitTopFive - $jmlSuperPartner;
-                $regular = Merchant::where('star', '5')->whereNull('super_partner')->get();
+                $mcFiveStar = Merchant::where('star', '5')->whereNull('super_partner')->get();
+                $topFiveArr = $mcFiveStar->toArray();
 
-                $regularArray = $regular->toArray();
-
-                $data["regular_five_star"] = count($regularArray);
-                if (count($regularArray) > 0) {
+                $sisaData = [];
+                $jmlTopTrx = 0;
+                $jmlFiveStar = 0;
+                if (count($topFiveArr) > 0) {
                     $minTrx  = Appsjbfood::where('idapps', 'trxtopfive')->get()->first();
                     $minTrx = $minTrx->value;
 
-                    $jmlReguler = 0;
                     for ($i = 0; $i < $jmlKurang - 1; $i++) {
-                        $id = $regular[$i]->id;
+                        $id = $mcFiveStar[$i]->id;
                         $trx = Transaksi::where('merchant', $id)->get();
 
                         $jmlTrx = count($trx);
                         if ($jmlTrx >= $minTrx) {
-                            array_push($topFive, $regularArray[$i]);
-                            $jmlReguler += 1;
+                            array_push($featured, $topFiveArr[$i]);
+                            $jmlTopTrx += 1;
+                        } else {
+                            array_push($sisaData, $topFiveArr[$i]);
+                            $jmlFiveStar += 1;
                         }
                     }
-                    $data["regular_top_trx"] = $jmlReguler;
+                    $data["regular_top_trx"] = $jmlTopTrx;
+                    $data["regular_five_star"] = $jmlTopTrx;
+                }
+
+                if (count($featured) < $limitTopFive && count($sisaData) > 0) {
+                    for ($i = 0; $i < count($sisaData) - 1; $i++) {
+                        array_push($featured, $sisaData[$i]);
+                    }
+                }
+
+                if (count($featured) < $limitTopFive) {
+                    $masihKurang = $limitTopFive - count($featured);
+                    $regular = Merchant::inRandomOrder()->limit($masihKurang)->get();
+                    $regularArr = $regular->toArray();
+                    if (count($regularArr) > 0) {
+                        $jmlRegular = 0;
+                        for ($i = 0; $i < count($regularArr); $i++) {
+                            array_push($featured, $regularArr[$i]);
+                            $jmlRegular += 1;
+                        }
+                        $data["random_regular"] = $jmlRegular;
+                    }
                 }
             } else {
-                $topFive = array_slice($topFive, 0, 5);
+                $featured = array_slice($featured, 0, 5);
             }
 
-            if (count($topFive) > 0) {
-                $dataTopFive = array_values($topFive);
+            if (count($featured) > 0) {
+                $dataTopFive = array_values($featured);
             }
 
-            $data["top_five"] = count($topFive);
+            $data["top_five"] = count($featured);
             $data["data_topfive"] = $dataTopFive;
             return ResponseFormatter::success($data, 'Data Berhasil Diambil');
         } catch (\Throwable $th) {
