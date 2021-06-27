@@ -287,6 +287,7 @@ Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 Route::get('merchant/npwp/{id}', [MerchantController::class, 'npwpbykodeagen']);
 Route::get('merchant', [MerchantController::class, 'index']);
 Route::post('merchant/toptrx', [MerchantController::class, 'gettoptrxmc']);
+Route::post('merchant/toptrx/limit', [MerchantController::class, 'gettoptrxmcwithlimit']);
 Route::get('merchant/superpartner', [MerchantController::class, 'superpartner']);
 Route::get('merchant/fivestar', [MerchantController::class, 'fivestar']);
 Route::post('merchant/search', [MerchantController::class, 'searchbyname']);
