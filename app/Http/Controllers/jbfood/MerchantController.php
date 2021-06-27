@@ -9,6 +9,7 @@ use App\Helpers\RequestChecker;
 use App\Models\jbfood\Merchant;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\jbfood\Appsjbfood;
 use App\Models\jbfood\Transaksi;
 
 class MerchantController extends Controller
@@ -89,28 +90,59 @@ class MerchantController extends Controller
 
             $superPartner = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner')->toArray();
             $jmlSuperPartner = count($superPartner);
+
+            $data = [];
+            $data["super_partner"] = $jmlSuperPartner;
             $topFive = $superPartner;
 
             if ($jmlSuperPartner < $limitTopFive) {
                 $jmlKurang = $limitTopFive - $jmlSuperPartner;
-                $regular = Merchant::where('merchant.star', '5')->whereNull('super_partner')->get();
+                $regular = Merchant::where('star', '5')->whereNull('super_partner')->get();
+
                 $regularArray = $regular->toArray();
+
+                $data["regular_five_star"] = count($regularArray);
                 if (count($regularArray) > 0) {
-                    for ($i = 0; $i < $jmlKurang - 1; $i++) {
+                    $minTrx  = Appsjbfood::where('idapps', 'trxtopfive')->get()->first();
+                    $minTrx = $minTrx->value;
+
+                    $jmlReguler = 0;
+                    for ($i = 0; $i < $jmlKurang; $i++) {
                         $id = $regular[$i]->id;
-                        $tmp = Transaksi::where('merchant', $id)->get();
-                        $jmlTrx = count($tmp);
-                        if ($jmlTrx >= 100) {
+                        $trx = Transaksi::where('merchant', $id)->get();
+
+                        $jmlTrx = count($trx);
+                        if ($jmlTrx >= $minTrx) {
                             array_push($topFive, $regularArray[$i]);
+                            $jmlReguler += 1;
                         }
                     }
+                    $data["regular_top_trx"] = $jmlReguler;
                 }
+            } else {
+                $topFive = array_slice($topFive, 0, 5);
             }
+
             if (count($topFive) > 0) {
                 $dataTopFive = array_values($topFive);
             }
-            $data = ["super_partner" => count($superPartner), "regular" => count($regularArray), "top_five" => count($topFive), "data_topfive" => $dataTopFive];
+
+            $data["top_five"] = count($topFive);
+            $data["data_topfive"] = $dataTopFive;
             return ResponseFormatter::success($data, 'Data Berhasil Diambil');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function counttrx($id)
+    {
+        try {
+            $jmlTrx = Transaksi::where('merchant', $id)->get();
+            $datamc = Merchant::select('nama', 'star', 'super_partner')->where('id', $id)->get()->first();
+            $jmlTrx = count($jmlTrx);
+
+            return ResponseFormatter::success(["jmlTrx" => $jmlTrx, "merchant" => $datamc], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
@@ -190,9 +222,12 @@ class MerchantController extends Controller
             $dataTable = RequestChecker::checkArrayifexist('alamat', 'alamat', $array, $dataTable);
             $dataTable = RequestChecker::checkArrayifexist('jambuka', 'jambuka', $array, $dataTable);
             $dataTable = RequestChecker::checkArrayifexist('jamtutup', 'jamtutup', $array, $dataTable);
-            $dataTable = RequestChecker::checkArrayifexist('gambar', 'img', $array, $dataTable);
-            $id = $dataTable["id"];
-            $merchant = Merchant::findOrFail($id);
+            $dataTable = RequestChecker::checkArrayifexist('prov', 'prov', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('kota', 'kota', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('kec', 'kec', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('kodepos', 'kodepos', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('rincian', 'rincian', $array, $dataTable);
+            $merchant = Merchant::findOrFail($dataTable["id"]);
             $merchant->update($dataTable);
             return ResponseFormatter::success($merchant, "Perubahan berhasil disimpan");
         } catch (\Throwable $th) {

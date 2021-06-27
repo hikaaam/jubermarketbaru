@@ -292,3 +292,4 @@ Route::post('merchant/status', [MerchantController::class, 'updatestatus']);
 Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);
 
 Route::get('topfivemerchant', [MerchantController::class, 'gettopfive']);
+Route::get('counttrx/{id}', [MerchantController::class, 'counttrx']);
