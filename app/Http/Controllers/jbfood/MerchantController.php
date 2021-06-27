@@ -107,7 +107,7 @@ class MerchantController extends Controller
                     $minTrx = $minTrx->value;
 
                     $jmlReguler = 0;
-                    for ($i = 0; $i < $jmlKurang; $i++) {
+                    for ($i = 0; $i < $jmlKurang - 1; $i++) {
                         $id = $regular[$i]->id;
                         $trx = Transaksi::where('merchant', $id)->get();
 
