@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\jbfood;
 
-use stdClass;
 use Illuminate\Http\Request;
 use App\Models\jbfood\Dokumen;
 use App\Helpers\RequestChecker;
@@ -131,8 +130,15 @@ class MerchantController extends Controller
                 }
 
                 if (count($featured) < $limitTopFive) {
+                    $excludeList = [];
+                    $temp = array_values($featured);
+                    for ($i = 0; $i < count($featured); $i++) {
+                        $idex = $temp[$i]["id"];
+                        array_push($excludeList, $idex);
+                    }
+
                     $masihKurang = $limitTopFive - count($featured);
-                    $regular = Merchant::inRandomOrder()->limit($masihKurang)->get();
+                    $regular = Merchant::inRandomOrder()->whereNotIn('id', $excludeList)->limit($masihKurang)->get();
                     $regularArr = $regular->toArray();
                     if (count($regularArr) > 0) {
                         $jmlRegular = 0;
@@ -162,8 +168,8 @@ class MerchantController extends Controller
     public function counttrx($id)
     {
         try {
-            $jmlTrx = Transaksi::where('merchant', $id)->get();
             $datamc = Merchant::select('nama', 'star', 'super_partner')->where('id', $id)->orWhere('nama', 'like', '%' . $id . '%')->get()->first();
+            $jmlTrx = Transaksi::where('merchant', $datamc->id)->get();
             $jmlTrx = count($jmlTrx);
 
             return ResponseFormatter::success(["jmlTrx" => $jmlTrx, "merchant" => $datamc], 'Sukses');
@@ -176,7 +182,17 @@ class MerchantController extends Controller
     {
         try {
             $data = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner');
-            return ResponseFormatter::success($data, 'Sukses');
+            return ResponseFormatter::success(["superpartner" => count($data), "data" => $data], 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function fivestar()
+    {
+        try {
+            $data = Merchant::where('star', '5')->get()->sortBy('star');
+            return ResponseFormatter::success(["fivestar" => count($data), "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }

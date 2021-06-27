@@ -287,10 +287,12 @@ Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 Route::get('merchant/npwp/{id}', [MerchantController::class, 'npwpbykodeagen']);
 Route::get('merchant', [MerchantController::class, 'index']);
 Route::get('merchant/superpartner', [MerchantController::class, 'superpartner']);
+Route::get('merchant/fivestar', [MerchantController::class, 'fivestar']);
 Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
 Route::post('merchant/update', [MerchantController::class, 'update']);
 Route::post('merchant/status', [MerchantController::class, 'updatestatus']);
 Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);
 
+// Extra
 Route::get('topfivemerchant', [MerchantController::class, 'gettopfive']);
 Route::get('counttrx/{id}', [MerchantController::class, 'counttrx']);
