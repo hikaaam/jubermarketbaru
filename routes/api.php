@@ -297,5 +297,6 @@ Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);
 Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
 
 // Extra
-Route::get('topfivemerchant', [MerchantController::class, 'gettopfive']);
+Route::get('topfivemerchant', [MerchantController::class, 'getfeaturedmerchant']);
+Route::get('featuredmerchant', [MerchantController::class, 'getfeaturedmerchant']);
 Route::get('counttrx/{id}', [MerchantController::class, 'counttrx']);

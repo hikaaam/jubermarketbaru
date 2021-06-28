@@ -85,31 +85,38 @@ class MerchantController extends Controller
         }
     }
 
-    public function gettopfive()
+    public function getfeaturedmerchant()
     {
         try {
-            $limitTopFive = 5;
+            $featuredRule = Appsjbfood::where('idapps', 'featuredmclimit')->get()->first();
+            $limitData =  intval($featuredRule->value);
 
             $superPartner = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner')->toArray();
             $jmlSuperPartner = count($superPartner);
 
             $data = [];
+            $data["limit"] = $limitData;
             $data["super_partner"] = $jmlSuperPartner;
+
             $featured = $superPartner;
-
-            if ($jmlSuperPartner < $limitTopFive) {
-                $jmlKurang = $limitTopFive - $jmlSuperPartner;
-                $mcFiveStar = Merchant::where('star', '5')->whereNull('super_partner')->get();
-                $topFiveArr = $mcFiveStar->toArray();
-
+            if ($jmlSuperPartner < $limitData) {
                 $sisaData = [];
                 $jmlTopTrx = 0;
                 $jmlFiveStar = 0;
+
+                $mcFiveStar = Merchant::where('star', '5')->whereNull('super_partner')->get();
+                $topFiveArr = $mcFiveStar->toArray();
+
                 if (count($topFiveArr) > 0) {
+                    $jmlKurang = $limitData - $jmlSuperPartner;
+                    if ($jmlKurang > count($topFiveArr)) {
+                        $jmlKurang = count($topFiveArr);
+                    }
+
                     $minTrx  = Appsjbfood::where('idapps', 'trxtopfive')->get()->first();
                     $minTrx = $minTrx->value;
 
-                    for ($i = 0; $i < $jmlKurang - 1; $i++) {
+                    for ($i = 0; $i < $jmlKurang; $i++) {
                         $id = $mcFiveStar[$i]->id;
                         $trx = Transaksi::where('merchant', $id)->get();
 
@@ -126,13 +133,13 @@ class MerchantController extends Controller
                     $data["regular_five_star"] = $jmlFiveStar;
                 }
 
-                if (count($featured) < $limitTopFive && count($sisaData) > 0) {
+                if (count($featured) < $limitData && count($sisaData) > 0) {
                     for ($i = 0; $i < count($sisaData); $i++) {
                         array_push($featured, $sisaData[$i]);
                     }
                 }
 
-                if (count($featured) < $limitTopFive) {
+                if (count($featured) < $limitData) {
                     $excludeList = [];
                     $temp = array_values($featured);
                     for ($i = 0; $i < count($featured); $i++) {
@@ -140,8 +147,8 @@ class MerchantController extends Controller
                         array_push($excludeList, $idex);
                     }
 
-                    $masihKurang = $limitTopFive - count($featured);
-                    $regular = Merchant::inRandomOrder()->whereNotIn('id', $excludeList)->limit($masihKurang)->get();
+                    $sisaKurang = $limitData - count($featured);
+                    $regular = Merchant::inRandomOrder()->whereNotIn('id', $excludeList)->limit($sisaKurang)->get();
                     $regularArr = $regular->toArray();
                     if (count($regularArr) > 0) {
                         $jmlRegular = 0;
