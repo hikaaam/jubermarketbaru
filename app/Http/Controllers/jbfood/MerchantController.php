@@ -274,19 +274,11 @@ class MerchantController extends Controller
     {
         try {
             $data = RestoReview::where('idmerchant', $id)->get();
-            $totalStar = 0;
-            if (count($data) > 0) {
-                for ($i = 0; $i < count($data); $i++) {
-                    $star = $data[$i]->star;
-                    $totalStar += $star;
-                }
-                $totalStar = $totalStar / count($data);
-                $totalStar = number_format($totalStar, 1);
-            }
+
             $query = 'select AVG(star) as jml from restoreview where idmerchant = ' . $id;
             $rating = DB::connection('mysql')->select($query);
             $rating = number_format($rating[0]->jml, 1);
-            return ResponseFormatter::success(["rating" => $totalStar, "rating_manual" => $rating, "data" => $data], 'Sukses');
+            return ResponseFormatter::success(["rating" => $rating, "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
