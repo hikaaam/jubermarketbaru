@@ -277,7 +277,7 @@ class MerchantController extends Controller
             $totalStar = 0;
             if (count($data) > 0) {
                 for ($i = 0; $i < count($data); $i++) {
-                    $star = $data[$id]->star;
+                    $star = $data[$i]->star;
                     $totalStar += $star;
                 }
                 $totalStar = $totalStar / count($data);
