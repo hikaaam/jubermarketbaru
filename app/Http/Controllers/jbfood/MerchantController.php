@@ -281,7 +281,7 @@ class MerchantController extends Controller
                     $totalStar += $star;
                 }
                 $totalStar = $totalStar / count($data);
-                $totalStar = number_format($totalStar, 2);
+                $totalStar = number_format($totalStar, 1);
             }
             return ResponseFormatter::success(["rating" => $totalStar, "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
