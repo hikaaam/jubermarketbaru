@@ -286,6 +286,7 @@ Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 // Merchant Foodish
 Route::get('merchant/npwp/{id}', [MerchantController::class, 'npwpbykodeagen']);
 Route::get('merchant', [MerchantController::class, 'index']);
+Route::get('merchant/review/{id}', [MerchantController::class, 'getreview']);
 Route::post('merchant/toptrx', [MerchantController::class, 'gettoptrxmc']);
 Route::post('merchant/toptrx/limit', [MerchantController::class, 'gettoptrxmcwithlimit']);
 Route::get('merchant/superpartner', [MerchantController::class, 'superpartner']);

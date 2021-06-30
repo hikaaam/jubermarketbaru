@@ -11,6 +11,7 @@ use App\Models\jbfood\Appsjbfood;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\jbfood\RestoReview;
 
 class MerchantController extends Controller
 {
@@ -264,6 +265,22 @@ class MerchantController extends Controller
             }
             $topTrx = DB::connection('mysql')->select($query);
             return ResponseFormatter::success($topTrx, 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function getreview($id) //getreview(Request $request)
+    {
+        try {
+            // if ($request->has('payload')) {
+            //     $payload = json_decode(html_entity_decode($request->payload), true);
+            // } else {
+            //     return ResponseFormatter::error([], 'Payload kosong!', 200);
+            // }
+            // $id = $payload["id"];
+            $data = RestoReview::where('idmerchant', $id)->get();
+            return ResponseFormatter::success($data, 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
