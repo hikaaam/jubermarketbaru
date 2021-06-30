@@ -348,6 +348,7 @@ class MerchantController extends Controller
             $dataTable = RequestChecker::checkArrayifexist('kec', 'kec', $array, $dataTable);
             $dataTable = RequestChecker::checkArrayifexist('kodepos', 'kodepos', $array, $dataTable);
             $dataTable = RequestChecker::checkArrayifexist('rincian', 'rincian', $array, $dataTable);
+            $dataTable = RequestChecker::checkArrayifexist('gambar', 'img', $array, $dataTable);
             $merchant = Merchant::findOrFail($dataTable["id"]);
             $merchant->update($dataTable);
             return ResponseFormatter::success($merchant, "Perubahan berhasil disimpan");
