@@ -283,7 +283,10 @@ class MerchantController extends Controller
                 $totalStar = $totalStar / count($data);
                 $totalStar = number_format($totalStar, 1);
             }
-            return ResponseFormatter::success(["rating" => $totalStar, "data" => $data], 'Sukses');
+            $query = 'select AVG(star) as jml from restoreview where idmerchant = ' . $id;
+            $rating = DB::connection('mysql')->select($query);
+            $rating = number_format($rating[0]->jml, 1);
+            return ResponseFormatter::success(["rating" => $totalStar, "rating_manual" => $rating, "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
