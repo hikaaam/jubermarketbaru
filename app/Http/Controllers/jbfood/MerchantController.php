@@ -270,17 +270,19 @@ class MerchantController extends Controller
         }
     }
 
-    public function getreview($id) //getreview(Request $request)
+    public function getreview($id)
     {
         try {
-            // if ($request->has('payload')) {
-            //     $payload = json_decode(html_entity_decode($request->payload), true);
-            // } else {
-            //     return ResponseFormatter::error([], 'Payload kosong!', 200);
-            // }
-            // $id = $payload["id"];
             $data = RestoReview::where('idmerchant', $id)->get();
-            return ResponseFormatter::success($data, 'Sukses');
+            $totalStar = 0;
+            if (count($data) > 0) {
+                for ($i = 0; $i < count($data); $i++) {
+                    $star = $data[$id]->star;
+                    $totalStar += $star;
+                }
+                $totalStar = $totalStar / count($data);
+            }
+            return ResponseFormatter::success(["rating" => $totalStar, "data" => $data], 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
