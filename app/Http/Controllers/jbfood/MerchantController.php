@@ -388,6 +388,30 @@ class MerchantController extends Controller
         }
     }
 
+    public function checkpin(Request $request)
+    {
+        try {
+            if ($request->has('payload')) {
+                $payload = json_decode(html_entity_decode($request->payload), true);
+            } else {
+                return ResponseFormatter::error([], 'Payload kosong!', 200);
+            }
+            $pin = $payload["pin"];
+            $id = $payload["trx"];
+            $trx = Transaksi::findOrFail($id);
+            $data = [];
+            $driverPin = $trx->pin;
+            if ($pin === $driverPin) {
+                $data["cocok"] = true;
+            } else {
+                $data["cocok"] = false;
+            }
+            return ResponseFormatter::success($data, 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *
