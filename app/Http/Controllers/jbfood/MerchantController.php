@@ -53,7 +53,7 @@ class MerchantController extends Controller
             $merchant = Merchant::where('id', $idrs);
             $merchant->update(['status' => $status]);
             $merchant = $merchant->get()->first();
-            return ResponseFormatter::success(["status" => $merchant->status], 'Status toko ' . $merchant->nama . ' berhasil diubah : ' . $merchant->status);
+            return ResponseFormatter::success(["status" => $merchant->status], 'Status toko berhasil diubah');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
@@ -92,7 +92,7 @@ class MerchantController extends Controller
             $featuredRule = Appsjbfood::where('idapps', 'featuredmclimit')->get()->first();
             $limitData =  intval($featuredRule->value);
 
-            $superPartner = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner')->toArray();
+            $superPartner = Merchant::whereNotNull('super_partner')->get()->sortBy('super_partner')->take($limitData)->toArray();
             $jmlSuperPartner = count($superPartner);
 
             $data = [];
@@ -130,14 +130,15 @@ class MerchantController extends Controller
                             $jmlFiveStar += 1;
                         }
                     }
+
+                    if (count($featured) < $limitData && count($sisaData) > 0) {
+                        for ($i = 0; $i < count($sisaData); $i++) {
+                            array_push($featured, $sisaData[$i]);
+                        }
+                    }
+
                     $data["regular_top_trx"] = $jmlTopTrx;
                     $data["regular_five_star"] = $jmlFiveStar;
-                }
-
-                if (count($featured) < $limitData && count($sisaData) > 0) {
-                    for ($i = 0; $i < count($sisaData); $i++) {
-                        array_push($featured, $sisaData[$i]);
-                    }
                 }
 
                 if (count($featured) < $limitData) {
@@ -147,21 +148,36 @@ class MerchantController extends Controller
                         $idex = $temp[$i]["id"];
                         array_push($excludeList, $idex);
                     }
-
                     $sisaKurang = $limitData - count($featured);
-                    $regular = Merchant::inRandomOrder()->whereNotIn('id', $excludeList)->limit($sisaKurang)->get();
-                    $regularArr = $regular->toArray();
-                    if (count($regularArr) > 0) {
-                        $jmlRegular = 0;
-                        for ($i = 0; $i < count($regularArr); $i++) {
-                            array_push($featured, $regularArr[$i]);
-                            $jmlRegular += 1;
+                    $underFiveStar = Merchant::whereNotIn('id', $excludeList)->whereNotNull('star')->get()->sortByDesc('star')->take($sisaKurang)->toArray();
+                    if (count($underFiveStar) > 0) {
+                        $jmlUnderFive = 0;
+                        $temp = array_values($underFiveStar);
+                        for ($i = 0; $i < count($temp); $i++) {
+                            $idtemp =  $temp[$i]["id"];
+                            array_push($featured, $temp[$i]);
+                            array_push($excludeList, $idtemp);
+                            $jmlUnderFive += 1;
                         }
-                        $data["random_regular"] = $jmlRegular;
+                        $data["regular_under_five_star"] = $jmlUnderFive;
+                    }
+
+                    if (count($featured) < $limitData) {
+                        $sisaKurang = $limitData - count($featured);
+                        $regular = Merchant::inRandomOrder()->whereNotIn('id', $excludeList)->limit($sisaKurang)->get();
+                        $regularArr = $regular->toArray();
+                        if (count($regularArr) > 0) {
+                            $jmlRegular = 0;
+                            for ($i = 0; $i < count($regularArr); $i++) {
+                                array_push($featured, $regularArr[$i]);
+                                $jmlRegular += 1;
+                            }
+                            $data["random_regular"] = $jmlRegular;
+                        }
                     }
                 }
             } else {
-                $featured = array_slice($featured, 0, 5);
+                $featured = array_slice($featured, 0, $limitData);
             }
 
             if (count($featured) > 0) {
