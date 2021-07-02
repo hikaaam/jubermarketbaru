@@ -289,12 +289,22 @@ class MerchantController extends Controller
     public function getreview($id)
     {
         try {
-            $data = RestoReview::where('idmerchant', $id)->get();
-
+            $data = RestoReview::join('pembeli', 'restoreview.kode_agen', '=', 'pembeli.kode_agen')->where('idmerchant', $id)->get(['idreview', 'nama', 'restoreview.kode_agen', 'star', 'comment', 'restoreview.tgl']);
             $query = 'select AVG(star) as jml from restoreview where idmerchant = ' . $id;
             $rating = DB::connection('mysql')->select($query);
             $rating = number_format($rating[0]->jml, 1);
             return ResponseFormatter::success(["rating" => $rating, "data" => $data], 'Sukses');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([], $th->getMessage(), 500);
+        }
+    }
+
+    public function getpesananonproses($id)
+    {
+        try {
+            $data["nominal"] = Transaksi::where('merchant', $id)->sum('total');
+            $data["data"] = Transaksi::where('merchant', $id)->where('status', 'PROSES')->get();
+            return ResponseFormatter::success($data, 'Sukses');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([], $th->getMessage(), 500);
         }
