@@ -5,12 +5,10 @@ namespace App\Models\jbfood;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Merchant extends Model
-
+class Transaksi extends Model
 {
-    protected $table = 'merchant';
+    protected $table = 'transaksi';
     protected $guarded = [];
     protected $connection = 'mysql';
-    public $incrementing = false;
     use HasFactory;
 }

@@ -286,7 +286,20 @@ Route::put('admin/block/store/{id}', [AdminController::class, 'blockStore']);
 // Merchant Foodish
 Route::get('merchant/npwp/{id}', [MerchantController::class, 'npwpbykodeagen']);
 Route::get('merchant', [MerchantController::class, 'index']);
-Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
+Route::get('merchant/review/{id}', [MerchantController::class, 'getreview']);
+Route::get('merchant/onprocess/{id}', [MerchantController::class, 'getpesananonproses']);
+Route::post('merchant/pin', [MerchantController::class, 'checkpin']);
+Route::post('merchant/toptrx', [MerchantController::class, 'gettoptrxmc']);
+Route::post('merchant/toptrx/limit', [MerchantController::class, 'gettoptrxmcwithlimit']);
+Route::get('merchant/superpartner', [MerchantController::class, 'superpartner']);
+Route::get('merchant/fivestar', [MerchantController::class, 'fivestar']);
+Route::post('merchant/search', [MerchantController::class, 'searchbyname']);
 Route::post('merchant/update', [MerchantController::class, 'update']);
 Route::post('merchant/status', [MerchantController::class, 'updatestatus']);
 Route::post('merchant/pajak', [MerchantController::class, 'updatepajak']);
+Route::get('merchant/{idrs}', [MerchantController::class, 'byidrs']);
+
+// Extra
+Route::get('topfivemerchant', [MerchantController::class, 'getfeaturedmerchant']);
+Route::get('featuredmerchant', [MerchantController::class, 'getfeaturedmerchant']);
+Route::get('counttrx/{id}', [MerchantController::class, 'counttrx']);
