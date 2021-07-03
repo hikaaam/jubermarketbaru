@@ -42,7 +42,7 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $result = item::where('is_shown', 1)->where('service', 'jbmarket')->paginate(6);
+            $result = item::where('is_shown', 1)->where('service', 'jbmarket')->with('store')->paginate(6);
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
