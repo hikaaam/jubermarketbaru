@@ -15,7 +15,13 @@ class FavoriteController extends Controller
      */
     public function index()
     {
-        return favorite::with('item')->get();
+        try {
+            $data = favorite::with('item')->get();
+            return helper::resp(true,"get","Success",$data);
+        } catch (\Throwable $th) {
+            return helper::resp(false,"get",$th->getMessage(),[]);
+        }
+        
     }
 
     /**
