@@ -241,7 +241,7 @@ Route::get('return/update/done/{id}', [TransReturnController::class, 'updatedone
 //favorite
 Route::get('favorite', [FavoriteController::class, 'index']);
 Route::get('favorite/{id}', [FavoriteController::class, 'show']);
-Route::get('favorite/item/{id}', [FavoriteController::class, 'isFavorite']);
+Route::post('favorite/item', [FavoriteController::class, 'isFavorite']);
 Route::post('favorite', [FavoriteController::class, 'store']);
 
 //follow

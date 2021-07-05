@@ -96,14 +96,19 @@ class FavoriteController extends Controller
         }
     }
 
-    public function isFavorite($id)
+    public function isFavorite(Request $request)
     {
         try {
-            $data = favorite::where("item_id", $id)->count();
+            $req = json_decode($request->payload, true);
+            helper::validateArray($req,[
+            "item_id",
+            "user_id"
+            ]);
+            $data = favorite::where("item_id", $req["item_id"])->where("user_id", $req["user_id"])->count();
             if ($data > 0) {
-                return getRespond(true, "Berhasil fetch data", ["favorite" => true, "item_id" => $id]);
+                return getRespond(true, "Berhasil fetch data", ["favorite" => true, "item_id" => $req["item_id"]]);
             } else {
-                return getRespond(true, "Berhasil fetch data", ["favorite" => false, "item_id" => $id]);
+                return getRespond(true, "Berhasil fetch data", ["favorite" => false, "item_id" => $req["item_id"]]);
             }
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), []);
