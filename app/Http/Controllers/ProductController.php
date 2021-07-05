@@ -670,7 +670,7 @@ class ProductController extends Controller
                 return helper::resp(false, "get", "Produk tidak ditemukan!", [], 400);
             }
             if ($product->is_shown === 0 || !$product->is_shown) {
-                throw new Error("Product ini hide oleh seller");                
+                throw new Error("Product ini sudah dihapus atau dihide oleh seller");                
             }
             $related = item::where("category_id", $product->category_id)->where("is_shown", 1)->where('id', '!=', $id)->limit(6)->get();
             $review = review::where('item_id', $id)->with("profile")->orderBy('id', 'desc')->limit(5)->get();
