@@ -13,7 +13,7 @@ class favorite extends Model
 
     public function Item()
     {
-        return $this->belongsTo(item::class, 'item_id')->where('is_shown',1);
+        return $this->belongsTo(item::class, 'item_id')->where('is_shown',1)->where('service','jbmarket');
     }
     public function Profile()
     {
