@@ -219,6 +219,7 @@ Route::post('chat', [ChatController::class, 'store']);
 
 //Global Search
 Route::post('global/search', [searchController::class, 'store']);
+Route::post('store/search/product', [searchController::class, 'searchProductStore']);
 
 Route::get('problem', [ReturnProblemController::class, 'index']);
 Route::get('problem/{id}', [ReturnProblemController::class, 'show']);

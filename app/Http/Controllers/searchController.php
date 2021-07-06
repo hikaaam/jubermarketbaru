@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\item;
@@ -81,6 +82,24 @@ class searchController extends Controller
                 "products" => [],
                 "stores" => [],
             ));
+        }
+    }
+
+    public function searchProductStore(Request $request)
+    {
+        try {
+            $request = json_decode($request->payload, true);
+            helper::validateArray($request, ["search", "store_id"]);
+            $src = $request["search"];
+            $store = $request["store_id"];
+            if (strlen($src) <= 2) {
+                $data = item::where("store_id", $store)->where("name", "ilike", "%$src%")->where('service', 'jbmarket')->where('is_shown', 1)->limit(10)->get();
+                return helper::resp(true, "get", "berhasil mencari data", $data);
+            }
+            $data = item::where("store_id", $store)->where("name", "ilike", "%$src%")->where('service', 'jbmarket')->where('is_shown', 1)->get();
+            return helper::resp(true, "get", "berhasil mencari data", $data);
+        } catch (\Throwable $th) {
+            return helper::resp(false, "get", $th->getMessage(), []);
         }
     }
 
