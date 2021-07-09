@@ -260,6 +260,7 @@ Route::delete('ref_courier/{id}', [RefCourierController::class, 'destroy']);
 
 //user kurir
 Route::get('courier/idrs/{id}', [CourierController::class, 'show']);
+Route::get('courier/store/{id}', [CourierController::class, 'getCourierId']);
 Route::post('courier', [CourierController::class, 'store']);
 Route::delete('courier/{id}', [CourierController::class, 'destroy']);
 

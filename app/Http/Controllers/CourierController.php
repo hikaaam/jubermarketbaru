@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\courier;
 use App\Models\profile;
 use App\Models\ref_courier;
+use App\Models\store;
 use Error;
 use Illuminate\Http\Request;
 
@@ -57,6 +58,38 @@ class CourierController extends Controller
             $dataTable = addData("courier_id", "courier_id", $request, $dataTable);
             $data = courier::create($dataTable);
             return getRespond(true, "berhasil menambah data kurir", ["createdField" => "1", "data" => $data]);
+        } catch (\Throwable $th) {
+            return getRespond(false, $th->getMessage(), ["createdField" => "0"]);
+        }
+    }
+
+    public function getCourierId($id)
+    {
+        try {
+            $store = store::find($id);
+            if (!$store) {
+                throw new Error("Toko tidak ditemukan");
+            }
+            $profile = profile::find($store->owner);
+            if (!$profile) {
+                throw new Error("Profile Tidak ditemukan");
+            }
+            if (!$profile->idrs) {
+                throw new Error("Idrs tidak ditemukan");
+            }
+            $id = $profile->idrs;
+            $data = courier::where("idrs", $id)->get();
+            $real_data = ["data" => [], "unactive" => []];
+            foreach ($data as $key => $value) {
+                $id_ = $value["courier_id"];
+                $ref = ref_courier::findOrFail($id_);
+                if ($ref->active == 1) {
+                    array_push($real_data["data"], $value);
+                } else {
+                    array_push($real_data["unactive"], $value);
+                }
+            }
+            return getRespond(true, "berhasil fetch data", $real_data);
         } catch (\Throwable $th) {
             return getRespond(false, $th->getMessage(), ["createdField" => "0"]);
         }
@@ -122,7 +155,7 @@ class CourierController extends Controller
         try {
             $courier = courier::findOrFail($id);
             if ($courier->courier_id == 11) {
-                throw new Error("Mohon maaf, Kurir SAP tidak bisa dinonaktifkan");                
+                throw new Error("Mohon maaf, Kurir SAP tidak bisa dinonaktifkan");
             }
             $courier->delete();
             return getRespond(true, "berhasil menghapus data", ["deletedField" => "1"]);
