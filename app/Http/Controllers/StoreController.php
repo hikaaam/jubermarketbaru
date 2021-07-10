@@ -83,6 +83,7 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
+            $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $dataTable = helper::addData("picture", "picture", $request, $dataTable);
             $dataTable = helper::addData("cover_picture", "cover_picture", $request, $dataTable);
             $isEmailValid = helper::validateEmail($dataTable["email"]);
@@ -239,6 +240,7 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("outlet_type", "outlet_type", $request, $dataTable);
             $dataTable = helper::addData("phone", "phone", $request, $dataTable);
             $dataTable = helper::checkifexist("state_code", "state_code", $request, $dataTable);
+            $dataTable = helper::checkifexist("description", "description", $request, $dataTable);
             $dataTable = helper::checkifexist("state", "state", $request, $dataTable);
             $dataTable = helper::checkifexist("store_type", "store_type", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
