@@ -537,6 +537,72 @@ class helper extends Controller
         }
     }
 
+    public static function createToko($data)
+    {
+        try {
+            $url = 'http://192.168.2.45:9888/createuser';
+            $header = array(
+                "Content-Type" => "application/json"
+            );
+            $body = array(
+                "json" => [
+                    "noktp" => "mcn",
+                    "telp" => $data["phone"] ?? "",
+                    "nama" => $data["store_name"] ?? "",
+                    "alamat" => $data["address"] ?? "",
+                    "prov" => $data["state"] ?? "",
+                    "kota" => $data["city"],
+                    "kec" => $data["district"] ?? "",
+                    "kodepos" => "",
+                    "rincian" => $data["description"] ?? "",
+                    "outlet_id" => "",
+                    "store_id" => $data["id"],
+                    "koordinat" => "",
+                    "jambuka" => "0100",
+                    "jamtutup" => "2400",
+                    "img" => $data["picture"] ?? ""
+                ]
+            );
+            http::withHeaders($header)->post($url,$body);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+       
+    }
+
+    public static function updateToko($data)
+    {
+        try {
+            $url = 'http://192.168.2.45:9888/updateuser';
+            $header = array(
+                "Content-Type" => "application/json"
+            );
+            $body = array(
+                "json" => [
+                    "noktp" => "mcn",
+                    "telp" => $data["phone"] ?? "",
+                    "nama" => $data["store_name"] ?? "",
+                    "alamat" => $data["address"] ?? "",
+                    "prov" => $data["state"] ?? "",
+                    "kota" => $data["city"],
+                    "kec" => $data["district"] ?? "",
+                    "kodepos" => "",
+                    "rincian" => $data["description"] ?? "",
+                    "outlet_id" => "",
+                    "store_id" => $data["id"],
+                    "koordinat" => "",
+                    "jambuka" => "0100",
+                    "jamtutup" => "2400",
+                    "img" => $data["picture"] ?? ""
+                ]
+            );
+            http::withHeaders($header)->post($url,$body);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+       
+    }
+
     public static function getLocationCode($district)
     {
         try {

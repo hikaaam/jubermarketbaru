@@ -103,6 +103,7 @@ class StoreController extends Controller
                 $dataTable["sap_place_code"] = $location["sap"];
             }
             $items = store::create($dataTable);
+            helper::createToko($items);
             courier::create(["courier_name" => "SAP", "courier_id" => 11, "user_id" => $profile->id, "idrs" => $dataTable["idrs"]]);
             return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
@@ -262,7 +263,9 @@ class StoreController extends Controller
                 
             }
             $items = store::findOrFail($id)->update($dataTable);
+           
             $dataTable["id"] = $id;
+            helper::updateToko($dataTable);
             return helper::resp(true, 'update', 'berhasil update toko', $dataTable);
         } catch (\Throwable $th) {
             return helper::resp(false, 'update', $th->getMessage(), []);
