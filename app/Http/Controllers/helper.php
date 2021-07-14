@@ -611,6 +611,7 @@ class helper extends Controller
             $msg = $newdata["message"] ?? "Juber Core Error";
             if ($status != 200) {
                 self::Logger(strval($newdata),"jbrerr");
+                self::Logger(strval($data),"jbrerr");
                 throw new Error($msg);
             }
             return ["success" => true];
