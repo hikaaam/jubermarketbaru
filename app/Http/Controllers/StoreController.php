@@ -250,12 +250,6 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
-            $data = store::where("phone", $dataTable["phone"])->where("id", "!=", $id)->first();
-            if ($data) {
-                if ($dataTable["phone"] == $data->phone) {
-                    throw new Error("Nomor hp sudah terdaftar pada akun lain.");
-                }
-            }
             if (array_key_exists("district", $dataTable)) {
                 $location = helper::getLocationCode($dataTable["district"]);
                 if (!$location["success"]) {
