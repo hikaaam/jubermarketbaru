@@ -595,7 +595,9 @@ class helper extends Controller
                 "Content-Type" => "application/json"
             );
             $body = array(
-                "json" => [
+                "key" => "updateuser",
+                "payload" => json_encode([
+                    "idreseller"=>$data["idrs"],
                     "whoami" => "mcn",
                     "telp" => $data["phone"] ?? "",
                     "nama" => $data["store_name"] ?? "",
@@ -605,18 +607,22 @@ class helper extends Controller
                     "kec" => $data["district"] ?? "",
                     "kodepos" => "",
                     "rincian" => $data["description"] ?? "",
-                    "outlet_id" => "market",
-                    "store_id" => $data["id"],
+                    "outletid" => "market",
+                    "storeid" => $data["id"],
                     "koordinat" => "",
                     "jambuka" => "0100",
                     "jamtutup" => "2400",
                     "img" => $data["picture"] ?? ""
-                ]
+                ], true)
             );
             $newdata = http::withHeaders($header)->post($url, $body);
-            $status = $newata["status"] ?? 500;
-            $msg = $newdata["message"] ?? "Juber Core Error";
-            if ($status != 200) {
+            $status = $newata["code"] ?? 500;
+            if ($newdata["msg"]) {
+                $msg = $newdata["msg"];
+            } else {
+                $msg = $newdata["message"] ?? "Juber Core Error";
+            }
+            if ($status != "200") {
                 self::Logger(strval($newdata), "jbrerr");
                 self::Logger(json_encode($body, true), "jbrerr");
                 throw new Error($msg);

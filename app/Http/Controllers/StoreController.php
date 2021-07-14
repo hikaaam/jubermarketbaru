@@ -264,13 +264,13 @@ class StoreController extends Controller
                 $dataTable["juber_place_code"] = $location["data"];
                 $dataTable["sap_place_code"] = $location["sap"];
             }
-            $items = store::findOrFail($id)->update($dataTable);
-
+            $items = store::findOrFail($id);
             $dataTable["id"] = $id;
-            $jbData = helper::updateToko($dataTable);
+            $jbData = helper::updateToko($items);
             if (!$jbData["success"]) {
                 throw new Error($jbData["msg"]);
             }
+            $items->update($dataTable);           
             return helper::resp(true, 'update', 'berhasil update toko', $dataTable);
         } catch (\Throwable $th) {
             return helper::resp(false, 'update', $th->getMessage(), []);
