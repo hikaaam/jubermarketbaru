@@ -141,7 +141,7 @@ class ProductController extends Controller
                     $str_id = $request["store_id"];
                     $store = store::find($str_id);
                     $item_last = item::orderBy('id', 'desc')->limit(1)->withTrashed()->first();
-                    $item_last_id = $item_last->id + 1;
+                    $item_last_id = $item_last->id ?? 0 + 1;
                     $store_name = $store->store_name;
                     $words = explode(" ", $store_name);
                     $acronym = "";
