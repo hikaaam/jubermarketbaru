@@ -541,11 +541,12 @@ class helper extends Controller
     public static function createToko($data)
     {
         try {
-            $url = 'http://192.168.2.45:9888/createuser';
+            $url = 'http://192.168.2.45:9888/jbmiddleware';
             $header = array(
                 "Content-Type" => "application/json"
             );
             $body = array(
+                "key"=>"createuser",
                 "payload" => json_encode([
                     "noktp" => "mcn",
                     "telp" => $data["phone"] ?? "",
