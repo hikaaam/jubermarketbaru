@@ -574,7 +574,7 @@ class helper extends Controller
             }
             if ($status != 200) {
                 self::Logger(strval($newdata), "jbrerr");
-                self::Logger(json_encode($data, true), "jbrerr");
+                self::Logger(json_encode($body, true), "jbrerr");
                 throw new Error($msg);
             }
             return ["success" => true];
@@ -618,7 +618,7 @@ class helper extends Controller
             $msg = $newdata["message"] ?? "Juber Core Error";
             if ($status != 200) {
                 self::Logger(strval($newdata), "jbrerr");
-                self::Logger(json_encode($data, true), "jbrerr");
+                self::Logger(json_encode($body, true), "jbrerr");
                 throw new Error($msg);
             }
             return ["success" => true];
