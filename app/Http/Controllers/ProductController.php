@@ -183,7 +183,6 @@ class ProductController extends Controller
             $dataTable = addDataStore("name", "name", $request, $dataTable);
             $dataTable = addDataStore("created_by_id", "created_by_id", $request, $dataTable);
             $dataTable = addDataStore("created_by", "created_by", $request, $dataTable);
-            $dataTable = addDataStore("last_updated_by_id", "created_by_id", $request, $dataTable);
             $dataTable = checkifexistStore("sku", "sku", $request, $dataTable);
             $dataTable = checkifexistStore("description", "description", $request, $dataTable);
             $dataTable = checkifexistStore("item_code", "item_code", $request, $dataTable);
@@ -670,12 +669,13 @@ class ProductController extends Controller
                 return helper::resp(false, "get", "Produk tidak ditemukan!", [], 400);
             }
             if ($product->is_shown === 0 || !$product->is_shown) {
-                throw new Error("Product ini sudah dihapus atau dihide oleh seller");                
+                throw new Error("Product ini sudah dihapus atau dihide oleh seller");
             }
             $related = item::where("category_id", $product->category_id)->where("is_shown", 1)->where('id', '!=', $id)->limit(6)->get();
             $review = review::where('item_id', $id)->with("profile")->orderBy('id', 'desc')->limit(5)->get();
             $product["review_new"] = $review;
             $product["related"] = $related;
+            $product->update(["seen" => $product->seen + 1]);
             return helper::resp(true, "get", "berhasil mendapatkan detail produk", $product);
         } catch (\Throwable $th) {
             return helper::resp(false, "get", $th->getMessage(), ["id" => $id], 500);
