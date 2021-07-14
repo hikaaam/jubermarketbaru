@@ -546,7 +546,7 @@ class helper extends Controller
                 "Content-Type" => "application/json"
             );
             $body = array(
-                "key"=>"createuser",
+                "key" => "createuser",
                 "payload" => json_encode([
                     "noktp" => "mcn",
                     "telp" => $data["phone"] ?? "",
@@ -563,14 +563,18 @@ class helper extends Controller
                     "jambuka" => "0100",
                     "jamtutup" => "2400",
                     "img" => $data["picture"] ?? ""
-                ],true)
+                ], true)
             );
             $newdata = http::withHeaders($header)->post($url, $body);
             $status = $newata["status"] ?? 500;
-            $msg = $newdata["message"] ?? "Juber Core Error";
+            if ($newdata["msg"]) {
+                $msg = $newdata["msg"];
+            } else {
+                $msg = $newdata["message"] ?? "Juber Core Error";
+            }
             if ($status != 200) {
-                self::Logger(strval($newdata),"jbrerr");
-                self::Logger(json_encode($data,true),"jbrerr");
+                self::Logger(strval($newdata), "jbrerr");
+                self::Logger(json_encode($data, true), "jbrerr");
                 throw new Error($msg);
             }
             return ["success" => true];
@@ -613,8 +617,8 @@ class helper extends Controller
             $status = $newata["status"] ?? 500;
             $msg = $newdata["message"] ?? "Juber Core Error";
             if ($status != 200) {
-                self::Logger(strval($newdata),"jbrerr");
-                self::Logger(json_encode($data,true),"jbrerr");
+                self::Logger(strval($newdata), "jbrerr");
+                self::Logger(json_encode($data, true), "jbrerr");
                 throw new Error($msg);
             }
             return ["success" => true];
