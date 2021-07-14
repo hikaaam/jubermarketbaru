@@ -566,7 +566,7 @@ class helper extends Controller
                 ], true)
             );
             $newdata = http::withHeaders($header)->post($url, $body);
-            $status = $newdata["status"] ?? 500;
+            $status = $newdata["code"] ?? 500;
             if ($newdata["msg"]) {
                 $msg = $newdata["msg"];
             } else {
