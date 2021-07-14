@@ -590,7 +590,7 @@ class helper extends Controller
     public static function updateToko($data)
     {
         try {
-            $url = 'http://192.168.2.45:9888/updateuser';
+            $url = 'http://192.168.2.45:9888/jbmiddleware';
             $header = array(
                 "Content-Type" => "application/json"
             );
