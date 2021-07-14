@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ScheduleController as schedule;
 use App\Models\item;
+use App\Models\store;
 use App\Models\tokopedia_token;
 use App\Models\Variant;
 use Carbon\Carbon;
@@ -563,12 +564,20 @@ class helper extends Controller
                     "img" => $data["picture"] ?? ""
                 ]
             );
-           $data = http::withHeaders($header)->post($url,$body);
-           return $data;
+            $newdata = http::withHeaders($header)->post($url, $body);
+            $status = $newata["status"] ?? 500;
+            $msg = $newdata["message"] ?? "Juber Core Error";
+            if ($status != 200) {
+                throw new Error($msg);
+            }
+            return ["success" => true];
         } catch (\Throwable $th) {
-           return $th->getMessage();
+            $id = $data["id"] ?? null;
+            if ($id) {
+                store::find($id)->delete();
+            }
+            return ["success" => false, "msg" => $th->getMessage()];
         }
-       
     }
 
     public static function updateToko($data)
@@ -597,11 +606,20 @@ class helper extends Controller
                     "img" => $data["picture"] ?? ""
                 ]
             );
-            http::withHeaders($header)->post($url,$body);
+            $newdata = http::withHeaders($header)->post($url, $body);
+            $status = $newata["status"] ?? 500;
+            $msg = $newdata["message"] ?? "Juber Core Error";
+            if ($status != 200) {
+                throw new Error($msg);
+            }
+            return ["success" => true];
         } catch (\Throwable $th) {
-            //throw $th;
+            $id = $data["id"] ?? null;
+            if ($id) {
+                store::find($id)->delete();
+            }
+            return ["success" => false, "msg" => $th->getMessage()];
         }
-       
     }
 
     public static function getLocationCode($district)

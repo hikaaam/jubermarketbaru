@@ -104,7 +104,9 @@ class StoreController extends Controller
             }
             $items = store::create($dataTable);
             $jbData = helper::createToko($items);
-            return $jbData;
+            if (!$jbData["success"]) {
+                throw new Error($jbData["msg"]);
+            }
             courier::create(["courier_name" => "SAP", "courier_id" => 11, "user_id" => $profile->id, "idrs" => $dataTable["idrs"]]);
             return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
@@ -222,8 +224,8 @@ class StoreController extends Controller
         $request = json_decode($request->payload, true);
         $dataTable = [];
         try {
-           
-           
+
+
             $dataTable = helper::checkifexist("store_name", "store_name", $request, $dataTable);
             $dataTable = helper::checkifexist("membership_type", "membership_type", $request, $dataTable);
             $dataTable = helper::checkifexist("owner", "owner", $request, $dataTable);
@@ -248,7 +250,7 @@ class StoreController extends Controller
             $dataTable = helper::checkifexist("sub_district", "sub_district", $request, $dataTable);
             $dataTable = helper::checkifexist("sub_district_code", "sub_district_code", $request, $dataTable);
             $dataTable = helper::checkifexist("parent_id", "parent_id", $request, $dataTable);
-            $data = store::where("phone",$dataTable["phone"])->where("id","!=",$id)->first();
+            $data = store::where("phone", $dataTable["phone"])->where("id", "!=", $id)->first();
             if ($data) {
                 if ($dataTable["phone"] == $data->phone) {
                     throw new Error("Nomor hp sudah terdaftar pada akun lain.");
@@ -261,12 +263,14 @@ class StoreController extends Controller
                 }
                 $dataTable["juber_place_code"] = $location["data"];
                 $dataTable["sap_place_code"] = $location["sap"];
-                
             }
             $items = store::findOrFail($id)->update($dataTable);
-           
+
             $dataTable["id"] = $id;
-            helper::updateToko($dataTable);
+            $jbData = helper::updateToko($dataTable);
+            if (!$jbData["success"]) {
+                throw new Error($jbData["msg"]);
+            }
             return helper::resp(true, 'update', 'berhasil update toko', $dataTable);
         } catch (\Throwable $th) {
             return helper::resp(false, 'update', $th->getMessage(), []);
