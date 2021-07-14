@@ -614,10 +614,6 @@ class helper extends Controller
             }
             return ["success" => true];
         } catch (\Throwable $th) {
-            $id = $data["id"] ?? null;
-            if ($id) {
-                store::find($id)->delete();
-            }
             return ["success" => false, "msg" => $th->getMessage()];
         }
     }
