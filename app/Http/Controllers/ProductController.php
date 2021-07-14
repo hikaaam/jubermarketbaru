@@ -675,7 +675,7 @@ class ProductController extends Controller
             $review = review::where('item_id', $id)->with("profile")->orderBy('id', 'desc')->limit(5)->get();
             $product["review_new"] = $review;
             $product["related"] = $related;
-            $product->update(["seen" => $product->seen + 1]);
+            item::find($product->id)->update(["seen" => $product->seen + 1]);
             return helper::resp(true, "get", "berhasil mendapatkan detail produk", $product);
         } catch (\Throwable $th) {
             return helper::resp(false, "get", $th->getMessage(), ["id" => $id], 500);
