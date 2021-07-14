@@ -546,7 +546,7 @@ class helper extends Controller
                 "Content-Type" => "application/json"
             );
             $body = array(
-                "json" => [
+                "payload" => json_encode([
                     "noktp" => "mcn",
                     "telp" => $data["phone"] ?? "",
                     "nama" => $data["store_name"] ?? "",
@@ -562,7 +562,7 @@ class helper extends Controller
                     "jambuka" => "0100",
                     "jamtutup" => "2400",
                     "img" => $data["picture"] ?? ""
-                ]
+                ],true)
             );
             $newdata = http::withHeaders($header)->post($url, $body);
             $status = $newata["status"] ?? 500;
@@ -589,7 +589,7 @@ class helper extends Controller
             );
             $body = array(
                 "json" => [
-                    "noktp" => "mcn",
+                    "whoami" => "mcn",
                     "telp" => $data["phone"] ?? "",
                     "nama" => $data["store_name"] ?? "",
                     "alamat" => $data["address"] ?? "",
