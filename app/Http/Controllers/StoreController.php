@@ -104,7 +104,7 @@ class StoreController extends Controller
             }
             $items = store::create($dataTable);
             $jbData = helper::createToko($items);
-            dd($jbData);
+            return $jbData;
             courier::create(["courier_name" => "SAP", "courier_id" => 11, "user_id" => $profile->id, "idrs" => $dataTable["idrs"]]);
             return helper::resp(true, 'store', "berhasil membuat toko", $items);
         } catch (\Throwable $th) {
