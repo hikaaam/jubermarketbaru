@@ -87,7 +87,8 @@ class AreaController extends Controller
     }
     public function getCityById($id){
         try {
-            $result = area::select('area_code','name')->where('area_code','>',$id)->where('area_code','ilike',$id.'%')->where('area_code','<',9999)->get();
+            $result = area::select('area_code','name')
+            ->whereRaw("length(area_code)=4 and SUBSTRING(area_code , 1, 2)=$id")->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
