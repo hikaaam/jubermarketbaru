@@ -563,9 +563,10 @@ class helper extends Controller
                     "img" => $data["picture"] ?? ""
                 ]
             );
-            http::withHeaders($header)->post($url,$body);
+           $data = http::withHeaders($header)->post($url,$body);
+           return $data;
         } catch (\Throwable $th) {
-            //throw $th;
+           return $th->getMessage();
         }
        
     }
