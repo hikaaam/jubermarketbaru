@@ -470,7 +470,6 @@ class ProductController extends Controller
             $dataTable = checkifexist("name", "name", $request, $dataTable);
             $dataTable = checkifexist("created_by_id", "created_by_id", $request, $dataTable);
             $dataTable = checkifexist("created_by", "created_by", $request, $dataTable);
-            $dataTable = checkifexist("last_updated_by_id", "created_by_id", $request, $dataTable);
             $dataTable = checkifexist("sku", "sku", $request, $dataTable);
             $dataTable = checkifexist("description", "description", $request, $dataTable);
             $dataTable = checkifexist("item_code", "item_code", $request, $dataTable);
