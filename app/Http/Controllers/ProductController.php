@@ -499,7 +499,7 @@ class ProductController extends Controller
             $dataTable = checkifexist("ownership", "ownership", $request, $dataTable);
             $dataTable = checkifexist("bahan", "bahan", $request, $dataTable);
             $dataTable = checkifexist("merk", "merk", $request, $dataTable);
-            $dataTable = checkifexistStore("discount_price", "discount_price", $request, $dataTable);
+            $dataTable = checkifexist("discount_price", "discount_price", $request, $dataTable);
             $table->update($dataTable);
             $dontHaveTokopediaId = $table->tokopedia_id == null;
             Variant::where('item_id', $id)->delete();
