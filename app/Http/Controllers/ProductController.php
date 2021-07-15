@@ -518,7 +518,7 @@ class ProductController extends Controller
                         "selling_price" => $par["harga"],
                         "picture" => $par['picture'],
                         "store_id" => $dataTable["store_id"],
-                        "category_id" => $dataTable["category_id"],
+                        "category_id" => $dataTable["category_id"] ?? $table["category_id"],
                         "service" => "jbmarket",
                         "is_variant" => true,
                         "pid" => $par["item_id"],
