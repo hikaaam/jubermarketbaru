@@ -511,7 +511,7 @@ class ProductController extends Controller
                     $parItems = array(
                         "id" => $par["id"],
                         "name" => $dataTable["name"] . " " . $par["name"],
-                        "sku" => $dataTable["sku"] . "V" . $par["id"],
+                        "sku" => $table["sku"],
                         "description" => $dataTable["description"],
                         "weight" => $dataTable["weight"],
                         "weight_unit" => $dataTable["weight_unit"],
@@ -549,7 +549,7 @@ class ProductController extends Controller
             if (!$dontHaveTokopediaId) {
                 try {
                     //TODO: VARIANT TOKOPEDIA
-                    $dataTable["name"] = strval($dataTable["name"]) . " (" . $table["sku"] . ")";
+                    $dataTable["name"] = strval($dataTable["name"]) . " (" . $dataTable["sku"] . ")";
                     $tokopediaData = array(
                         "data" => $dataTable,
                         "id" => $id,
