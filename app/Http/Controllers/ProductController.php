@@ -396,7 +396,7 @@ class ProductController extends Controller
     public function productByStId_(Request $request, $id)
     {
         try {
-            $result = item::where('is_shown', 0)->where('service', 'jbmarket')->where('store_id', $id)->get();
+            $result = item::where('is_shown', 0)->with("Category:id,name")->where('service', 'jbmarket')->where('store_id', $id)->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";
@@ -412,7 +412,7 @@ class ProductController extends Controller
     public function productByStIdVisible(Request $request, $id)
     {
         try {
-            $result = item::where('store_id', $id)->where('service', 'jbmarket')->get();
+            $result = item::where('store_id', $id)->with("Category:id,name")->where('service', 'jbmarket')->get();
             $data["success"] = true;
             $data["code"] = 200;
             $data["message"] = "berhasil";

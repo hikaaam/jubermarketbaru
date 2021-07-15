@@ -16,6 +16,10 @@ class item extends Model
     {
         return $this->hasMany(Variant::class, 'item_id');
     }
+    public function Category()
+    {
+        return $this->belongsTo(catTokpedChild::class, 'category_id');
+    }
     public function Store()
     {
         return $this->belongsTo(store::class, 'store_id');
