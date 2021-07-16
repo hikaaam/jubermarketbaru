@@ -37,40 +37,23 @@ class paymentController extends Controller
                 "products:array",
                 "cart_id",
                 "note:string",
-                "is_courier_sap:boolean"
+                "market_courier_type:string",
+                "stringify_selected_courier:string",
+                "market_courier_type:string"
             ]);
             $typevar = strtolower(gettype($req["cart_id"]));
             if ($typevar !== "null" && $typevar !== "integer") {
                 throw new Error("cart_id($typevar) must be integer OR null");
             }
+            $market_type = $req["market_courier_type"];
+
+            if ($market_type != "all" && $market_type != "instant" && $market_type !== "sap") {
+                throw new Error("Tipe pengiriman {$market_type} tidak didukung oleh juber, tipe yang di dukung adalah (sap, instant dan all)");
+            }
 
             $prods = $req["products"];
             if (count($prods) < 1) {
                 throw new Error("Products tidak boleh kosong");
-            }
-
-            $isSap = $req["is_courier_sap"];
-
-            if ($isSap) {
-                helper::validateArray(
-                    $req,
-                    [
-                        "sap_pickup_name:string",
-                        "sap_pickup_address:string",
-                        "sap_pickup_district_code:string",
-                        "sap_service_type_code:string",
-                        "sap_volumetric:string",
-                        "sap_shipment_type_code:string",
-                        "description:string",
-                        "sap_insurance_flag:integer",
-                        "sap_cod_flag:integer",
-                        "sap_shipper_name:string",
-                        "sap_shipper_phone:string",
-                        "sap_destination_district_code:string",
-                        "sap_receiver_name:string",
-                        "sap_receiver_address:string"
-                    ]
-                );
             }
 
             $profile = profile::where("idrs", $req["user_idrs"])->first(); //get user and validate
@@ -203,6 +186,16 @@ class paymentController extends Controller
             // validation end payment process here
             $weight = intval(ceil(array_sum($total_weight) / 1000)); //KG only
 
+            if ($market_type == "all") {
+                $kodeOrg =  $address->juber_place_code;
+                $kodeDest = $address->juber_place_code;
+            }
+
+            if ($market_type == "sap") {
+                $kodeOrg =  $address->sap_place_code;
+                $kodeDest = $address->sap_place_code;
+            }
+
             $juberPayload = [
                 "uuid" => $req["uuid"],
                 "pembeli" => $req["user_idrs"],
@@ -213,8 +206,8 @@ class paymentController extends Controller
                 "lonAntar" => $address->long,
                 "latAsal" => $store->latitude,
                 "lonAsal" => $store->longitude,
-                "kodeWilayahASal" => $address->juber_place_code,
-                "kodeWilayahTujuan" => $store->juber_place_code,
+                "kodeWilayahASal" => $kodeOrg,
+                "kodeWilayahTujuan" => $kodeDest,
                 "kurir" => $req["courier_name"],
                 "kurir_package" => $req["courier_package"],
                 "berat" => $weight,
@@ -255,21 +248,10 @@ class paymentController extends Controller
                 "transaction_number" => $transaction_number,
                 "nomor_resi" => $nomorResi,
                 "shipment_fee" => $req["shipment_fee"],
-                "is_courier_sap" => $req["is_courier_sap"],
-                "sap_pickup_name" => $req["sap_pickup_name"] ?? null,
-                "sap_pickup_address" => $req["sap_pickup_address"] ?? null,
-                "sap_pickup_district_code" => $req["sap_pickup_district_code"] ?? null,
-                "sap_service_type_code" => $req["sap_service_type_code"] ?? null,
-                "sap_volumetric" => $req["sap_volumetric"] ?? null,
-                "sap_shipment_type_code" => $req["sap_shipment_type_code"] ?? null,
-                "description" => $req["description"] ?? null,
-                "sap_insurance_flag" => $req["sap_insurance_flag"] ?? null,
-                "sap_cod_flag" => $req["sap_cod_flag"] ?? null,
-                "sap_shipper_name" => $req["sap_shipper_name"] ?? null,
-                "sap_shipper_phone" => $req["sap_shipper_phone"] ?? null,
-                "sap_destination_district_code" => $req["sap_destination_district_code"] ?? null,
-                "sap_receiver_name" => $req["sap_receiver_name"] ?? null,
-                "sap_receiver_address" => $req["sap_receiver_address"] ?? null
+                "stringify_selected_courier" => $req["stringify_selected_courier"],
+                "courier_code_org" => $kodeOrg,
+                "courier_code_dest" => $kodeDest,
+                "market_courier_type" => $market_type
             ];
             $transaction = self::makeTransaction($transactionPayload);
             if (!$transaction["success"]) {
@@ -290,6 +272,8 @@ class paymentController extends Controller
             }
         }
     }
+
+
     private function juberPay(array $data)
     {
         try {
@@ -333,6 +317,7 @@ class paymentController extends Controller
             return ["success" => false, "msg" => $th->getMessage()];
         }
     }
+    
     private static function stupidArrayToObject(array $arr)
     {
         $obj = [];
@@ -342,6 +327,7 @@ class paymentController extends Controller
         }
         return $obj;
     }
+    
     public static function decreaseProductStock(array $data)
     {
         foreach ($data as $key => $value) {
