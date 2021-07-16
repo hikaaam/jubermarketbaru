@@ -30,7 +30,6 @@ class paymentController extends Controller
                 "promo",
                 "address_id:integer",
                 "store_id:integer",
-                "courier_id:integer",
                 'shipment_fee:integer',
                 "courier_name:string",
                 "courier_package:string",
@@ -74,10 +73,7 @@ class paymentController extends Controller
                 throw new Error("Pembeli tidak boleh membeli ditoko sendiri"); //simple validation but deadly
             }
 
-            $courier = store::find($req["courier_id"]); //courier_id and validate
-            if (!$courier) {
-                throw new Error("Courier tidak ditemukan");
-            }
+          
 
             if ($req["cart_id"] !== null) {
                 $cart = cart_ref::find($req["cart_id"]); //cart and validate
