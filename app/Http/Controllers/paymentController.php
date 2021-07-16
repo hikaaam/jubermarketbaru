@@ -254,6 +254,7 @@ class paymentController extends Controller
             if (!$transaction["success"]) {
                 throw new Error($transaction["msg"]);
             }
+            $cart->delete();
             $scs = true;
             return helper::resp(true, "store", "pembayaran berhasil", $transaction["data"]);
         } catch (\Throwable $th) {
