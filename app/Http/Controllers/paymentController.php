@@ -28,7 +28,7 @@ class paymentController extends Controller
                 "uuid:string",
                 "user_idrs:string",
                 "promo",
-                "address_id:string",
+                "address_id:integer",
                 "store_id:integer",
                 "courier_id:integer",
                 'shipment_fee:integer',
@@ -327,7 +327,7 @@ class paymentController extends Controller
         }
         return $obj;
     }
-    
+
     public static function decreaseProductStock(array $data)
     {
         foreach ($data as $key => $value) {
