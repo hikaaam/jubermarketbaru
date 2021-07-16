@@ -73,7 +73,7 @@ class paymentController extends Controller
                 throw new Error("Pembeli tidak boleh membeli ditoko sendiri"); //simple validation but deadly
             }
 
-          
+
 
             if ($req["cart_id"] !== null) {
                 $cart = cart_ref::find($req["cart_id"]); //cart and validate
@@ -91,12 +91,13 @@ class paymentController extends Controller
                 helper::validateArray($value, [
                     "id:integer",
                     "qty:integer",
+                    "name:string",
                     "variant_id",
                     "note:string"
                 ], "Products[{$key}]");
                 $var_id = $value["variant_id"];
                 $typevar = helper::typeLower($var_id);
-
+                $name = $value["name"];
                 if ($typevar !== "null" && $typevar !== "integer") {
                     throw new Error("Products[$key] variant_id($typevar) must be integer OR null");
                 }
@@ -105,7 +106,7 @@ class paymentController extends Controller
                 $product = item::find($value["id"]);
 
                 if (!$product) {
-                    throw new Error("Products[$key] tidak ditemukan");
+                    throw new Error("Product {$name} tidak ditemukan atau telah dihapus");
                 }
 
                 if ($product->is_shown === 0) {
@@ -313,7 +314,7 @@ class paymentController extends Controller
             return ["success" => false, "msg" => $th->getMessage()];
         }
     }
-    
+
     private static function stupidArrayToObject(array $arr)
     {
         $obj = [];
