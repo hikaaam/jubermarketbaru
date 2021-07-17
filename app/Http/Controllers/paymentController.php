@@ -184,12 +184,12 @@ class paymentController extends Controller
             $weight = intval(ceil(array_sum($total_weight) / 1000)); //KG only
 
             if ($market_type == "all") {
-                $kodeOrg =  $address->juber_place_code;
+                $kodeOrg =  $store->juber_place_code;
                 $kodeDest = $address->juber_place_code;
             }
 
             if ($market_type == "sap") {
-                $kodeOrg =  $address->sap_place_code;
+                $kodeOrg =  $store->sap_place_code;
                 $kodeDest = $address->sap_place_code;
             }
 
